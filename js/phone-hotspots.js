@@ -269,14 +269,14 @@ class PhoneHotspots {
 
     // Target the left border of the top-right card at (547, targetY)
     const targetX = 547;
-    // Map vertical component position smoothly to card left edge (range ~60 to 180)
-    const targetY = Math.round(Math.min(185, Math.max(65, 80 + (startY - 280) * 0.35)));
+    // Map vertical component position smoothly to card left edge (range ~65 to 175)
+    const targetY = Math.round(Math.min(175, Math.max(65, 80 + (startY - 280) * 0.32)));
 
-    // Curved cubic bezier path creating a sleek futuristic laser line
-    const cp1x = Math.round(startX + (targetX - startX) * 0.25);
-    const cp1y = Math.round(startY - (startY - targetY) * 0.35);
-    const cp2x = Math.round(targetX - 35);
-    const cp2y = Math.round(targetY + 15);
+    // Route cleanly out through the corridor between phone and right elements (x >= 496)
+    const cp1x = Math.max(Math.round(startX + (targetX - startX) * 0.4), 496);
+    const cp1y = Math.round(startY - (startY - targetY) * 0.12);
+    const cp2x = 522;
+    const cp2y = Math.round(targetY + (startY - targetY) * 0.22);
 
     const pathD = `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${targetX} ${targetY}`;
 

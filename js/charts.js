@@ -317,7 +317,7 @@ class EnvironmentalCharts {
         const items = activeComp.emissionsBreakdown;
         leftLegendEl.innerHTML = `
           <div class="legend-header-badge" style="color: ${activeComp.materialColor}">
-            ${activeComp.name} Lifecycle:
+            ${activeComp.name}:
           </div>
           ${items
             .map(

@@ -308,8 +308,9 @@ body.studio-dark-theme .chart-center-title {
 /* Left Legend positioned over Emissions Breakdown */
 #emissions-legend-container {
   left: 33.5%;
-  top: 22%;
-  width: 21%;
+  top: 17.5%;
+  width: 15.5%;
+  max-width: 160px;
 }
 
 /* Right Legend positioned over Materials Breakdown */
