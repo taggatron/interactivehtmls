@@ -25,6 +25,11 @@ const ENVIRONMENTAL_DATA = {
       { id: "plastics", label: "Plastics", weight: 8, percentage: 4.5, color: "#bfa362" },
       { id: "display", label: "Display", weight: 6, percentage: 3.4, color: "#e78138" },
       { id: "aluminum", label: "Aluminum", weight: 1, percentage: 0.6, color: "#c8483b" }
+    ],
+    quickFacts: [
+      "81% of lifecycle emissions (56.7 kg CO₂e) stem from production",
+      "100% recycled tin utilized in the main logic board solder",
+      "Apple's Daisy robot recovers 14 core materials across 200 units/hour"
     ]
   },
 
@@ -48,6 +53,11 @@ const ENVIRONMENTAL_DATA = {
       pin: { x: 368, y: 400, label: "Display (6g)" },
       leaderTarget: { x: 368, y: 390 },
       description: "Super Retina HD 5.8-inch custom OLED multi-touch display featuring True Tone, HDR, and P3 wide color gamut.",
+      quickFacts: [
+        "Mercury-free emissive OLED & arsenic-free protective glass",
+        "Individual organic pixels drop power draw up to 30% in dark modes",
+        "Detached cleanly by Daisy robot to recover rare earth optics"
+      ],
       environmentalHighlights: [
         "Mercury-free emissive OLED panel",
         "Arsenic-free protective cover glass",
@@ -77,6 +87,11 @@ const ENVIRONMENTAL_DATA = {
       pin: { x: 476, y: 440, label: "Stainless Steel (54g)" },
       leaderTarget: { x: 476, y: 440 },
       description: "Surgical-grade custom alloy frame precisely machined to sub-millimeter tolerances, providing structural rigidity and IP68 water resistance.",
+      quickFacts: [
+        "100% recyclable surgical-grade steel custom alloy",
+        "PVD micro-coating replaces toxic wet chemical baths",
+        "Sub-millimeter CNC milling scrap recycled into supply chain"
+      ],
       environmentalHighlights: [
         "100% recyclable surgical-grade steel alloy",
         "Extreme tensile strength extends device longevity and drops replacement rate",
@@ -106,6 +121,11 @@ const ENVIRONMENTAL_DATA = {
       pin: { x: 422, y: 460, label: "Battery (40g)" },
       leaderTarget: { x: 422, y: 460 },
       description: "Custom L-shaped rechargeable lithium-ion battery with smart charging controller delivering up to 60 hours audio playback.",
+      quickFacts: [
+        "100% cobalt recovery pilot via Apple Daisy robot",
+        "Heavy-metal free: 0 lead, 0 cadmium, 0 mercury",
+        "Meets California Energy Commission strict charging efficiency"
+      ],
       environmentalHighlights: [
         "Cobalt closed-loop recovery program via Apple Daisy",
         "Meets stringent California Energy Commission battery charging efficiency standards",
@@ -135,6 +155,11 @@ const ENVIRONMENTAL_DATA = {
       pin: { x: 433, y: 360, label: "Glass Back (36g)" },
       leaderTarget: { x: 433, y: 360 },
       description: "Durable glass front and back panels chemically engineered via dual-ion exchange to resist scratches and drops while enabling Qi wireless charging.",
+      quickFacts: [
+        "Dual-ion exchange molecular chemical strengthening",
+        "100% arsenic-free & RF transparent for wireless charging",
+        "Recovered cullet remelted for secondary industrial insulation"
+      ],
       environmentalHighlights: [
         "Arsenic-free glass composition throughout",
         "Dual-ion exchange molecular strengthening doubles fracture toughness",
@@ -164,6 +189,11 @@ const ENVIRONMENTAL_DATA = {
       pin: { x: 400, y: 310, label: "Logic & Cameras (18g)" },
       leaderTarget: { x: 400, y: 310 },
       description: "Substrate-like stacked PCB (SLP) hosting the 7nm A12 Bionic with Neural Engine, TrueDepth camera module, and dual 12MP rear sensors.",
+      quickFacts: [
+        "100% recycled tin in solder of the main logic board",
+        "7nm A12 Bionic executes 5T ops/sec with 50% less power",
+        "Gold and palladium refined through certified closed-loop smelters"
+      ],
       environmentalHighlights: [
         "100% recycled tin in the solder of the main logic board",
         "Highest carbon efficiency: 7nm architecture does 5 trillion ops/sec with 50% lower power",
@@ -193,6 +223,11 @@ const ENVIRONMENTAL_DATA = {
       pin: { x: 420, y: 540, label: "Plastics & Speakers (8g)" },
       leaderTarget: { x: 420, y: 540 },
       description: "Engineered biocompatible polymers used in speaker acoustic chambers, microphone damping cushions, and RF antenna separator gaskets.",
+      quickFacts: [
+        "100% PVC-free & BFR-free polymer construction",
+        "Bio-based and post-consumer recycled plastic in speakers",
+        "Low VOC outgassing certified for environmental safety"
+      ],
       environmentalHighlights: [
         "PVC-free (polyvinyl chloride free) internal and external construction",
         "Post-consumer recycled bio-plastics formulated for acoustic stiffness",
@@ -222,6 +257,11 @@ const ENVIRONMENTAL_DATA = {
       pin: { x: 442, y: 395, label: "Aluminum (1g)" },
       leaderTarget: { x: 442, y: 395 },
       description: "Ultra-thin aerospace aluminum internal shielding bracket, heat spreader plate, and camera bezel ring.",
+      quickFacts: [
+        "100% recycled industrial scrap aluminum alloy",
+        "Hydroelectric smelting with near-zero direct carbon emissions",
+        "Eliminates heavy toxic shielding metals"
+      ],
       environmentalHighlights: [
         "100% recycled industrial aluminum alloy",
         "Smelted using hydroelectric power with near-zero direct carbon emissions",
@@ -251,6 +291,11 @@ const ENVIRONMENTAL_DATA = {
       pin: { x: 425, y: 415, label: "Magnets & Coils (14g)" },
       leaderTarget: { x: 425, y: 415 },
       description: "High-purity copper wireless Qi charging coil, neodymium magnets in the Taptic Engine and speakers, screws, and structural adhesives.",
+      quickFacts: [
+        "100% recycled rare earth elements in Taptic Engine",
+        "High-conductivity oxygen-free copper Qi inductive coil",
+        "Debondable pull-tab adhesive strips allow easy repair"
+      ],
       environmentalHighlights: [
         "100% recycled rare earth elements in Taptic Engine magnets",
         "High-conductivity oxygen-free copper reduces inductive charging heat waste",

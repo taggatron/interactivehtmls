@@ -10,6 +10,7 @@ class PhoneHotspots {
     this.leaderLineGroup = options.leaderLineGroup || document.getElementById("leader-line-group");
     this.tooltipEl = document.getElementById("phone-part-tooltip");
     this.onSelect = options.onSelect || (() => {});
+    this.onHover = options.onHover || (() => {});
     this.audioEnabled = true;
     this.audioCtx = null;
     this.activeComponentId = null;
@@ -181,21 +182,21 @@ class PhoneHotspots {
 
         el.addEventListener("mouseenter", (e) => {
           this.playClickSound(800, 0.02);
-          this.highlightHover(h.id, true, e);
+          this.highlightHover(h.id, true, e, true);
         });
 
         el.addEventListener("mousemove", (e) => {
-          this.highlightHover(h.id, true, e);
+          this.highlightHover(h.id, true, e, false);
         });
 
         el.addEventListener("mouseleave", () => {
-          this.highlightHover(h.id, false);
+          this.highlightHover(h.id, false, null, true);
         });
       }
     });
   }
 
-  highlightHover(componentId, isHovered, event = null) {
+  highlightHover(componentId, isHovered, event = null, triggerCallback = false) {
     const meshEl = document.getElementById(`hotspot-mesh-${componentId}`);
     if (meshEl) {
       if (isHovered) {
@@ -225,6 +226,11 @@ class PhoneHotspots {
       } else {
         this.tooltipEl.classList.remove("visible");
       }
+    }
+
+    // Cross-highlight other subsystems
+    if (triggerCallback && this.onHover) {
+      this.onHover(componentId, isHovered);
     }
   }
 
@@ -260,18 +266,44 @@ class PhoneHotspots {
 
     const startX = comp.pin.x;
     const startY = comp.pin.y;
-    // Connect toward floating callout badge
-    const targetX = startX > 420 ? startX + 45 : startX - 45;
-    const targetY = startY - 35;
+
+    // Target the left border of the top-right card at (547, targetY)
+    const targetX = 547;
+    // Map vertical component position smoothly to card left edge (range ~60 to 180)
+    const targetY = Math.round(Math.min(185, Math.max(65, 80 + (startY - 280) * 0.35)));
+
+    // Curved cubic bezier path creating a sleek futuristic laser line
+    const cp1x = Math.round(startX + (targetX - startX) * 0.25);
+    const cp1y = Math.round(startY - (startY - targetY) * 0.35);
+    const cp2x = Math.round(targetX - 35);
+    const cp2y = Math.round(targetY + 15);
+
+    const pathD = `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${targetX} ${targetY}`;
 
     this.leaderLineGroup.innerHTML = `
-      <g class="leader-line-animated">
-        <line x1="${startX}" y1="${startY}" x2="${targetX}" y2="${targetY}"
+      <g class="leader-line-animated" filter="url(#glow-effect)">
+        <!-- Underlying soft glow aura -->
+        <path d="${pathD}"
               stroke="${comp.materialColor}"
-              stroke-width="2"
-              stroke-dasharray="4 2"
-              stroke-linecap="round"></line>
-        <circle cx="${targetX}" cy="${targetY}" r="3.5" fill="${comp.materialColor}"></circle>
+              stroke-width="4"
+              stroke-opacity="0.35"
+              fill="none"
+              stroke-linecap="round"></path>
+
+        <!-- Dynamic Laser Dash line -->
+        <path class="laser-flow-line"
+              d="${pathD}"
+              stroke="${comp.materialColor}"
+              stroke-width="2.2"
+              fill="none"
+              stroke-linecap="round"></path>
+
+        <!-- Origin component ping & dot -->
+        <circle cx="${startX}" cy="${startY}" r="7" fill="${comp.materialColor}" fill-opacity="0.25" class="laser-origin-ping"></circle>
+        <circle cx="${startX}" cy="${startY}" r="3.5" fill="#ffffff" stroke="${comp.materialColor}" stroke-width="2"></circle>
+
+        <!-- Target card anchor node -->
+        <circle cx="${targetX}" cy="${targetY}" r="4" fill="${comp.materialColor}" stroke="#ffffff" stroke-width="1.5"></circle>
       </g>
     `;
   }
@@ -280,3 +312,4 @@ class PhoneHotspots {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = PhoneHotspots;
 }
+

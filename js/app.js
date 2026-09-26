@@ -6,26 +6,22 @@ document.addEventListener("DOMContentLoaded", () => {
   let activeComponentId = null;
   const componentKeys = Object.keys(ENVIRONMENTAL_DATA.components);
 
-  // Initialize Subsystems
-  const charts = new EnvironmentalCharts({
-    onSelectComponent: (id) => selectComponent(id)
-  });
-
-  const hotspots = new PhoneHotspots({
-    onSelect: (id) => selectComponent(id)
-  });
-
-  // UI References
+  // UI Reference for top-right info card
+  const topInfoCard = document.getElementById("top-info-card");
   const stage = document.getElementById("interactive-stage");
-  const inspectorPanel = document.getElementById("component-inspector");
-  const inspectorName = document.getElementById("inspector-title");
-  const inspectorCategory = document.getElementById("inspector-category");
-  const inspectorWeight = document.getElementById("inspector-weight");
-  const inspectorCarbon = document.getElementById("inspector-carbon");
-  const inspectorDesc = document.getElementById("inspector-desc");
-  const inspectorHighlights = document.getElementById("inspector-highlights");
-  const inspectorMfg = document.getElementById("inspector-mfg");
-  const inspectorCircular = document.getElementById("inspector-circular");
+
+  // Fact icons mapping for components
+  const COMPONENT_ICONS = {
+    overview: ["🌱", "♻️", "🤖"],
+    display: ["📱", "⚡", "🔬"],
+    stainless_steel: ["🛡️", "🔬", "♻️"],
+    glass: ["✨", "🛡️", "🌊"],
+    circuit_boards: ["⚡", "🥇", "♻️"],
+    battery: ["🔋", "⚡", "🤖"],
+    other: ["📡", "🧲", "♻️"],
+    plastics: ["🌱", "🔊", "♻️"],
+    aluminum: ["🪶", "🛡️", "♻️"]
+  };
 
   // Central Component Selection Dispatcher
   function selectComponent(id) {
@@ -35,9 +31,20 @@ document.addEventListener("DOMContentLoaded", () => {
     charts.update(id);
     hotspots.update(id);
 
-    // Update Inspector Drawer
-    updateInspector(id);
+    // Update Top-Right Integrated Card
+    updateInfoCard(id);
   }
+
+  // Initialize Subsystems
+  const charts = new EnvironmentalCharts({
+    onSelectComponent: (id) => selectComponent(id),
+    onHoverComponent: (id, isHovered) => hotspots.highlightHover(id, isHovered)
+  });
+
+  const hotspots = new PhoneHotspots({
+    onSelect: (id) => selectComponent(id),
+    onHover: (id, isHovered) => charts.highlightSlice(id, isHovered)
+  });
 
   // Click on stage background (outside phone or chart slices) to reset
   if (stage) {
@@ -45,57 +52,125 @@ document.addEventListener("DOMContentLoaded", () => {
       const isPart = e.target.closest(".phone-mesh-part");
       const isSlice = e.target.closest(".chart-slice");
       const isLegend = e.target.closest(".legend-row");
-      if (!isPart && !isSlice && !isLegend) {
+      const isCard = e.target.closest(".top-info-card");
+      if (!isPart && !isSlice && !isLegend && !isCard) {
         hotspots.playClickSound(480);
         selectComponent(null);
       }
     });
   }
 
-  // Update Inspector Card
-  function updateInspector(id) {
-    if (!inspectorPanel) return;
+  // Update Top-Right Integrated Information Card
+  function updateInfoCard(id) {
+    if (!topInfoCard) return;
+
+    // Trigger smooth reveal animation
+    topInfoCard.classList.remove("anim-update");
+    void topInfoCard.offsetWidth; // Force reflow
+    topInfoCard.classList.add("anim-update");
 
     if (!id) {
-      // General Device Overview
-      inspectorPanel.classList.remove("active-card");
-      inspectorCategory.textContent = "Complete Device Lifecycle";
-      inspectorName.textContent = "iPhone Xs (64GB Model)";
-      inspectorWeight.textContent = "177 grams";
-      inspectorCarbon.textContent = "70 kg CO₂e";
-      inspectorDesc.textContent =
-        "Comprehensive environmental lifecycle assessment including raw materials extraction, manufacturing in zero-waste certified facilities, global transportation, energy consumed during customer usage, and Daisy disassembly recycling.";
+      // General Device Overview (Simplified, Punchy)
+      const icons = COMPONENT_ICONS.overview;
+      const facts = ENVIRONMENTAL_DATA.overview.quickFacts || [
+        "81% of lifecycle emissions (56.7 kg CO₂e) stem from production",
+        "100% recycled tin utilized in main logic board solder",
+        "Apple's Daisy robot recovers 14 core materials across 200 units/hour"
+      ];
 
-      inspectorHighlights.innerHTML = `
-        <li><span class="hl-badge">81% Production</span> Responsible for 56.7 kg CO₂e, dominated by semiconductor fabrication and stainless steel forging.</li>
-        <li><span class="hl-badge">15% Customer Use</span> 10.5 kg CO₂e consumed across standard 3-year charging cycles.</li>
-        <li><span class="hl-badge">Daisy Robot</span> Recovers 14 key materials across 200 iPhone units per hour.</li>
-        <li><span class="hl-badge">Zero Waste</span> All final assembly facilities divert 100% of waste from landfills.</li>
+      topInfoCard.innerHTML = `
+        <div class="info-card-header">
+          <div class="info-badge">
+            <span class="info-badge-dot"></span>
+            <span>iPhone Xs (64GB Model)</span>
+          </div>
+          <span class="info-hint">Click phone parts or chart slices</span>
+        </div>
+
+        <div class="info-kpi-row">
+          <div class="info-kpi-box">
+            <div class="kpi-val">177<small>g</small></div>
+            <div class="kpi-sub">Total Device Mass</div>
+          </div>
+          <div class="info-kpi-box">
+            <div class="kpi-val">70<small>kg</small></div>
+            <div class="kpi-sub">CO₂e Lifecycle</div>
+          </div>
+          <div class="info-kpi-box">
+            <div class="kpi-val">81<small>%</small></div>
+            <div class="kpi-sub">Production Phase</div>
+          </div>
+        </div>
+
+        <div class="info-key-facts">
+          ${facts.map((fact, idx) => `
+            <div class="fact-pill" style="animation-delay: ${idx * 0.05}s">
+              <span class="fact-icon">${icons[idx] || "🌱"}</span>
+              <span class="fact-text">${fact}</span>
+            </div>
+          `).join("")}
+        </div>
       `;
-
-      inspectorMfg.textContent =
-        "Apple-mandated clean energy transitions power 100% of final assembly facilities. 100% recycled tin utilized in main logic board solder.";
-      inspectorCircular.textContent =
-        "Disassembly with Daisy allows closed-loop recycling of cobalt, gold, rare earth elements, and high-purity surgical steel.";
       return;
     }
 
     const comp = ENVIRONMENTAL_DATA.components[id];
     if (!comp) return;
 
-    inspectorPanel.classList.add("active-card");
-    inspectorCategory.textContent = comp.category;
-    inspectorName.textContent = comp.name;
-    inspectorWeight.textContent = `${comp.weightFormatted} (${comp.weightPercentage}% of Device)`;
-    inspectorCarbon.textContent = `${comp.carbonFootprint} kg CO₂e (${comp.carbonPercentage}% of Total)`;
-    inspectorDesc.textContent = comp.description;
+    const icons = COMPONENT_ICONS[id] || ["🔹", "🔹", "🔹"];
+    const facts = comp.quickFacts || comp.environmentalHighlights.slice(0, 3);
+    const topEmissionsPhase = comp.emissionsBreakdown && comp.emissionsBreakdown.length > 0
+      ? comp.emissionsBreakdown[0]
+      : { percentage: 81, label: "Production" };
+    const phaseShortName = topEmissionsPhase.label.split("(")[0].trim();
 
-    inspectorHighlights.innerHTML = comp.environmentalHighlights
-      .map((h) => `<li><span class="hl-badge" style="background: ${comp.materialColor}20; color: ${comp.materialColor}; border-color: ${comp.materialColor}40;">Spec</span> ${h}</li>`)
-      .join("");
+    topInfoCard.innerHTML = `
+      <div class="info-card-header">
+        <div class="info-badge" style="background: ${comp.materialColor}16; color: ${comp.materialColor};">
+          <span class="info-badge-dot" style="background: ${comp.materialColor};"></span>
+          <span>${comp.name}</span>
+          <span class="info-badge-sub">• ${comp.category}</span>
+        </div>
+        <button id="info-btn-reset" class="info-reset-btn" title="Return to complete device overview">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          Overview
+        </button>
+      </div>
 
-    inspectorMfg.textContent = comp.manufacturingInsight;
-    inspectorCircular.textContent = comp.circularFeature;
+      <div class="info-kpi-row">
+        <div class="info-kpi-box" style="border-color: ${comp.materialColor}30;">
+          <div class="kpi-val" style="color: ${comp.materialColor};">${comp.weightFormatted}</div>
+          <div class="kpi-sub">${comp.weightPercentage}% of Device</div>
+        </div>
+        <div class="info-kpi-box">
+          <div class="kpi-val">${comp.carbonFootprint}<small>kg</small></div>
+          <div class="kpi-sub">${comp.carbonPercentage}% of Total CO₂e</div>
+        </div>
+        <div class="info-kpi-box">
+          <div class="kpi-val">${topEmissionsPhase.percentage}<small>%</small></div>
+          <div class="kpi-sub">${phaseShortName}</div>
+        </div>
+      </div>
+
+      <div class="info-key-facts">
+        ${facts.map((fact, idx) => `
+          <div class="fact-pill" style="animation-delay: ${idx * 0.05}s">
+            <span class="fact-icon">${icons[idx] || "🔹"}</span>
+            <span class="fact-text">${fact}</span>
+          </div>
+        `).join("")}
+      </div>
+    `;
+
+    // Hook up reset button
+    const resetBtn = document.getElementById("info-btn-reset");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        hotspots.playClickSound(480);
+        selectComponent(null);
+      });
+    }
   }
 
   // Keyboard Navigation
@@ -116,6 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Initial state
-  updateInspector(null);
+  // Initial state rendering
+  updateInfoCard(null);
 });

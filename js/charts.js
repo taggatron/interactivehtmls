@@ -7,6 +7,7 @@ class EnvironmentalCharts {
   constructor(options = {}) {
     this.container = options.container || document.getElementById("interactive-stage");
     this.onSelectComponent = options.onSelectComponent || (() => {});
+    this.onHoverComponent = options.onHoverComponent || (() => {});
     this.activeComponentId = null;
 
     // Coordinate anchors matching the slide image
@@ -53,6 +54,37 @@ class EnvironmentalCharts {
       `A ${innerR} ${innerR} 0 ${largeArcFlag} 0 ${p4.x} ${p4.y}`,
       "Z"
     ].join(" ");
+  }
+
+  // Highlight a material slice and legend row from an external hover event (e.g. phone hotspot hover)
+  highlightSlice(componentId, isHovered) {
+    if (!componentId) {
+      document.querySelectorAll(".slice-hover-highlight").forEach((el) => {
+        el.classList.remove("slice-hover-highlight");
+      });
+      document.querySelectorAll(".legend-row-hovered").forEach((el) => {
+        el.classList.remove("legend-row-hovered");
+      });
+      return;
+    }
+
+    const sliceEl = document.getElementById(`mat-slice-${componentId}`);
+    if (sliceEl) {
+      if (isHovered) {
+        sliceEl.classList.add("slice-hover-highlight");
+      } else {
+        sliceEl.classList.remove("slice-hover-highlight");
+      }
+    }
+
+    const legendRow = document.querySelector(`.material-legend-row[data-id="${componentId}"]`);
+    if (legendRow) {
+      if (isHovered) {
+        legendRow.classList.add("legend-row-hovered");
+      } else {
+        legendRow.classList.remove("legend-row-hovered");
+      }
+    }
   }
 
   // Update both charts when component selection changes
@@ -117,8 +149,10 @@ class EnvironmentalCharts {
       const pathD = this.describeDonutSlice(cx, cy, innerR, outerR, s.startAngle, s.endAngle, 0);
       html += `
         <path class="chart-slice emissions-slice"
+              id="emissions-slice-${s.id}"
               d="${pathD}"
               fill="${s.color}"
+              data-id="${s.id}"
               data-label="${s.label}"
               data-percent="${s.percentage}%"
               style="transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);">
@@ -127,6 +161,21 @@ class EnvironmentalCharts {
       `;
     });
     group.innerHTML = html;
+
+    // Attach hover effects for emissions slices to highlight matching legend row
+    slices.forEach((s) => {
+      const el = document.getElementById(`emissions-slice-${s.id}`);
+      if (el) {
+        el.addEventListener("mouseenter", () => {
+          const row = document.querySelector(`.emissions-legend-row[data-id="${s.id}"]`);
+          if (row) row.classList.add("legend-row-hovered");
+        });
+        el.addEventListener("mouseleave", () => {
+          const row = document.querySelector(`.emissions-legend-row[data-id="${s.id}"]`);
+          if (row) row.classList.remove("legend-row-hovered");
+        });
+      }
+    });
 
     // Update center label
     if (centerTextGroup) {
@@ -181,7 +230,7 @@ class EnvironmentalCharts {
       );
 
       const opacity = isDimmed ? 0.28 : 1.0;
-      const filter = isSelected ? "filter: drop-shadow(0px 0px 8px rgba(0, 113, 227, 0.45));" : "";
+      const filter = isSelected ? `filter: drop-shadow(0px 0px 10px ${mat.color});` : "";
 
       html += `
         <path class="chart-slice material-slice ${isSelected ? "active-slice" : ""}"
@@ -200,7 +249,7 @@ class EnvironmentalCharts {
 
     group.innerHTML = html;
 
-    // Attach click listeners to material slices
+    // Attach click and bidirectional hover listeners to material slices
     materials.forEach((mat) => {
       const sliceEl = document.getElementById(`mat-slice-${mat.id}`);
       if (sliceEl) {
@@ -208,6 +257,18 @@ class EnvironmentalCharts {
           e.stopPropagation();
           const targetId = activeComp && activeComp.id === mat.id ? null : mat.id;
           this.onSelectComponent(targetId);
+        });
+
+        sliceEl.addEventListener("mouseenter", () => {
+          this.onHoverComponent(mat.id, true);
+          const legendRow = document.querySelector(`.material-legend-row[data-id="${mat.id}"]`);
+          if (legendRow) legendRow.classList.add("legend-row-hovered");
+        });
+
+        sliceEl.addEventListener("mouseleave", () => {
+          this.onHoverComponent(mat.id, false);
+          const legendRow = document.querySelector(`.material-legend-row[data-id="${mat.id}"]`);
+          if (legendRow) legendRow.classList.remove("legend-row-hovered");
         });
       }
     });
@@ -294,13 +355,23 @@ class EnvironmentalCharts {
         })
         .join("");
 
-      // Add click listeners to right legend rows
+      // Add click and hover listeners to right legend rows
       items.forEach((item) => {
         const row = rightLegendEl.querySelector(`.material-legend-row[data-id="${item.id}"]`);
         if (row) {
           row.addEventListener("click", () => {
             const targetId = activeComp && activeComp.id === item.id ? null : item.id;
             this.onSelectComponent(targetId);
+          });
+
+          row.addEventListener("mouseenter", () => {
+            this.onHoverComponent(item.id, true);
+            this.highlightSlice(item.id, true);
+          });
+
+          row.addEventListener("mouseleave", () => {
+            this.onHoverComponent(item.id, false);
+            this.highlightSlice(item.id, false);
           });
         }
       });
