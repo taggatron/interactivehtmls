@@ -84,20 +84,29 @@ document.addEventListener("DOMContentLoaded", () => {
       materialsTitleEl.textContent = ENVIRONMENTAL_DATA.materialsTitle;
     }
 
-    // Update timeline buttons state
+    // Update timeline buttons state and progress line
     if (timelineBar) {
-      timelineBar.querySelectorAll(".timeline-node").forEach((node) => {
+      const models = Object.values(IPHONE_MODELS_DATA);
+      const activeIdx = models.findIndex((m) => m.id === modelId);
+      const modelCount = models.length;
+      const progressPct = activeIdx >= 0 ? (activeIdx / (modelCount - 1)) * 100 : 0;
+
+      const progressEl = document.getElementById("timeline-progress");
+      if (progressEl) {
+        progressEl.style.width = `${progressPct}%`;
+      }
+
+      timelineBar.querySelectorAll(".timeline-node").forEach((node, idx) => {
         const isCurrent = node.getAttribute("data-id") === modelId;
+        const isPassed = idx <= activeIdx;
         node.classList.toggle("active", isCurrent);
+        node.classList.toggle("passed", isPassed);
         node.setAttribute("aria-selected", isCurrent ? "true" : "false");
 
-        let dot = node.querySelector(".t-dot");
-        if (isCurrent && !dot) {
-          const newDot = document.createElement("span");
-          newDot.className = "t-dot";
-          node.appendChild(newDot);
-        } else if (!isCurrent && dot) {
-          dot.remove();
+        const point = node.querySelector(".t-node-point");
+        if (point) {
+          point.classList.toggle("active-point", isCurrent);
+          point.classList.toggle("passed-point", isPassed);
         }
       });
     }
@@ -113,32 +122,49 @@ document.addEventListener("DOMContentLoaded", () => {
     updateInfoCard(null);
   }
 
-  // Render Apple Model Evolution Timeline Navigation
+  // Render Apple Model Evolution Timeline Navigation with Connecting Graphic & Stacked Years
   function renderTimeline() {
     if (!timelineBar) return;
     const models = Object.values(IPHONE_MODELS_DATA);
+    const modelCount = models.length;
+    const activeIdx = models.findIndex((m) => m.id === activeModelId);
+    const progressPct = activeIdx >= 0 ? (activeIdx / (modelCount - 1)) * 100 : 0;
 
-    timelineBar.innerHTML = models
-      .map((m) => {
+    let html = `
+      <div class="timeline-track-line" aria-hidden="true">
+        <div class="timeline-track-progress" id="timeline-progress" style="width: ${progressPct}%;"></div>
+      </div>
+    `;
+
+    html += models
+      .map((m, idx) => {
         const isActive = m.id === activeModelId;
+        const isPassed = idx <= activeIdx;
         const shortName = m.timelineName || m.displayName.replace(/^iPhone\s*/i, "");
         return `
-        <button class="timeline-node ${isActive ? "active" : ""}"
+        <button class="timeline-node ${isActive ? "active" : ""} ${isPassed ? "passed" : ""}"
                 role="tab"
                 aria-selected="${isActive ? "true" : "false"}"
                 data-id="${m.id}"
+                data-index="${idx}"
                 title="${shortName} (${m.year}) — ${m.overview.totalEmissions} kg CO₂e lifecycle">
-          <div class="timeline-thumb-wrapper" aria-hidden="true">
-            <img class="timeline-thumb" src="${m.thumbImage || `assets/thumb_${m.id}.png`}" alt="" />
+          <div class="t-year-header">
+            <span class="t-year">${m.year}</span>
+            <span class="t-node-point ${isActive ? "active-point" : ""} ${isPassed ? "passed-point" : ""}"></span>
           </div>
-          <span class="t-year">${m.year}</span>
-          <span class="t-name">${shortName}</span>
-          <span class="t-co2">${m.overview.totalEmissions} kg</span>
-          ${isActive ? '<span class="t-dot"></span>' : ""}
+          <div class="t-device-row">
+            <div class="timeline-thumb-wrapper" aria-hidden="true">
+              <img class="timeline-thumb" src="${m.thumbImage || `assets/thumb_${m.id}.png`}" alt="" />
+            </div>
+            <span class="t-name">${shortName}</span>
+            <span class="t-co2">${m.overview.totalEmissions} kg</span>
+          </div>
         </button>
       `;
       })
       .join("");
+
+    timelineBar.innerHTML = html;
 
     // Attach click events
     timelineBar.querySelectorAll(".timeline-node").forEach((btn) => {
