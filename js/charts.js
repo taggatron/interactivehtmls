@@ -1,0 +1,313 @@
+/**
+ * SVG Donut Chart Engine with Smooth Arc Interpolation, Interactive Slices,
+ * and Bidirectional Hotspot Linking for iPhone Xs Environmental Report.
+ */
+
+class EnvironmentalCharts {
+  constructor(options = {}) {
+    this.container = options.container || document.getElementById("interactive-stage");
+    this.onSelectComponent = options.onSelectComponent || (() => {});
+    this.activeComponentId = null;
+
+    // Coordinate anchors matching the slide image
+    this.emissionsChartCenter = { x: 170.5, y: 213.5, innerR: 118, outerR: 144 };
+    this.materialsChartCenter = { x: 676.0, y: 428.0, innerR: 104, outerR: 126 };
+
+    this.init();
+  }
+
+  init() {
+    this.renderEmissionsChart(null);
+    this.renderMaterialsChart(null);
+    this.renderLegends(null);
+  }
+
+  // Trigonometric conversion helper
+  polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+    const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+    return {
+      x: centerX + radius * Math.cos(angleInRadians),
+      y: centerY + radius * Math.sin(angleInRadians)
+    };
+  }
+
+  // Generate SVG path for a donut slice with optional center offset
+  describeDonutSlice(cx, cy, innerR, outerR, startAngle, endAngle, offset = 0) {
+    const midAngle = (startAngle + endAngle) / 2;
+    const midRad = ((midAngle - 90) * Math.PI) / 180.0;
+    const shiftedCx = cx + offset * Math.cos(midRad);
+    const shiftedCy = cy + offset * Math.sin(midRad);
+
+    const span = endAngle - startAngle;
+    const largeArcFlag = span <= 180 ? "0" : "1";
+
+    const p1 = this.polarToCartesian(shiftedCx, shiftedCy, outerR, startAngle);
+    const p2 = this.polarToCartesian(shiftedCx, shiftedCy, outerR, endAngle);
+    const p3 = this.polarToCartesian(shiftedCx, shiftedCy, innerR, endAngle);
+    const p4 = this.polarToCartesian(shiftedCx, shiftedCy, innerR, startAngle);
+
+    return [
+      `M ${p1.x} ${p1.y}`,
+      `A ${outerR} ${outerR} 0 ${largeArcFlag} 1 ${p2.x} ${p2.y}`,
+      `L ${p3.x} ${p3.y}`,
+      `A ${innerR} ${innerR} 0 ${largeArcFlag} 0 ${p4.x} ${p4.y}`,
+      "Z"
+    ].join(" ");
+  }
+
+  // Update both charts when component selection changes
+  update(componentId) {
+    this.activeComponentId = componentId;
+    this.renderEmissionsChart(componentId);
+    this.renderMaterialsChart(componentId);
+    this.renderLegends(componentId);
+  }
+
+  // Render or update Emissions Donut Chart
+  renderEmissionsChart(componentId) {
+    const group = document.getElementById("emissions-chart-group");
+    const centerTextGroup = document.getElementById("emissions-center-text");
+    if (!group) return;
+
+    const { x: cx, y: cy, innerR, outerR } = this.emissionsChartCenter;
+    const comp = componentId ? ENVIRONMENTAL_DATA.components[componentId] : null;
+
+    let slices = [];
+    if (!comp) {
+      // Full device overview
+      const data = ENVIRONMENTAL_DATA.overview.emissionsBreakdown;
+      let currentAngle = -100; // Alignment with Apple slide start angle (~11:45 o'clock)
+      slices = data.map((item) => {
+        const span = (item.percentage / 100) * 360;
+        const slice = {
+          id: item.id,
+          label: item.label,
+          percentage: item.percentage,
+          color: item.color,
+          startAngle: currentAngle,
+          endAngle: currentAngle + span - 0.8, // Tiny crisp segment gap
+          isHighlighted: true
+        };
+        currentAngle += span;
+        return slice;
+      });
+    } else {
+      // Focused component emissions breakdown
+      const data = comp.emissionsBreakdown;
+      let currentAngle = -90;
+      slices = data.map((item) => {
+        const span = (item.percentage / 100) * 360;
+        const slice = {
+          id: item.label,
+          label: item.label,
+          percentage: item.percentage,
+          color: item.color,
+          startAngle: currentAngle,
+          endAngle: currentAngle + span - 0.8,
+          isHighlighted: true
+        };
+        currentAngle += span;
+        return slice;
+      });
+    }
+
+    // Build SVG paths
+    let html = "";
+    slices.forEach((s) => {
+      const pathD = this.describeDonutSlice(cx, cy, innerR, outerR, s.startAngle, s.endAngle, 0);
+      html += `
+        <path class="chart-slice emissions-slice"
+              d="${pathD}"
+              fill="${s.color}"
+              data-label="${s.label}"
+              data-percent="${s.percentage}%"
+              style="transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);">
+          <title>${s.label}: ${s.percentage}%</title>
+        </path>
+      `;
+    });
+    group.innerHTML = html;
+
+    // Update center label
+    if (centerTextGroup) {
+      if (!comp) {
+        centerTextGroup.innerHTML = `
+          <text x="${cx}" y="${cy - 8}" text-anchor="middle" class="chart-center-num">70</text>
+          <text x="${cx}" y="${cy + 22}" text-anchor="middle" class="chart-center-unit">kg CO<tspan dy="3" font-size="0.75em">2</tspan><tspan dy="-3">e</tspan></text>
+          <text x="${cx}" y="${cy + 52}" text-anchor="middle" class="chart-center-sub">Total greenhouse</text>
+          <text x="${cx}" y="${cy + 68}" text-anchor="middle" class="chart-center-sub">gas emissions</text>
+        `;
+      } else {
+        centerTextGroup.innerHTML = `
+          <text x="${cx}" y="${cy - 8}" text-anchor="middle" class="chart-center-num active-pulse">${comp.carbonFootprint}</text>
+          <text x="${cx}" y="${cy + 22}" text-anchor="middle" class="chart-center-unit">kg CO<tspan dy="3" font-size="0.75em">2</tspan><tspan dy="-3">e</tspan></text>
+          <text x="${cx}" y="${cy + 52}" text-anchor="middle" class="chart-center-sub active-badge">${comp.name}</text>
+          <text x="${cx}" y="${cy + 68}" text-anchor="middle" class="chart-center-sub">${comp.carbonPercentage}% of Lifecycle</text>
+        `;
+      }
+    }
+  }
+
+  // Render or update Material Use Donut Chart
+  renderMaterialsChart(componentId) {
+    const group = document.getElementById("materials-chart-group");
+    const centerTextGroup = document.getElementById("materials-center-text");
+    if (!group) return;
+
+    const { x: cx, y: cy, innerR, outerR } = this.materialsChartCenter;
+    const materials = ENVIRONMENTAL_DATA.overview.materialsBreakdown;
+    const activeComp = componentId ? ENVIRONMENTAL_DATA.components[componentId] : null;
+
+    let currentAngle = -90; // Top 12 o'clock start matching Apple slide
+    let html = "";
+
+    materials.forEach((mat) => {
+      const span = (mat.weight / ENVIRONMENTAL_DATA.overview.totalWeight) * 360;
+      const isSelected = activeComp && activeComp.id === mat.id;
+      const isDimmed = activeComp && !isSelected;
+
+      const offset = isSelected ? 8 : 0;
+      const sliceInnerR = isSelected ? innerR - 2 : innerR;
+      const sliceOuterR = isSelected ? outerR + 6 : outerR;
+
+      const pathD = this.describeDonutSlice(
+        cx,
+        cy,
+        sliceInnerR,
+        sliceOuterR,
+        currentAngle,
+        currentAngle + span - 0.7,
+        offset
+      );
+
+      const opacity = isDimmed ? 0.28 : 1.0;
+      const filter = isSelected ? "filter: drop-shadow(0px 0px 8px rgba(0, 113, 227, 0.45));" : "";
+
+      html += `
+        <path class="chart-slice material-slice ${isSelected ? "active-slice" : ""}"
+              id="mat-slice-${mat.id}"
+              d="${pathD}"
+              fill="${mat.color}"
+              opacity="${opacity}"
+              data-id="${mat.id}"
+              style="cursor: pointer; transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1); ${filter}">
+          <title>${mat.label}: ${mat.weight}g (${mat.percentage}%)</title>
+        </path>
+      `;
+
+      currentAngle += span;
+    });
+
+    group.innerHTML = html;
+
+    // Attach click listeners to material slices
+    materials.forEach((mat) => {
+      const sliceEl = document.getElementById(`mat-slice-${mat.id}`);
+      if (sliceEl) {
+        sliceEl.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const targetId = activeComp && activeComp.id === mat.id ? null : mat.id;
+          this.onSelectComponent(targetId);
+        });
+      }
+    });
+
+    // Update center label
+    if (centerTextGroup) {
+      if (!activeComp) {
+        centerTextGroup.innerHTML = `
+          <text x="${cx}" y="${cy - 4}" text-anchor="middle" class="chart-center-title">Material</text>
+          <text x="${cx}" y="${cy + 22}" text-anchor="middle" class="chart-center-title">Use</text>
+          <text x="${cx}" y="${cy + 48}" text-anchor="middle" class="chart-center-sub">177g Total Device</text>
+        `;
+      } else {
+        centerTextGroup.innerHTML = `
+          <text x="${cx}" y="${cy - 12}" text-anchor="middle" class="chart-center-num active-pulse" style="fill: ${activeComp.materialColor}">${activeComp.weightFormatted}</text>
+          <text x="${cx}" y="${cy + 14}" text-anchor="middle" class="chart-center-sub active-badge" style="font-weight: 600;">${activeComp.name}</text>
+          <text x="${cx}" y="${cy + 34}" text-anchor="middle" class="chart-center-sub">${activeComp.weightPercentage}% of Device</text>
+          <text x="${cx}" y="${cy + 52}" text-anchor="middle" class="chart-center-sub" style="font-size: 11px; fill: #86868b;">Click to view all</text>
+        `;
+      }
+    }
+  }
+
+  // Render the matching legends overlay
+  renderLegends(componentId) {
+    const leftLegendEl = document.getElementById("emissions-legend-container");
+    const rightLegendEl = document.getElementById("materials-legend-container");
+    const activeComp = componentId ? ENVIRONMENTAL_DATA.components[componentId] : null;
+
+    // Left Legend (Emissions)
+    if (leftLegendEl) {
+      if (!activeComp) {
+        const items = ENVIRONMENTAL_DATA.overview.emissionsBreakdown;
+        leftLegendEl.innerHTML = items
+          .map(
+            (item) => `
+          <div class="legend-row emissions-legend-row" data-id="${item.id}">
+            <span class="legend-pct">${item.percentage}%</span>
+            <span class="legend-dot" style="background-color: ${item.color};"></span>
+            <span class="legend-name">${item.label}</span>
+          </div>
+        `
+          )
+          .join("");
+      } else {
+        const items = activeComp.emissionsBreakdown;
+        leftLegendEl.innerHTML = `
+          <div class="legend-header-badge" style="color: ${activeComp.materialColor}">
+            ${activeComp.name} Lifecycle:
+          </div>
+          ${items
+            .map(
+              (item) => `
+            <div class="legend-row emissions-legend-row active-comp-row">
+              <span class="legend-pct">${item.percentage}%</span>
+              <span class="legend-dot" style="background-color: ${item.color};"></span>
+              <span class="legend-name" title="${item.label}">${item.label}</span>
+            </div>
+          `
+            )
+            .join("")}
+        `;
+      }
+    }
+
+    // Right Legend (Materials)
+    if (rightLegendEl) {
+      const items = ENVIRONMENTAL_DATA.overview.materialsBreakdown;
+      rightLegendEl.innerHTML = items
+        .map((item) => {
+          const isSelected = activeComp && activeComp.id === item.id;
+          const isDimmed = activeComp && !isSelected;
+          return `
+          <div class="legend-row material-legend-row ${isSelected ? "selected-legend-row" : ""} ${isDimmed ? "dimmed-legend-row" : ""}"
+               data-id="${item.id}"
+               style="cursor: pointer;"
+               title="Click to highlight ${item.label}">
+            <span class="legend-val">${item.weight}g</span>
+            <span class="legend-dot" style="background-color: ${item.color}; ${isSelected ? "box-shadow: 0 0 8px " + item.color : ""}"></span>
+            <span class="legend-name ${isSelected ? "active-legend-name" : ""}">${item.label}</span>
+            ${isSelected ? `<span class="legend-tag">${item.percentage}%</span>` : ""}
+          </div>
+        `;
+        })
+        .join("");
+
+      // Add click listeners to right legend rows
+      items.forEach((item) => {
+        const row = rightLegendEl.querySelector(`.material-legend-row[data-id="${item.id}"]`);
+        if (row) {
+          row.addEventListener("click", () => {
+            const targetId = activeComp && activeComp.id === item.id ? null : item.id;
+            this.onSelectComponent(targetId);
+          });
+        }
+      });
+    }
+  }
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = EnvironmentalCharts;
+}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iPhone Xs Environmental Report — Interactive Lifecycle Assessment</title>
+  <meta name="description" content="Interactive lifecycle greenhouse gas emissions and material use breakdown for iPhone Xs. Click various parts of the phone to inspect component impacts." />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Main Interactive 16:9 Stage (Slide Presentation) -->
+  <main class="stage-wrapper">
+    <div class="stage-container" id="interactive-stage">
+      <!-- High-resolution iPhone Xs hardware cutout -->
+      <img class="stage-bg-image" src="assets/phone_cutout.png" alt="iPhone Xs hardware presentation cutout" />
+
+      <!-- Interactive SVG vector layer -->
+      <svg class="interactive-svg-layer" viewBox="0 0 1024 576" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <filter id="glow-effect" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+
+        <!-- Crisp Vector Chart Titles matching Apple slide typography -->
+        <text class="svg-chart-title" x="26" y="27">Greenhouse Gas Emissions for iPhone Xs—64GB model</text>
+        <text class="svg-chart-title" x="548" y="274">Material Use for iPhone Xs</text>
+
+        <!-- Left Emissions Donut Chart -->
+        <g id="emissions-chart-group"></g>
+        <g id="emissions-center-text"></g>
+
+        <!-- Right Materials Donut Chart -->
+        <g id="materials-chart-group"></g>
+        <g id="materials-center-text"></g>
+
+        <!-- Dynamic Laser Leader Line -->
+        <g id="leader-line-group"></g>
+
+        <!-- Center Phone Interactive Clickable Contours (Hotspots) -->
+        <g id="phone-hotspots-group"></g>
+      </svg>
+
+      <!-- HTML Interactive Legends Layer (Exact overlay positioning) -->
+      <div class="stage-html-overlays">
+        <div id="emissions-legend-container" class="legend-container" aria-label="Emissions breakdown legend">
+          <!-- Populated by charts.js -->
+        </div>
+
+        <div id="materials-legend-container" class="legend-container" aria-label="Materials breakdown legend">
+          <!-- Populated by charts.js -->
+        </div>
+      </div>
+
+      <!-- Floating Hover Tooltip -->
+      <div id="phone-part-tooltip" class="part-tooltip"></div>
+    </div>
+  </main>
+
+  <!-- Deep Dive Component Inspector Drawer -->
+  <section class="inspector-card" id="component-inspector" aria-live="polite">
+    <header class="inspector-header">
+      <div>
+        <div class="inspector-category" id="inspector-category">Complete Device Lifecycle</div>
+        <h2 class="inspector-title" id="inspector-title">iPhone Xs (64GB Model)</h2>
+      </div>
+      <div class="inspector-kpis">
+        <div class="kpi-block">
+          <span class="kpi-label">Material Mass</span>
+          <span class="kpi-value" id="inspector-weight">177 grams</span>
+        </div>
+        <div class="kpi-block">
+          <span class="kpi-label">Lifecycle Footprint</span>
+          <span class="kpi-value" id="inspector-carbon" style="color: #34c759;">70 kg CO₂e</span>
+        </div>
+      </div>
+    </header>
+
+    <p class="inspector-desc" id="inspector-desc">
+      Comprehensive environmental lifecycle assessment including raw materials extraction, manufacturing in zero-waste certified facilities, global transportation, energy consumed during customer usage, and Daisy disassembly recycling.
+    </p>
+
+    <div class="inspector-grid">
+      <!-- Environmental & Material Highlights -->
+      <div class="detail-section">
+        <h3 class="section-heading">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#34c759">
+            <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/>
+          </svg>
+          Material & Environmental Highlights
+        </h3>
+        <ul class="highlights-list" id="inspector-highlights">
+          <!-- Populated dynamically -->
+        </ul>
+      </div>
+
+      <!-- Manufacturing & Circular Economy -->
+      <div class="detail-section">
+        <h3 class="section-heading">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#0071e3">
+            <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+          </svg>
+          Supply Chain & Circular Economy
+        </h3>
+        <p class="detail-paragraph" id="inspector-mfg">
+          Apple-mandated clean energy transitions power 100% of final assembly facilities. 100% recycled tin utilized in main logic board solder.
+        </p>
+        <p class="detail-paragraph" id="inspector-circular">
+          Disassembly with Daisy allows closed-loop recycling of cobalt, gold, rare earth elements, and high-purity surgical steel.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer & Keyboard Navigation -->
+  <footer class="app-footer">
+    <p>Data verified against official Apple Environmental Product Report for iPhone Xs.</p>
+    <div class="keyboard-hints">
+      <span><kbd>←</kbd> <kbd>→</kbd> Navigate parts</span>
+      <span><kbd>Space</kbd> Auto Tour</span>
+      <span><kbd>Esc</kbd> Overview</span>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/phone-hotspots.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
