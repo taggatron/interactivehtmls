@@ -127,9 +127,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 role="tab"
                 aria-selected="${isActive ? "true" : "false"}"
                 data-id="${m.id}"
-                title="${m.displayName} (${m.year}) — ${m.overview.totalEmissions} kg CO₂e lifecycle">
-          <div class="timeline-thumb-wrapper">
-            <img class="timeline-thumb" src="${m.thumbImage || `assets/thumb_${m.id}.png`}" alt="${shortName}" />
+                title="${shortName} (${m.year}) — ${m.overview.totalEmissions} kg CO₂e lifecycle">
+          <div class="timeline-thumb-wrapper" aria-hidden="true">
+            <img class="timeline-thumb" src="${m.thumbImage || `assets/thumb_${m.id}.png`}" alt="" />
           </div>
           <span class="t-year">${m.year}</span>
           <span class="t-name">${shortName}</span>

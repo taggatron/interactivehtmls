@@ -207,7 +207,7 @@ class PhoneHotspots {
     }
 
     if (this.tooltipEl) {
-      if (isHovered && componentId) {
+      if (isHovered && componentId && event) {
         const comp = ENVIRONMENTAL_DATA.components[componentId];
         if (comp) {
           this.tooltipEl.innerHTML = `
@@ -215,13 +215,11 @@ class PhoneHotspots {
             <strong>${comp.name}</strong> • ${comp.weightFormatted} (${comp.weightPercentage}%)
           `;
           this.tooltipEl.classList.add("visible");
-          if (event) {
-            const stageRect = document.getElementById("interactive-stage").getBoundingClientRect();
-            const x = event.clientX - stageRect.left + 14;
-            const y = event.clientY - stageRect.top + 14;
-            this.tooltipEl.style.left = `${x}px`;
-            this.tooltipEl.style.top = `${y}px`;
-          }
+          const stageRect = document.getElementById("interactive-stage").getBoundingClientRect();
+          const x = event.clientX - stageRect.left + 14;
+          const y = event.clientY - stageRect.top + 14;
+          this.tooltipEl.style.left = `${x}px`;
+          this.tooltipEl.style.top = `${y}px`;
         }
       } else {
         this.tooltipEl.classList.remove("visible");

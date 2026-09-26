@@ -1514,6 +1514,438 @@ const IPHONE_MODELS_DATA = {
         ]
       }
     }
+  },
+
+  "17pro": {
+    id: "17pro",
+    name: "iPhone 17 Pro",
+    displayName: "iPhone 17 Pro",
+    timelineName: "17 Pro",
+    year: 2025,
+    storage: "256GB model",
+    image: "assets/phone_17pro.png",
+    thumbImage: "assets/thumb_17pro.png",
+    emissionsTitle: "Greenhouse Gas Emissions for iPhone 17 Pro—256GB model",
+    materialsTitle: "Material Use for iPhone 17 Pro",
+    overview: {
+      totalEmissions: 52,
+      totalWeight: 196,
+      emissionsBreakdown: [
+        { id: "production", label: "Production", percentage: 70, value: 36.4, color: "#548c8b" },
+        { id: "customer_use", label: "Customer use", percentage: 23, value: 12.0, color: "#adc666" },
+        { id: "transport", label: "Transport", percentage: 5, value: 2.6, color: "#d8bd48" },
+        { id: "recycling", label: "Recycling", percentage: 2, value: 1.0, color: "#6eb172" }
+      ],
+      materialsBreakdown: [
+        { id: "stainless_steel", label: "Titanium & Aluminum", weight: 47, percentage: 24.0, color: "#395b8c" },
+        { id: "battery", label: "Battery", weight: 53, percentage: 27.0, color: "#548c8b" },
+        { id: "glass", label: "Glass", weight: 39, percentage: 19.9, color: "#899a38" },
+        { id: "circuit_boards", label: "Circuit boards", weight: 28, percentage: 14.3, color: "#b8cc3b" },
+        { id: "other", label: "Other", weight: 14, percentage: 7.1, color: "#6ec1b8" },
+        { id: "plastics", label: "Plastics", weight: 5, percentage: 2.6, color: "#bfa362" },
+        { id: "display", label: "Display", weight: 9, percentage: 4.6, color: "#e78138" },
+        { id: "aluminum", label: "Copper", weight: 1, percentage: 0.5, color: "#c8483b" }
+      ],
+      quickFacts: [
+        "First iPhone built with 100% renewable electricity across direct assembly and supply chain",
+        "100% recycled cobalt, lithium, and copper in battery and interconnect subsystems",
+        "100% fiber-based packaging with zero virgin plastic foils or pull tabs"
+      ]
+    },
+    components: {
+      display: {
+        id: "display",
+        name: "Micro-Lens ProMotion OLED Display",
+        category: "Display Subsystem",
+        weightFormatted: "9g",
+        weightPercentage: 4.6,
+        materialColor: "#e78138",
+        carbonFootprint: 8.8,
+        carbonPercentage: 16.9,
+        pin: { x: 368, y: 400 },
+        emissionsBreakdown: [
+          { label: "Display Driver & Clean Fab", percentage: 79, color: "#548c8b" },
+          { label: "Ultra-low Screen Power Draw", percentage: 18, color: "#adc666" },
+          { label: "Clean Logistics", percentage: 2, color: "#d8bd48" },
+          { label: "Recycling", percentage: 1, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "Micro-lens array increases light output efficiency by 25% with reduced power draw",
+          "Thinnest border design in Apple history expands active screen area to 6.3 inches",
+          "Ceramic Shield Pro front formulated with 100% recycled glass cullet"
+        ]
+      },
+      stainless_steel: {
+        id: "stainless_steel",
+        name: "Recycled Titanium & Aluminum Matrix",
+        category: "Grade 5 Titanium & Circular Al",
+        weightFormatted: "47g",
+        weightPercentage: 24.0,
+        materialColor: "#395b8c",
+        carbonFootprint: 11.4,
+        carbonPercentage: 21.9,
+        pin: { x: 476, y: 440 },
+        emissionsBreakdown: [
+          { label: "Clean Hydro-Powered Smelting", percentage: 72, color: "#395b8c" },
+          { label: "In-use Longevity", percentage: 15, color: "#adc666" },
+          { label: "Transport", percentage: 8, color: "#d8bd48" },
+          { label: "Closed-loop Recovery", percentage: 5, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "100% recycled aerospace titanium exterior clad to 100% recycled internal aluminum core",
+          "Solid-state diffusion bonding process cut enclosure manufacturing energy by 35%",
+          "Sapphire capacitive Camera Control sensor with integrated force transducers"
+        ]
+      },
+      glass: {
+        id: "glass",
+        name: "Ceramic Shield Pro Glass",
+        category: "Exterior Surfaces",
+        weightFormatted: "39g",
+        weightPercentage: 19.9,
+        materialColor: "#899a38",
+        carbonFootprint: 5.2,
+        carbonPercentage: 10.0,
+        pin: { x: 430, y: 370 },
+        emissionsBreakdown: [
+          { label: "Bio-gas Melt & Ion Exchange", percentage: 76, color: "#899a38" },
+          { label: "Longevity & Protection", percentage: 16, color: "#adc666" },
+          { label: "Shipping", percentage: 5, color: "#d8bd48" },
+          { label: "Cullet Recovery", percentage: 3, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "Nano-crystalline ceramic matrix delivers unparalleled scratch and fracture resistance",
+          "Precision-milled rear plateau integrates camera ring seamlessly with zero metal bezel waste",
+          "Easily detachable back glass architecture ensures zero-damage battery replacement"
+        ]
+      },
+      circuit_boards: {
+        id: "circuit_boards",
+        name: "A19 Pro (2nm GAA) & 100% Recycled Gold",
+        category: "2nm Silicon & Neural Engine",
+        weightFormatted: "28g",
+        weightPercentage: 14.3,
+        materialColor: "#b8cc3b",
+        carbonFootprint: 17.7,
+        carbonPercentage: 34.0,
+        pin: { x: 440, y: 320 },
+        emissionsBreakdown: [
+          { label: "2nm Clean Room Fabrication", percentage: 82, color: "#b8cc3b" },
+          { label: "Neural Engine AI Energy Use", percentage: 14, color: "#adc666" },
+          { label: "Logistics", percentage: 3, color: "#d8bd48" },
+          { label: "Urban Mining Refining", percentage: 1, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "TSMC 2nm Gate-All-Around (GAA) architecture cuts silicon energy draw by 25%",
+          "100% certified recycled gold in plating of all PCBs, camera modules, and USB-C",
+          "100% recycled tin in solder across all logic boards, sensors, and flash memory"
+        ]
+      },
+      battery: {
+        id: "battery",
+        name: "100% Recycled Cobalt & Lithium Cell",
+        category: "Power Subsystem",
+        weightFormatted: "53g",
+        weightPercentage: 27.0,
+        materialColor: "#548c8b",
+        carbonFootprint: 6.2,
+        carbonPercentage: 11.9,
+        pin: { x: 435, y: 450 },
+        emissionsBreakdown: [
+          { label: "Recycled Precursor Cell Fab", percentage: 66, color: "#548c8b" },
+          { label: "Cycle Lifespan Power Draw", percentage: 26, color: "#adc666" },
+          { label: "Logistics", percentage: 5, color: "#d8bd48" },
+          { label: "Closed-loop Hydrometallurgy", percentage: 3, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "First iPhone battery with 100% recycled cobalt and certified 95%+ recycled lithium",
+          "Steel-jacketed design enhances thermal dissipation and extends cycle life to 1,500 charges",
+          "Full 28-hour all-day battery life with machine-learning power balancing"
+        ]
+      },
+      other: {
+        id: "other",
+        name: "Recycled Neodymium & Taptic Subsystems",
+        category: "Rare Earths & Actuators",
+        weightFormatted: "14g",
+        weightPercentage: 7.1,
+        materialColor: "#6ec1b8",
+        carbonFootprint: 1.8,
+        carbonPercentage: 3.5,
+        pin: { x: 433, y: 422 },
+        emissionsBreakdown: [
+          { label: "Sintering", percentage: 64, color: "#6ec1b8" },
+          { label: "In-use Haptics", percentage: 28, color: "#adc666" },
+          { label: "Transport", percentage: 5, color: "#d8bd48" },
+          { label: "Magnet Recovery", percentage: 3, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "100% recycled rare earth elements across MagSafe ring, speakers, and camera OIS",
+          "100% recycled tungsten in Taptic Engine provides ultra-precise haptic responses",
+          "Qi2-ready wireless charging module operates with 92% inductive energy transfer"
+        ]
+      },
+      plastics: {
+        id: "plastics",
+        name: "Bio-circular Engineering Resins",
+        category: "Circular Polymers",
+        weightFormatted: "5g",
+        weightPercentage: 2.6,
+        materialColor: "#bfa362",
+        carbonFootprint: 0.8,
+        carbonPercentage: 1.5,
+        pin: { x: 433, y: 546 },
+        emissionsBreakdown: [
+          { label: "Bio-feedstock Synth", percentage: 55, color: "#bfa362" },
+          { label: "Use", percentage: 30, color: "#adc666" },
+          { label: "Transport", percentage: 10, color: "#d8bd48" },
+          { label: "Recovery", percentage: 5, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "Internal brackets constructed with 70% post-consumer bio-circular resins",
+          "Zero plastic shrink wrap, stickers, or plastic accessories in product box",
+          "All tier-1 supplier facilities certified 100% Zero Waste to Landfill"
+        ]
+      },
+      aluminum: {
+        id: "aluminum",
+        name: "Recycled Copper Vapor Chamber",
+        category: "Thermal Subsystem",
+        weightFormatted: "1g",
+        weightPercentage: 0.5,
+        materialColor: "#c8483b",
+        carbonFootprint: 0.3,
+        carbonPercentage: 0.6,
+        pin: { x: 446, y: 395 },
+        emissionsBreakdown: [
+          { label: "Foil Refining", percentage: 60, color: "#c8483b" },
+          { label: "Thermal Dissipation", percentage: 27, color: "#adc666" },
+          { label: "Transport", percentage: 9, color: "#d8bd48" },
+          { label: "Closed-loop Remelt", percentage: 4, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "Laser-welded 100% recycled copper vapor chamber channels heat evenly to frame",
+          "Allows sustained peak gaming and AI performance without thermal throttling",
+          "Recovered cleanly with Daisy robotics separation"
+        ]
+      }
+    }
+  },
+
+  "18pro": {
+    id: "18pro",
+    name: "iPhone 18 Pro",
+    displayName: "iPhone 18 Pro",
+    timelineName: "18 Pro",
+    year: 2026,
+    storage: "256GB model",
+    image: "assets/phone_18pro.png",
+    thumbImage: "assets/thumb_18pro.png",
+    emissionsTitle: "Greenhouse Gas Emissions for iPhone 18 Pro—256GB model (Apple 2030)",
+    materialsTitle: "Material Use for iPhone 18 Pro",
+    overview: {
+      totalEmissions: 42,
+      totalWeight: 194,
+      emissionsBreakdown: [
+        { id: "production", label: "Production", percentage: 64, value: 26.9, color: "#548c8b" },
+        { id: "customer_use", label: "Customer use", percentage: 28, value: 11.8, color: "#adc666" },
+        { id: "transport", label: "Transport", percentage: 5, value: 2.1, color: "#d8bd48" },
+        { id: "recycling", label: "Recycling", percentage: 3, value: 1.2, color: "#6eb172" }
+      ],
+      materialsBreakdown: [
+        { id: "stainless_steel", label: "Liquid Titanium & Al", weight: 45, percentage: 23.2, color: "#395b8c" },
+        { id: "battery", label: "Battery", weight: 54, percentage: 27.8, color: "#548c8b" },
+        { id: "glass", label: "Glass", weight: 38, percentage: 19.6, color: "#899a38" },
+        { id: "circuit_boards", label: "Circuit boards", weight: 27, percentage: 13.9, color: "#b8cc3b" },
+        { id: "other", label: "Other", weight: 15, percentage: 7.7, color: "#6ec1b8" },
+        { id: "plastics", label: "Plastics", weight: 5, percentage: 2.6, color: "#bfa362" },
+        { id: "display", label: "Display", weight: 9, percentage: 4.6, color: "#e78138" },
+        { id: "aluminum", label: "Copper", weight: 1, percentage: 0.5, color: "#c8483b" }
+      ],
+      quickFacts: [
+        "Apple 2030 Landmark: Certified Carbon Neutral across entire device lifecycle",
+        "100% circular recycled critical minerals: cobalt, lithium, tungsten, gold, tin & rare earths",
+        "Disassembled entirely by next-gen Taz & Daisy robotic recycling cells in closed loops"
+      ]
+    },
+    components: {
+      display: {
+        id: "display",
+        name: "Full-Screen Under-Display Sensor OLED",
+        category: "Display Subsystem",
+        weightFormatted: "9g",
+        weightPercentage: 4.6,
+        materialColor: "#e78138",
+        carbonFootprint: 7.1,
+        carbonPercentage: 16.9,
+        pin: { x: 368, y: 400 },
+        emissionsBreakdown: [
+          { label: "100% Solar-Powered Clean Fab", percentage: 76, color: "#548c8b" },
+          { label: "Adaptive Quantum Drive", percentage: 20, color: "#adc666" },
+          { label: "Transport", percentage: 3, color: "#d8bd48" },
+          { label: "Circular Recovery", percentage: 1, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "True seamless edge-to-edge screen with invisible under-display Face ID sensors",
+          "Ultra-low power variable 1Hz-144Hz ProMotion with quantum-dot backplane",
+          "Manufactured with 100% zero-carbon electricity and recycled optical substrates"
+        ]
+      },
+      stainless_steel: {
+        id: "stainless_steel",
+        name: "100% Recycled Liquid Titanium & Al",
+        category: "Liquid Titanium Alloy",
+        weightFormatted: "45g",
+        weightPercentage: 23.2,
+        materialColor: "#395b8c",
+        carbonFootprint: 8.8,
+        carbonPercentage: 21.0,
+        pin: { x: 476, y: 440 },
+        emissionsBreakdown: [
+          { label: "Renewable Electric Arc Forging", percentage: 70, color: "#395b8c" },
+          { label: "Structural In-use Longevity", percentage: 17, color: "#adc666" },
+          { label: "Maritime Low-Carbon Transport", percentage: 7, color: "#d8bd48" },
+          { label: "Direct Closed-loop Remelt", percentage: 6, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "Next-generation amorphous liquid titanium alloy delivers unmatched strength at lower mass",
+          "100% secondary recycled feedstock processed with zero fossil fuels",
+          "Capacitive flush haptic rails replace mechanical toggle switches entirely"
+        ]
+      },
+      glass: {
+        id: "glass",
+        name: "Sapphire-Infused Ceramic Shield 3",
+        category: "Exterior Surfaces",
+        weightFormatted: "38g",
+        weightPercentage: 19.6,
+        materialColor: "#899a38",
+        carbonFootprint: 4.2,
+        carbonPercentage: 10.0,
+        pin: { x: 430, y: 370 },
+        emissionsBreakdown: [
+          { label: "Clean Electric Kiln Synthesis", percentage: 74, color: "#899a38" },
+          { label: "Drop & Scratch Defense", percentage: 18, color: "#adc666" },
+          { label: "Logistics", percentage: 5, color: "#d8bd48" },
+          { label: "Closed-loop Remelt", percentage: 3, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "Sapphire-infused crystalline structure achieves diamond-like scratch durability",
+          "Rear matte texture produced with laser micro-etching with zero chemical acid etching",
+          "Non-destructive separation allows rapid chassis reuse across Apple trade-ins"
+        ]
+      },
+      circuit_boards: {
+        id: "circuit_boards",
+        name: "A20 Pro (2nm+ GAA) & Optical Neural Interconnect",
+        category: "Advanced Silicon & Photonics",
+        weightFormatted: "27g",
+        weightPercentage: 13.9,
+        materialColor: "#b8cc3b",
+        carbonFootprint: 14.3,
+        carbonPercentage: 34.0,
+        pin: { x: 440, y: 320 },
+        emissionsBreakdown: [
+          { label: "Clean Energy GAA Fab", percentage: 80, color: "#b8cc3b" },
+          { label: "Optical Bus Energy Efficiency", percentage: 16, color: "#adc666" },
+          { label: "Transport", percentage: 3, color: "#d8bd48" },
+          { label: "Precious Metals Refining", percentage: 1, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "Next-gen silicon with optical on-package interconnects cuts communication energy by 40%",
+          "100% recycled gold, copper, and tin certified across all logic boards and sensors",
+          "Integrated on-device generative AI models execute with 35% higher energy efficiency"
+        ]
+      },
+      battery: {
+        id: "battery",
+        name: "Solid-State Hybrid Circular Battery",
+        category: "Power Subsystem",
+        weightFormatted: "54g",
+        weightPercentage: 27.8,
+        materialColor: "#548c8b",
+        carbonFootprint: 5.0,
+        carbonPercentage: 11.9,
+        pin: { x: 435, y: 450 },
+        emissionsBreakdown: [
+          { label: "Solid-State Cell Fab", percentage: 63, color: "#548c8b" },
+          { label: "Long-cycle Lifespan Efficiency", percentage: 29, color: "#adc666" },
+          { label: "Transport", percentage: 5, color: "#d8bd48" },
+          { label: "Recycling", percentage: 3, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "Solid-state electrolyte with 100% recycled cobalt, lithium, and graphite anode",
+          "Retains 90% health after 2,000 charge cycles, doubling standard smartphone battery lifespan",
+          "Quick-release magnetic thermal decoupling enables 60-second robot removal"
+        ]
+      },
+      other: {
+        id: "other",
+        name: "Closed-Loop Rare Earths & Haptic Motors",
+        category: "Magnets & Transducers",
+        weightFormatted: "15g",
+        weightPercentage: 7.7,
+        materialColor: "#6ec1b8",
+        carbonFootprint: 1.5,
+        carbonPercentage: 3.6,
+        pin: { x: 433, y: 422 },
+        emissionsBreakdown: [
+          { label: "Green Sintering", percentage: 62, color: "#6ec1b8" },
+          { label: "Haptic Actuation", percentage: 30, color: "#adc666" },
+          { label: "Transport", percentage: 5, color: "#d8bd48" },
+          { label: "Recovery", percentage: 3, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "100% recycled neodymium, dysprosium, and praseodymium across all acoustic transducers",
+          "Zero conflict minerals: certified 100% traceable ethical origin supply chain",
+          "Ultra-broadband haptic engine delivers realistic textures for spatial computing"
+        ]
+      },
+      plastics: {
+        id: "plastics",
+        name: "100% Algae & Bio-circular Polymers",
+        category: "Next-Gen Polymers",
+        weightFormatted: "5g",
+        weightPercentage: 2.6,
+        materialColor: "#bfa362",
+        carbonFootprint: 0.7,
+        carbonPercentage: 1.7,
+        pin: { x: 433, y: 546 },
+        emissionsBreakdown: [
+          { label: "Bio-cultivation Synth", percentage: 52, color: "#bfa362" },
+          { label: "Use", percentage: 33, color: "#adc666" },
+          { label: "Logistics", percentage: 10, color: "#d8bd48" },
+          { label: "Compost & Recovery", percentage: 5, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "All internal polymer structures formulated from sustainably harvested marine algae",
+          "100% plastic-free packaging made from recycled sugarcane bagasse and bamboo fiber",
+          "Zero carbon footprint in polymer polymerization phase"
+        ]
+      },
+      aluminum: {
+        id: "aluminum",
+        name: "Graphene-Copper Micro Vapor Chamber",
+        category: "Thermal Subsystem",
+        weightFormatted: "1g",
+        weightPercentage: 0.5,
+        materialColor: "#c8483b",
+        carbonFootprint: 0.4,
+        carbonPercentage: 0.9,
+        pin: { x: 446, y: 395 },
+        emissionsBreakdown: [
+          { label: "Micro-machining", percentage: 58, color: "#c8483b" },
+          { label: "Heat Transfer Use", percentage: 29, color: "#adc666" },
+          { label: "Transport", percentage: 9, color: "#d8bd48" },
+          { label: "Closed-loop Remelt", percentage: 4, color: "#6eb172" }
+        ],
+        quickFacts: [
+          "Graphene-intercalated copper foil provides 3x higher thermal conductivity than raw aluminum",
+          "Enables prolonged on-device LLM inference without active fan cooling",
+          "100% recycled copper recovered via high-yield hydrometallurgy"
+        ]
+      }
+    }
   }
 };
 

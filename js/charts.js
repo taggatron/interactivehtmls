@@ -10,9 +10,9 @@ class EnvironmentalCharts {
     this.onHoverComponent = options.onHoverComponent || (() => {});
     this.activeComponentId = null;
 
-    // Coordinate anchors matching the slide image
-    this.emissionsChartCenter = { x: 170.5, y: 213.5, innerR: 118, outerR: 144 };
-    this.materialsChartCenter = { x: 676.0, y: 428.0, innerR: 104, outerR: 126 };
+    // Coordinate anchors with reduced radius to prevent overlapping phone hardware presentation
+    this.emissionsChartCenter = { x: 156.0, y: 206.0, innerR: 78, outerR: 98 };
+    this.materialsChartCenter = { x: 686.0, y: 426.0, innerR: 66, outerR: 84 };
 
     this.init();
   }
@@ -181,17 +181,17 @@ class EnvironmentalCharts {
     if (centerTextGroup) {
       if (!comp) {
         centerTextGroup.innerHTML = `
-          <text x="${cx}" y="${cy - 8}" text-anchor="middle" class="chart-center-num">${ENVIRONMENTAL_DATA.overview.totalEmissions}</text>
-          <text x="${cx}" y="${cy + 22}" text-anchor="middle" class="chart-center-unit">kg CO<tspan dy="3" font-size="0.75em">2</tspan><tspan dy="-3">e</tspan></text>
-          <text x="${cx}" y="${cy + 52}" text-anchor="middle" class="chart-center-sub">Total greenhouse</text>
-          <text x="${cx}" y="${cy + 68}" text-anchor="middle" class="chart-center-sub">gas emissions</text>
+          <text x="${cx}" y="${cy - 6}" text-anchor="middle" class="chart-center-num">${ENVIRONMENTAL_DATA.overview.totalEmissions}</text>
+          <text x="${cx}" y="${cy + 17}" text-anchor="middle" class="chart-center-unit">kg CO<tspan dy="2" font-size="0.75em">2</tspan><tspan dy="-2">e</tspan></text>
+          <text x="${cx}" y="${cy + 38}" text-anchor="middle" class="chart-center-sub">Total greenhouse</text>
+          <text x="${cx}" y="${cy + 52}" text-anchor="middle" class="chart-center-sub">gas emissions</text>
         `;
       } else {
         centerTextGroup.innerHTML = `
-          <text x="${cx}" y="${cy - 8}" text-anchor="middle" class="chart-center-num active-pulse">${comp.carbonFootprint}</text>
-          <text x="${cx}" y="${cy + 22}" text-anchor="middle" class="chart-center-unit">kg CO<tspan dy="3" font-size="0.75em">2</tspan><tspan dy="-3">e</tspan></text>
-          <text x="${cx}" y="${cy + 52}" text-anchor="middle" class="chart-center-sub active-badge">${comp.name}</text>
-          <text x="${cx}" y="${cy + 68}" text-anchor="middle" class="chart-center-sub">${comp.carbonPercentage}% of Lifecycle</text>
+          <text x="${cx}" y="${cy - 6}" text-anchor="middle" class="chart-center-num active-pulse">${comp.carbonFootprint}</text>
+          <text x="${cx}" y="${cy + 17}" text-anchor="middle" class="chart-center-unit">kg CO<tspan dy="2" font-size="0.75em">2</tspan><tspan dy="-2">e</tspan></text>
+          <text x="${cx}" y="${cy + 38}" text-anchor="middle" class="chart-center-sub active-badge">${comp.name}</text>
+          <text x="${cx}" y="${cy + 52}" text-anchor="middle" class="chart-center-sub">${comp.carbonPercentage}% of Lifecycle</text>
         `;
       }
     }
@@ -215,9 +215,9 @@ class EnvironmentalCharts {
       const isSelected = activeComp && activeComp.id === mat.id;
       const isDimmed = activeComp && !isSelected;
 
-      const offset = isSelected ? 8 : 0;
-      const sliceInnerR = isSelected ? innerR - 2 : innerR;
-      const sliceOuterR = isSelected ? outerR + 6 : outerR;
+      const offset = isSelected ? 5 : 0;
+      const sliceInnerR = isSelected ? innerR - 1 : innerR;
+      const sliceOuterR = isSelected ? outerR + 4 : outerR;
 
       const pathD = this.describeDonutSlice(
         cx,
@@ -230,7 +230,7 @@ class EnvironmentalCharts {
       );
 
       const opacity = isDimmed ? 0.28 : 1.0;
-      const filter = isSelected ? `filter: drop-shadow(0px 0px 10px ${mat.color});` : "";
+      const filter = isSelected ? `filter: drop-shadow(0px 0px 8px ${mat.color});` : "";
 
       html += `
         <path class="chart-slice material-slice ${isSelected ? "active-slice" : ""}"
@@ -277,16 +277,16 @@ class EnvironmentalCharts {
     if (centerTextGroup) {
       if (!activeComp) {
         centerTextGroup.innerHTML = `
-          <text x="${cx}" y="${cy - 4}" text-anchor="middle" class="chart-center-title">Material</text>
-          <text x="${cx}" y="${cy + 22}" text-anchor="middle" class="chart-center-title">Use</text>
-          <text x="${cx}" y="${cy + 48}" text-anchor="middle" class="chart-center-sub">${ENVIRONMENTAL_DATA.overview.totalWeight}g Total Device</text>
+          <text x="${cx}" y="${cy - 5}" text-anchor="middle" class="chart-center-title">Material</text>
+          <text x="${cx}" y="${cy + 15}" text-anchor="middle" class="chart-center-title">Use</text>
+          <text x="${cx}" y="${cy + 37}" text-anchor="middle" class="chart-center-sub">${ENVIRONMENTAL_DATA.overview.totalWeight}g Total Device</text>
         `;
       } else {
         centerTextGroup.innerHTML = `
-          <text x="${cx}" y="${cy - 12}" text-anchor="middle" class="chart-center-num active-pulse" style="fill: ${activeComp.materialColor}">${activeComp.weightFormatted}</text>
-          <text x="${cx}" y="${cy + 14}" text-anchor="middle" class="chart-center-sub active-badge" style="font-weight: 600;">${activeComp.name}</text>
-          <text x="${cx}" y="${cy + 34}" text-anchor="middle" class="chart-center-sub">${activeComp.weightPercentage}% of Device</text>
-          <text x="${cx}" y="${cy + 52}" text-anchor="middle" class="chart-center-sub" style="font-size: 11px; fill: #86868b;">Click to view all</text>
+          <text x="${cx}" y="${cy - 8}" text-anchor="middle" class="chart-center-num active-pulse" style="font-size: 26px; fill: ${activeComp.materialColor}">${activeComp.weightFormatted}</text>
+          <text x="${cx}" y="${cy + 12}" text-anchor="middle" class="chart-center-sub active-badge" style="font-weight: 600;">${activeComp.name}</text>
+          <text x="${cx}" y="${cy + 28}" text-anchor="middle" class="chart-center-sub">${activeComp.weightPercentage}% of Device</text>
+          <text x="${cx}" y="${cy + 43}" text-anchor="middle" class="chart-center-sub" style="font-size: 10px; fill: #86868b;">Click to view all</text>
         `;
       }
     }

@@ -51,20 +51,19 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 10px 16px 16px;
+  padding: 8px 0 16px;
   overflow-x: hidden;
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 /* ---------------- Apple Model Evolution Timeline Navigation ---------------- */
-/* ---------------- Apple Model Evolution Timeline Navigation ---------------- */
 .timeline-header {
   width: 100%;
-  max-width: 1260px;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 auto 8px;
+  margin: 0 0 8px;
+  padding: 0;
   z-index: 50;
   overflow: visible;
 }
@@ -76,12 +75,13 @@ body {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 980px;
-  padding: 4px 6px;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  padding: 4px 12px;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
-  gap: 4px;
+  gap: 2px;
   width: 100%;
-  max-width: 1260px;
   justify-content: space-between;
   user-select: none;
   overflow: visible;
@@ -99,14 +99,14 @@ body.studio-dark-theme .timeline-bar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 5px 8px;
+  gap: 4px;
+  padding: 4px 5px;
   border-radius: 980px;
   border: none;
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--apple-font);
-  font-size: 13px;
+  font-size: 11.5px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
@@ -143,8 +143,8 @@ body.studio-dark-theme .timeline-node.active {
 
 /* Little Phone Thumbnail & Interactive Hover Magnification */
 .timeline-thumb-wrapper {
-  width: 20px;
-  height: 28px;
+  width: 16px;
+  height: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -154,24 +154,24 @@ body.studio-dark-theme .timeline-node.active {
 }
 
 .timeline-thumb {
-  height: 28px;
+  height: 25px;
   width: auto;
-  max-width: 26px;
+  max-width: 22px;
   object-fit: contain;
   display: block;
   pointer-events: none;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.16));
-  transform-origin: center bottom;
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-              filter 0.35s ease;
+  transform-origin: center center;
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+              filter 0.32s ease;
   position: relative;
   z-index: 2;
 }
 
 /* Make phone appear larger when user hovers over the timeline node */
 .timeline-node:hover .timeline-thumb {
-  transform: scale(2.8) translateY(-12px);
-  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.36));
+  transform: scale(2.2);
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.32));
   z-index: 100;
 }
 
@@ -180,13 +180,13 @@ body.studio-dark-theme .timeline-node.active {
 }
 
 .timeline-node.active:hover .timeline-thumb {
-  transform: scale(3.0) translateY(-12px);
-  filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.5));
+  transform: scale(2.3);
+  filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.45));
   z-index: 100;
 }
 
 .timeline-node .t-year {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   opacity: 0.6;
   letter-spacing: 0.02em;
@@ -198,15 +198,15 @@ body.studio-dark-theme .timeline-node.active {
 }
 
 .timeline-node .t-name {
-  font-size: 13px;
+  font-size: 11.5px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
 .timeline-node .t-co2 {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
-  padding: 1px 6px;
+  padding: 1px 5px;
   border-radius: 980px;
   background: rgba(0, 0, 0, 0.05);
   color: var(--text-secondary);
@@ -220,8 +220,8 @@ body.studio-dark-theme .timeline-node.active {
 }
 
 .timeline-node .t-dot {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: #34c759;
   display: inline-block;
@@ -231,23 +231,25 @@ body.studio-dark-theme .timeline-node.active {
 /* ---------------- The Main Stage Canvas (Slide Presentation) ---------------- */
 .stage-wrapper {
   width: 100%;
-  max-width: 1260px;
   display: flex;
   justify-content: center;
   position: relative;
-  margin: 0 auto 16px;
+  margin: 0 0 16px;
+  padding: 0;
 }
 
 .stage-container {
   width: 100%;
-  max-width: 1260px;
   aspect-ratio: 1024 / 576;
   position: relative;
   background: #ffffff;
-  border-radius: var(--radius-lg);
+  border-radius: 0;
   box-shadow: 0 16px 44px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   overflow: hidden;
-  border: 1px solid var(--border-light);
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  border-left: none;
+  border-right: none;
   transition: all 0.35s ease;
 }
 
@@ -348,7 +350,7 @@ body.studio-dark-theme .active-slice {
 /* Center Text Inside Donut Charts */
 .chart-center-num {
   font-family: var(--apple-font);
-  font-size: 44px;
+  font-size: 34px;
   font-weight: 700;
   fill: #1d1d1f;
   letter-spacing: -0.03em;
@@ -361,7 +363,7 @@ body.studio-dark-theme .chart-center-num {
 
 .chart-center-unit {
   font-family: var(--apple-font);
-  font-size: 21px;
+  font-size: 16px;
   font-weight: 500;
   fill: #86868b;
   letter-spacing: -0.01em;
@@ -369,7 +371,7 @@ body.studio-dark-theme .chart-center-num {
 
 .chart-center-title {
   font-family: var(--apple-font);
-  font-size: 23px;
+  font-size: 18px;
   font-weight: 600;
   fill: #1d1d1f;
   letter-spacing: -0.01em;
@@ -382,7 +384,7 @@ body.studio-dark-theme .chart-center-title {
 
 .chart-center-sub {
   font-family: var(--apple-font);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 400;
   fill: #86868b;
 }
@@ -479,33 +481,33 @@ body.studio-dark-theme .chart-center-title {
   pointer-events: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
-/* Left Legend positioned over Emissions Breakdown */
+/* Left Legend positioned next to Emissions Breakdown */
 #emissions-legend-container {
-  left: 33.5%;
-  top: 17.5%;
+  left: 28%;
+  top: 15%;
   width: 15.5%;
   max-width: 160px;
 }
 
-/* Right Legend positioned over Materials Breakdown */
+/* Right Legend positioned next to Materials Breakdown */
 #materials-legend-container {
   left: 80.5%;
-  top: 53.5%;
+  top: 52%;
   width: 19%;
 }
 
 .legend-row {
   display: flex;
   align-items: center;
-  gap: 9px;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 12.5px;
   line-height: 1.25;
   color: #1d1d1f;
   transition: all 0.25s ease;
-  padding: 3px 6px;
+  padding: 2px 6px;
   border-radius: var(--radius-sm);
 }
 
@@ -773,20 +775,22 @@ body.studio-dark-theme .kpi-val {
 }
 
 .fact-pill {
-  font-size: 11.5px;
-  line-height: 1.35;
+  font-size: 11px;
+  line-height: 1.32;
   color: #515154;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 7px;
   background: rgba(0, 0, 0, 0.025);
   padding: 3px 8px;
   border-radius: 6px;
   transition: all 0.2s ease;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
   animation: fact-slide 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.fact-text {
+  flex: 1;
 }
 
 @keyframes fact-slide {
