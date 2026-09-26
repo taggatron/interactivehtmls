@@ -181,7 +181,7 @@ class EnvironmentalCharts {
     if (centerTextGroup) {
       if (!comp) {
         centerTextGroup.innerHTML = `
-          <text x="${cx}" y="${cy - 8}" text-anchor="middle" class="chart-center-num">70</text>
+          <text x="${cx}" y="${cy - 8}" text-anchor="middle" class="chart-center-num">${ENVIRONMENTAL_DATA.overview.totalEmissions}</text>
           <text x="${cx}" y="${cy + 22}" text-anchor="middle" class="chart-center-unit">kg CO<tspan dy="3" font-size="0.75em">2</tspan><tspan dy="-3">e</tspan></text>
           <text x="${cx}" y="${cy + 52}" text-anchor="middle" class="chart-center-sub">Total greenhouse</text>
           <text x="${cx}" y="${cy + 68}" text-anchor="middle" class="chart-center-sub">gas emissions</text>
@@ -279,7 +279,7 @@ class EnvironmentalCharts {
         centerTextGroup.innerHTML = `
           <text x="${cx}" y="${cy - 4}" text-anchor="middle" class="chart-center-title">Material</text>
           <text x="${cx}" y="${cy + 22}" text-anchor="middle" class="chart-center-title">Use</text>
-          <text x="${cx}" y="${cy + 48}" text-anchor="middle" class="chart-center-sub">177g Total Device</text>
+          <text x="${cx}" y="${cy + 48}" text-anchor="middle" class="chart-center-sub">${ENVIRONMENTAL_DATA.overview.totalWeight}g Total Device</text>
         `;
       } else {
         centerTextGroup.innerHTML = `

@@ -82,7 +82,9 @@ subprocess.run(['cp', 'assets/phone_cutout.png', 'assets/phone_xs.png'], check=T
 print('✓ iPhone XS asset ready')
 
 TARGET_W, TARGET_H = 1024, 576
-BOX_X, BOX_Y, BOX_W, BOX_H = 342, 271, 144, 304
+PHONE_HEIGHT = 304
+CENTER_X = 414 # Exact center of XS phone
+BOTTOM_Y = 574 # Exact bottom edge of XS phone
 
 for model, src_path in models.items():
     if model == 'xs':
@@ -91,27 +93,33 @@ for model, src_path in models.items():
     subprocess.run(['sips', '-s', 'format', 'png', src_path, '--out', temp_png], check=True, stdout=subprocess.DEVNULL)
     w, h, grid = decode_png(temp_png)
 
-    # Detect bounding box
+    # Detect bounding box using threshold 210
     min_x, max_x, min_y, max_y = w, 0, h, 0
     for y in range(h):
         row, bpp = grid[y]
         for x in range(w):
             r, g, b = row[x*bpp:x*bpp+3]
-            if r < 242 or g < 242 or b < 242:
+            if r < 210 or g < 210 or b < 210:
                 if x < min_x: min_x = x
                 if x > max_x: max_x = x
                 if y < min_y: min_y = y
                 if y > max_y: max_y = y
 
+    # Add small 2px margin if within bounds
+    min_x = max(0, min_x - 2)
+    max_x = min(w - 1, max_x + 2)
+    min_y = max(0, min_y - 2)
+    max_y = min(h - 1, max_y + 2)
+
     phone_src_w = max_x - min_x + 1
     phone_src_h = max_y - min_y + 1
-    print(f'Model {model}: source bbox [{min_x}, {min_y}, {max_x}, {max_y}] ({phone_src_w}x{phone_src_h})')
 
-    scale = min(BOX_W / phone_src_w, BOX_H / phone_src_h)
+    # Scale to match phone height (304px)
+    scale = PHONE_HEIGHT / phone_src_h
     dst_w = int(phone_src_w * scale)
-    dst_h = int(phone_src_h * scale)
-    off_x = BOX_X + (BOX_W - dst_w) // 2
-    off_y = BOX_Y + (BOX_H - dst_h) // 2
+    dst_h = PHONE_HEIGHT
+    off_x = int(CENTER_X - dst_w / 2)
+    off_y = BOTTOM_Y - dst_h
 
     canvas = [bytearray(TARGET_W * 4) for _ in range(TARGET_H)]
 
@@ -119,32 +127,39 @@ for model, src_path in models.items():
         sy = min_y + dy / scale
         isy = min(int(sy), h - 1)
         cy = off_y + dy
-        if cy >= TARGET_H:
+        if cy < 0 or cy >= TARGET_H:
             continue
         row, bpp = grid[isy]
         for dx in range(dst_w):
             sx = min_x + dx / scale
             isx = min(int(sx), w - 1)
             cx = off_x + dx
-            if cx >= TARGET_W:
+            if cx < 0 or cx >= TARGET_W:
                 continue
 
             r, g, b = row[isx*bpp:isx*bpp+3]
-            # Clean alpha keying around white edges
-            if r > 248 and g > 248 and b > 248:
+            
+            # High-fidelity alpha matting
+            min_c = min(r, g, b)
+            max_c = max(r, g, b)
+            spread = max_c - min_c
+
+            # Near white with low saturation is background
+            if min_c >= 240 and spread < 18:
                 alpha = 0
-            elif r > 235 and g > 235 and b > 235:
-                brightness = (r + g + b) / 3
-                alpha = int(255 * (1.0 - (brightness - 235) / (255 - 235)))
+            elif min_c >= 215 and spread < 20:
+                # Soft transition edge
+                alpha = int(255 * (1.0 - (min_c - 215) / 25.0))
             else:
                 alpha = 255
 
-            canvas[cy][cx*4:cx*4+4] = bytearray([r, g, b, alpha])
+            if alpha > 0:
+                canvas[cy][cx*4:cx*4+4] = bytearray([r, g, b, alpha])
 
     out_file = f'assets/phone_{model}.png'
     encode_rgba_png(TARGET_W, TARGET_H, canvas, out_file)
-    print(f'✓ Successfully generated {out_file}')
+    print(f'✓ Successfully generated {out_file}: scaled to {dst_w}x{dst_h} at ({off_x}, {off_y})')
     if os.path.exists(temp_png):
         os.remove(temp_png)
 
-print('All iPhone model phone visual assets processed successfully!')
+print('All iPhone model phone visual assets processed with perfect scaling and alpha transparency!')

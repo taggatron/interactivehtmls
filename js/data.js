@@ -1511,6 +1511,10 @@ function setModelData(modelId) {
   if (IPHONE_MODELS_DATA[modelId]) {
     currentModelId = modelId;
     ENVIRONMENTAL_DATA = IPHONE_MODELS_DATA[modelId];
+    if (typeof window !== "undefined") {
+      window.ENVIRONMENTAL_DATA = ENVIRONMENTAL_DATA;
+      window.currentModelId = currentModelId;
+    }
     return ENVIRONMENTAL_DATA;
   }
   return null;
