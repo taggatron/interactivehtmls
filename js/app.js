@@ -121,14 +121,18 @@ document.addEventListener("DOMContentLoaded", () => {
     timelineBar.innerHTML = models
       .map((m) => {
         const isActive = m.id === activeModelId;
+        const shortName = m.timelineName || m.displayName.replace(/^iPhone\s*/i, "");
         return `
         <button class="timeline-node ${isActive ? "active" : ""}"
                 role="tab"
                 aria-selected="${isActive ? "true" : "false"}"
                 data-id="${m.id}"
                 title="${m.displayName} (${m.year}) — ${m.overview.totalEmissions} kg CO₂e lifecycle">
+          <div class="timeline-thumb-wrapper">
+            <img class="timeline-thumb" src="${m.thumbImage || `assets/thumb_${m.id}.png`}" alt="${shortName}" />
+          </div>
           <span class="t-year">${m.year}</span>
-          <span class="t-name">${m.displayName}</span>
+          <span class="t-name">${shortName}</span>
           <span class="t-co2">${m.overview.totalEmissions} kg</span>
           ${isActive ? '<span class="t-dot"></span>' : ""}
         </button>

@@ -57,6 +57,7 @@ body {
 }
 
 /* ---------------- Apple Model Evolution Timeline Navigation ---------------- */
+/* ---------------- Apple Model Evolution Timeline Navigation ---------------- */
 .timeline-header {
   width: 100%;
   max-width: 1260px;
@@ -64,7 +65,8 @@ body {
   justify-content: center;
   align-items: center;
   margin: 0 auto 8px;
-  z-index: 20;
+  z-index: 50;
+  overflow: visible;
 }
 
 .timeline-bar {
@@ -75,13 +77,15 @@ body {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 980px;
-  padding: 3px 6px;
+  padding: 4px 6px;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
   gap: 4px;
   width: 100%;
   max-width: 1260px;
   justify-content: space-between;
   user-select: none;
+  overflow: visible;
+  position: relative;
 }
 
 body.studio-dark-theme .timeline-bar {
@@ -95,20 +99,21 @@ body.studio-dark-theme .timeline-bar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 6px 8px;
+  gap: 6px;
+  padding: 5px 8px;
   border-radius: 980px;
   border: none;
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--apple-font);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
   outline: none;
   position: relative;
+  overflow: visible;
 }
 
 .timeline-node:hover {
@@ -136,6 +141,50 @@ body.studio-dark-theme .timeline-node.active {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
 }
 
+/* Little Phone Thumbnail & Interactive Hover Magnification */
+.timeline-thumb-wrapper {
+  width: 20px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.timeline-thumb {
+  height: 28px;
+  width: auto;
+  max-width: 26px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.16));
+  transform-origin: center bottom;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              filter 0.35s ease;
+  position: relative;
+  z-index: 2;
+}
+
+/* Make phone appear larger when user hovers over the timeline node */
+.timeline-node:hover .timeline-thumb {
+  transform: scale(2.8) translateY(-12px);
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.36));
+  z-index: 100;
+}
+
+.timeline-node.active .timeline-thumb {
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.28));
+}
+
+.timeline-node.active:hover .timeline-thumb {
+  transform: scale(3.0) translateY(-12px);
+  filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.5));
+  z-index: 100;
+}
+
 .timeline-node .t-year {
   font-size: 11px;
   font-weight: 500;
@@ -150,6 +199,7 @@ body.studio-dark-theme .timeline-node.active {
 
 .timeline-node .t-name {
   font-size: 13px;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 
