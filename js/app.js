@@ -12,10 +12,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // DOM Elements
   const timelineBar = document.getElementById("timeline-bar");
   const stagePhoneImg = document.getElementById("stage-phone-img");
+  const stageComponentImg = document.getElementById("stage-component-img");
   const emissionsTitleEl = document.getElementById("emissions-chart-title");
   const materialsTitleEl = document.getElementById("materials-chart-title");
   const topInfoCard = document.getElementById("top-info-card");
   const stage = document.getElementById("interactive-stage");
+
+  let activeModelId = currentModelId || "xs";
+  let activeComponentId = null;
+  let hoveredComponentId = null;
 
   // Fact icons mapping for components & overview
   const COMPONENT_ICONS = {
@@ -31,12 +36,88 @@ document.addEventListener("DOMContentLoaded", () => {
     aluminum: ["🪶", "🛡️", "♻️"]
   };
 
-  // Central Component Selection Dispatcher
+  // Preload component cutaway images for seamless, instant hover reveals
+  const preloadedImages = new Set();
+  function preloadModelImages(modelId) {
+    if (!modelId) return;
+    const compImages = MODEL_COMPONENT_IMAGES[modelId];
+    if (!compImages) return;
+    Object.values(compImages).forEach((src) => {
+      if (!preloadedImages.has(src)) {
+        const img = new Image();
+        img.src = src;
+        preloadedImages.add(src);
+      }
+    });
+  }
+
+  // Preload active model immediately
+  preloadModelImages(activeModelId);
+
+  // Preload remaining models in the background
+  if (typeof requestIdleCallback !== "undefined") {
+    requestIdleCallback(() => {
+      ALL_IPHONE_IDS.forEach((m) => {
+        if (m !== activeModelId) preloadModelImages(m);
+      });
+    });
+  } else {
+    setTimeout(() => {
+      ALL_IPHONE_IDS.forEach((m) => {
+        if (m !== activeModelId) preloadModelImages(m);
+      });
+    }, 1200);
+  }
+
+  // Seamless cutaway reveal directly over base phone (reveals on hover and click)
+  function revealComponentImage(componentId) {
+    if (!stageComponentImg) return;
+
+    if (!componentId) {
+      stageComponentImg.classList.remove("visible");
+      return;
+    }
+
+    const compImages = ENVIRONMENTAL_DATA.componentImages;
+    if (compImages && compImages[componentId]) {
+      const targetSrc = compImages[componentId];
+      if (stageComponentImg.getAttribute("src") !== targetSrc) {
+        stageComponentImg.src = targetSrc;
+        stageComponentImg.setAttribute("src", targetSrc);
+      }
+      stageComponentImg.classList.add("visible");
+    } else {
+      stageComponentImg.classList.remove("visible");
+    }
+  }
+
+  // Central Component Hover Dispatcher (reveals component instantly on hover)
+  function hoverComponent(id, isHovered) {
+    if (isHovered) {
+      hoveredComponentId = id;
+    } else {
+      if (hoveredComponentId === id) {
+        hoveredComponentId = null;
+      }
+    }
+
+    const targetId = hoveredComponentId || activeComponentId || null;
+    revealComponentImage(targetId);
+
+    // Cross-highlight phone mesh hotspot (without re-triggering callback)
+    hotspots.highlightHover(id, isHovered, null, false);
+
+    // Cross-highlight chart slice & legend row
+    charts.highlightSlice(id, isHovered);
+  }
+
+  // Central Component Selection Dispatcher (locks selection on click)
   function selectComponent(id) {
     activeComponentId = id;
+    hoveredComponentId = null;
 
-    // Cross-fade phone image to component cutaway or default exterior
-    updateStagePhoneImage(id);
+    // Show cutaway or hide for overview
+    revealComponentImage(id);
 
     // Update charts & phone hotspots
     charts.update(id);
@@ -46,34 +127,15 @@ document.addEventListener("DOMContentLoaded", () => {
     updateInfoCard(id);
   }
 
-  // Cross-fade center stage image between base phone and highlighted cutaway
-  function updateStagePhoneImage(componentId) {
-    if (!stagePhoneImg) return;
-    let targetSrc = ENVIRONMENTAL_DATA.image;
-    if (componentId && ENVIRONMENTAL_DATA.componentImages && ENVIRONMENTAL_DATA.componentImages[componentId]) {
-      targetSrc = ENVIRONMENTAL_DATA.componentImages[componentId];
-    }
-
-    const currentSrc = stagePhoneImg.getAttribute("src");
-    if (currentSrc === targetSrc) return;
-
-    stagePhoneImg.classList.add("phone-fade-out");
-    setTimeout(() => {
-      stagePhoneImg.src = targetSrc;
-      stagePhoneImg.setAttribute("src", targetSrc);
-      stagePhoneImg.classList.remove("phone-fade-out");
-    }, 120);
-  }
-
-  // Initialize Subsystems
+  // Initialize Subsystems with Bidirectional Hover & Click
   const charts = new EnvironmentalCharts({
     onSelectComponent: (id) => selectComponent(id),
-    onHoverComponent: (id, isHovered) => hotspots.highlightHover(id, isHovered)
+    onHoverComponent: (id, isHovered) => hoverComponent(id, isHovered)
   });
 
   const hotspots = new PhoneHotspots({
     onSelect: (id) => selectComponent(id),
-    onHover: (id, isHovered) => charts.highlightSlice(id, isHovered)
+    onHover: (id, isHovered) => hoverComponent(id, isHovered)
   });
 
   // Switch Active iPhone Model
@@ -81,6 +143,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!IPHONE_MODELS_DATA[modelId]) return;
     activeModelId = modelId;
     activeComponentId = null;
+    hoveredComponentId = null;
+
+    // Reset overlay immediately
+    if (stageComponentImg) {
+      stageComponentImg.classList.remove("visible");
+      stageComponentImg.src = "";
+    }
 
     // Audio feedback
     hotspots.playClickSound(580, 0.04);
@@ -88,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Update global environmental dataset
     setModelData(modelId);
 
-    // Smooth photo cross-fade
+    // Smooth base phone cross-fade
     if (stagePhoneImg) {
       stagePhoneImg.classList.add("phone-fade-out");
       setTimeout(() => {
@@ -97,6 +166,9 @@ document.addEventListener("DOMContentLoaded", () => {
         stagePhoneImg.classList.remove("phone-fade-out");
       }, 120);
     }
+
+    // Preload new model's component cutaways
+    preloadModelImages(modelId);
 
     // Update SVG Chart Titles
     if (emissionsTitleEl) {

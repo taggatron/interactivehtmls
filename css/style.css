@@ -375,12 +375,24 @@ body.studio-dark-theme .stage-container {
   user-select: none;
   pointer-events: none;
   z-index: 1;
-  transition: opacity 0.25s ease, filter 0.4s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.25s ease, filter 0.4s ease;
 }
 
 .stage-bg-image.phone-fade-out {
   opacity: 0;
-  transform: scale(0.985);
+}
+
+/* Seamless Component Reveal Overlay */
+.stage-component-overlay {
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity;
+}
+
+.stage-component-overlay.visible {
+  opacity: 1;
 }
 
 body.studio-dark-theme .stage-bg-image {

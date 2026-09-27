@@ -1950,98 +1950,20 @@ const IPHONE_MODELS_DATA = {
 };
 
 // High-resolution component cutaway images and hardware badge mapping
-const MODEL_COMPONENT_IMAGES = {
-  xs: {
-    battery: "assets/comp_xs_battery.png",
-    circuit_boards: "assets/comp_xs_circuit_boards.png",
-    display: "assets/comp_xs_display.png",
-    stainless_steel: "assets/comp_xs_stainless_steel.png",
-    other: "assets/comp_xs_other.png",
-    glass: "assets/comp_xs_glass.png",
-    plastics: "assets/comp_xs_other.png",
-    aluminum: "assets/comp_xs_stainless_steel.png"
-  },
-  "11pro": {
-    battery: "assets/comp_xs_battery.png",
-    circuit_boards: "assets/comp_xs_circuit_boards.png",
-    display: "assets/comp_xs_display.png",
-    stainless_steel: "assets/comp_xs_stainless_steel.png",
-    other: "assets/comp_xs_other.png",
-    glass: "assets/comp_xs_glass.png",
-    plastics: "assets/comp_xs_other.png",
-    aluminum: "assets/comp_xs_stainless_steel.png"
-  },
-  "12pro": {
-    battery: "assets/comp_xs_battery.png",
-    circuit_boards: "assets/comp_xs_circuit_boards.png",
-    display: "assets/comp_xs_display.png",
-    stainless_steel: "assets/comp_xs_stainless_steel.png",
-    other: "assets/comp_15pro_other.png",
-    glass: "assets/comp_xs_glass.png",
-    plastics: "assets/comp_xs_other.png",
-    aluminum: "assets/comp_xs_stainless_steel.png"
-  },
-  "13pro": {
-    battery: "assets/comp_xs_battery.png",
-    circuit_boards: "assets/comp_xs_circuit_boards.png",
-    display: "assets/comp_xs_display.png",
-    stainless_steel: "assets/comp_xs_stainless_steel.png",
-    other: "assets/comp_15pro_other.png",
-    glass: "assets/comp_xs_glass.png",
-    plastics: "assets/comp_xs_other.png",
-    aluminum: "assets/comp_xs_stainless_steel.png"
-  },
-  "14pro": {
-    battery: "assets/comp_xs_battery.png",
-    circuit_boards: "assets/comp_xs_circuit_boards.png",
-    display: "assets/comp_xs_display.png",
-    stainless_steel: "assets/comp_xs_stainless_steel.png",
-    other: "assets/comp_15pro_other.png",
-    glass: "assets/comp_xs_glass.png",
-    plastics: "assets/comp_xs_other.png",
-    aluminum: "assets/comp_xs_stainless_steel.png"
-  },
-  "15pro": {
-    battery: "assets/comp_15pro_battery.png",
-    circuit_boards: "assets/comp_15pro_circuit_boards.png",
-    display: "assets/comp_xs_display.png",
-    stainless_steel: "assets/comp_15pro_stainless_steel.png",
-    other: "assets/comp_15pro_other.png",
-    glass: "assets/comp_xs_glass.png",
-    plastics: "assets/comp_15pro_other.png",
-    aluminum: "assets/comp_15pro_stainless_steel.png"
-  },
-  "16pro": {
-    battery: "assets/comp_16pro_battery.png",
-    circuit_boards: "assets/comp_16pro_circuit_boards.png",
-    display: "assets/comp_xs_display.png",
-    stainless_steel: "assets/comp_15pro_stainless_steel.png",
-    other: "assets/comp_15pro_other.png",
-    glass: "assets/comp_xs_glass.png",
-    plastics: "assets/comp_15pro_other.png",
-    aluminum: "assets/comp_15pro_stainless_steel.png"
-  },
-  "17pro": {
-    battery: "assets/comp_16pro_battery.png",
-    circuit_boards: "assets/comp_16pro_circuit_boards.png",
-    display: "assets/comp_xs_display.png",
-    stainless_steel: "assets/comp_15pro_stainless_steel.png",
-    other: "assets/comp_15pro_other.png",
-    glass: "assets/comp_xs_glass.png",
-    plastics: "assets/comp_15pro_other.png",
-    aluminum: "assets/comp_15pro_stainless_steel.png"
-  },
-  "18pro": {
-    battery: "assets/comp_16pro_battery.png",
-    circuit_boards: "assets/comp_16pro_circuit_boards.png",
-    display: "assets/comp_xs_display.png",
-    stainless_steel: "assets/comp_15pro_stainless_steel.png",
-    other: "assets/comp_15pro_other.png",
-    glass: "assets/comp_xs_glass.png",
-    plastics: "assets/comp_15pro_other.png",
-    aluminum: "assets/comp_15pro_stainless_steel.png"
-  }
-};
+const ALL_IPHONE_IDS = ['xs', '11pro', '12pro', '13pro', '14pro', '15pro', '16pro', '17pro', '18pro'];
+const MODEL_COMPONENT_IMAGES = {};
+ALL_IPHONE_IDS.forEach((m) => {
+  MODEL_COMPONENT_IMAGES[m] = {
+    battery: `assets/comp_${m}_battery.png`,
+    circuit_boards: `assets/comp_${m}_circuit_boards.png`,
+    display: `assets/comp_${m}_display.png`,
+    stainless_steel: `assets/comp_${m}_stainless_steel.png`,
+    other: `assets/comp_${m}_other.png`,
+    glass: `assets/comp_${m}_glass.png`,
+    plastics: `assets/comp_${m}_plastics.png`,
+    aluminum: `assets/comp_${m}_aluminum.png`
+  };
+});
 
 const COMPONENT_BADGES = {
   battery: "assets/badge_battery.png",
