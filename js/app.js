@@ -35,12 +35,34 @@ document.addEventListener("DOMContentLoaded", () => {
   function selectComponent(id) {
     activeComponentId = id;
 
+    // Cross-fade phone image to component cutaway or default exterior
+    updateStagePhoneImage(id);
+
     // Update charts & phone hotspots
     charts.update(id);
     hotspots.update(id);
 
     // Update Top-Right Integrated Card
     updateInfoCard(id);
+  }
+
+  // Cross-fade center stage image between base phone and highlighted cutaway
+  function updateStagePhoneImage(componentId) {
+    if (!stagePhoneImg) return;
+    let targetSrc = ENVIRONMENTAL_DATA.image;
+    if (componentId && ENVIRONMENTAL_DATA.componentImages && ENVIRONMENTAL_DATA.componentImages[componentId]) {
+      targetSrc = ENVIRONMENTAL_DATA.componentImages[componentId];
+    }
+
+    const currentSrc = stagePhoneImg.getAttribute("src");
+    if (currentSrc === targetSrc) return;
+
+    stagePhoneImg.classList.add("phone-fade-out");
+    setTimeout(() => {
+      stagePhoneImg.src = targetSrc;
+      stagePhoneImg.setAttribute("src", targetSrc);
+      stagePhoneImg.classList.remove("phone-fade-out");
+    }, 120);
   }
 
   // Initialize Subsystems
@@ -280,18 +302,25 @@ document.addEventListener("DOMContentLoaded", () => {
         </button>
       </div>
 
-      <div class="info-kpi-row">
-        <div class="info-kpi-box" style="border-color: ${comp.materialColor}30;">
-          <div class="kpi-val" style="color: ${comp.materialColor};">${comp.weightFormatted}</div>
-          <div class="kpi-sub">${comp.weightPercentage}% of Device</div>
-        </div>
-        <div class="info-kpi-box">
-          <div class="kpi-val">${comp.carbonFootprint}<small>kg</small></div>
-          <div class="kpi-sub">${comp.carbonPercentage}% of Total CO₂e</div>
-        </div>
-        <div class="info-kpi-box">
-          <div class="kpi-val">${topEmissionsPhase.percentage}<small>%</small></div>
-          <div class="kpi-sub">${phaseShortName}</div>
+      <div class="info-component-main">
+        ${comp.badgeImage ? `
+          <div class="info-component-badge-preview" style="border-color: ${comp.materialColor}40;" title="${comp.name} hardware render">
+            <img src="${comp.badgeImage}" alt="${comp.name} preview" class="info-badge-render-img" />
+          </div>
+        ` : ""}
+        <div class="info-kpi-row ${comp.badgeImage ? "with-badge" : ""}">
+          <div class="info-kpi-box" style="border-color: ${comp.materialColor}30;">
+            <div class="kpi-val" style="color: ${comp.materialColor};">${comp.weightFormatted}</div>
+            <div class="kpi-sub">${comp.weightPercentage}% of Device</div>
+          </div>
+          <div class="info-kpi-box">
+            <div class="kpi-val">${comp.carbonFootprint}<small>kg</small></div>
+            <div class="kpi-sub">${comp.carbonPercentage}% of Total CO₂e</div>
+          </div>
+          <div class="info-kpi-box">
+            <div class="kpi-val">${topEmissionsPhase.percentage}<small>%</small></div>
+            <div class="kpi-sub">${phaseShortName}</div>
+          </div>
         </div>
       </div>
 
@@ -325,7 +354,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "Escape") {
       hotspots.playClickSound(480);
       selectComponent(null);
-    } else if (e.key >= "1" && e.key <= "7") {
+    } else if (e.key >= "1" && e.key <= "9") {
       const idx = parseInt(e.key, 10) - 1;
       if (modelIds[idx]) {
         switchModel(modelIds[idx]);
