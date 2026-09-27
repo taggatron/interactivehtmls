@@ -1,7 +1,7 @@
 import os
-from PIL import Image, ImageDraw, ImageFilter, ImageEnhance, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 
-TARGET_MODELS = ['xs', '11pro', '12pro', '13pro', '14pro', '15pro', '16pro', '17pro', '18pro']
+TARGET_MODELS = ['13pro', '14pro', '15pro', '16pro', '17pro', '18pro']
 
 # Load base badge assets
 bat_badge = Image.open('assets/badge_battery.png').convert('RGBA')
@@ -10,6 +10,7 @@ coil_badge = Image.open('assets/badge_other.png').convert('RGBA')
 disp_badge = Image.open('assets/badge_display.png').convert('RGBA')
 frame_badge = Image.open('assets/badge_stainless_steel.png').convert('RGBA')
 
+# Model-specific hardware specifications
 MODEL_SPECS = {
     'xs': {
         'chip': 'A12', 'chip_sub': 'Bionic • 7nm', 'has_magsafe': False,
@@ -58,15 +59,24 @@ MODEL_SPECS = {
     }
 }
 
+# Subpixel 2048x1152 coordinate bounds for left phone (front display) and right phone (rear chassis)
+PHONE_GEOMETRY = {
+    'xs':    {'front': (684, 546, 836, 1148), 'back': (760, 557, 972, 1148), 'cx_back': 866, 'cy_back': 844},
+    '11pro': {'front': (511, 540, 811, 1147), 'back': (900, 555, 1145, 1147), 'cx_back': 1022, 'cy_back': 851},
+    '12pro': {'front': (595, 554, 820, 1146), 'back': (841, 554, 1060, 1145), 'cx_back': 950, 'cy_back': 849},
+    '13pro': {'front': (533, 542, 827, 1147), 'back': (872, 546, 1124, 1147), 'cx_back': 998, 'cy_back': 846},
+    '14pro': {'front': (552, 547, 837, 1147), 'back': (865, 554, 1107, 1147), 'cx_back': 986, 'cy_back': 850},
+    '15pro': {'front': (587, 555, 825, 1141), 'back': (846, 555, 1068, 1144), 'cx_back': 957, 'cy_back': 849},
+    '16pro': {'front': (578, 553, 810, 1147), 'back': (845, 553, 1077, 1147), 'cx_back': 961, 'cy_back': 850},
+    '17pro': {'front': (581, 552, 815, 1147), 'back': (841, 553, 1075, 1147), 'cx_back': 958, 'cy_back': 850},
+    '18pro': {'front': (583, 551, 810, 1142), 'back': (846, 551, 1073, 1142), 'cx_back': 959, 'cy_back': 846},
+}
+
 def draw_chip_label(draw, cx, cy, chip_name, sub_name, color=(255, 255, 255)):
-    # Draw dark chip substrate
     w, h = 90, 80
     x0, y0 = cx - w//2, cy - h//2
     draw.rounded_rectangle([x0, y0, x0 + w, y0 + h], radius=8, fill=(20, 24, 28, 240), outline=color, width=2)
-    # Apple logo circle
     draw.ellipse([cx - 7, y0 + 12, cx + 7, y0 + 26], fill=color)
-    # Chip text lines (using geometric rendering for crisp vector look)
-    # Text line 1: Chip name
     draw.text((cx - len(chip_name)*4, y0 + 34), chip_name, fill=color)
     draw.text((cx - len(sub_name)*3, y0 + 52), sub_name, fill=(180, 200, 220))
 
@@ -74,8 +84,18 @@ def create_battery_cutaway(base, model):
     w, h = base.size
     comp = base.copy()
     spec = MODEL_SPECS.get(model, MODEL_SPECS['xs'])
+    geo = PHONE_GEOMETRY.get(model, PHONE_GEOMETRY['xs'])
     
-    bx0, by0, bx1, by1 = 812, 770, 928, 1040
+    rx0, ry0, rx1, ry1 = geo['back']
+    rw = rx1 - rx0
+    if model == 'xs':
+        bx0, by0, bx1, by1 = 812, 770, 928, 1040
+    else:
+        bw = int(rw * 0.52)
+        bx0 = geo['cx_back'] - bw // 2 - 10
+        bx1 = bx0 + bw
+        by0 = ry0 + int((ry1 - ry0) * 0.36)
+        by1 = ry1 - int((ry1 - ry0) * 0.15)
     bw, bh = bx1 - bx0, by1 - by0
 
     # 1. Dark smoky glass window for internal cavity
@@ -84,7 +104,6 @@ def create_battery_cutaway(base, model):
     dmask.rounded_rectangle([bx0, by0, bx1, by1], radius=16, fill=225)
     mask = mask.filter(ImageFilter.GaussianBlur(3))
     
-    # Model-specific cavity tint
     tint_color = (18, 22, 28, 210) if spec['bat_type'] == 'metal_case' else (10, 16, 22, 195)
     tint = Image.new('RGBA', (w, h), tint_color)
     comp = Image.composite(tint, comp, mask)
@@ -92,7 +111,6 @@ def create_battery_cutaway(base, model):
     # 2. Battery pack hardware render with model-specific styling
     bat_scaled = bat_badge.resize((bw - 12, bh - 12), Image.Resampling.LANCZOS)
     if spec['bat_type'] == 'metal_case':
-        # iPhone 16 Pro metal-cased battery has silver metallic sheen
         enhancer = ImageEnhance.Color(bat_scaled)
         bat_scaled = enhancer.enhance(0.4)
         enhancer_b = ImageEnhance.Brightness(bat_scaled)
@@ -126,10 +144,23 @@ def create_circuit_boards_cutaway(base, model):
     w, h = base.size
     comp = base.copy()
     spec = MODEL_SPECS.get(model, MODEL_SPECS['xs'])
+    geo = PHONE_GEOMETRY.get(model, PHONE_GEOMETRY['xs'])
     
-    px0, py0, px1, py1 = 824, 552, 942, 744
+    rx0, ry0, rx1, ry1 = geo['back']
+    rw = rx1 - rx0
+    if model == 'xs':
+        px0, py0, px1, py1 = 824, 552, 942, 744
+        cx0, cy0, cx1, cy1 = 774, 554, 824, 686
+    else:
+        cx0 = rx0 + 14
+        cx1 = rx0 + int(rw * 0.44)
+        cy0 = ry0 + 14
+        cy1 = ry0 + int((ry1 - ry0) * 0.28)
+        px0 = cx1 + 4
+        px1 = rx1 - 18
+        py0 = ry0 + 14
+        py1 = ry0 + int((ry1 - ry0) * 0.35)
     pw, ph = px1 - px0, py1 - py0
-    cx0, cy0, cx1, cy1 = 774, 554, 824, 686
 
     # 1. Dark cavity
     mask = Image.new('L', (w, h), 0)
@@ -144,7 +175,7 @@ def create_circuit_boards_cutaway(base, model):
     pcb_scaled = pcb_badge.resize((pw - 8, ph - 8), Image.Resampling.LANCZOS)
     comp.paste(pcb_scaled, (px0 + 4, py0 + 4), pcb_scaled)
 
-    # 3. Model-specific Silicon Chip overlay (A12, A13, A14, A15, A16, A17 Pro, A18 Pro, etc.)
+    # 3. Model-specific Silicon Chip overlay (A12 through A20 Pro)
     chip_layer = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     dchip = ImageDraw.Draw(chip_layer)
     draw_chip_label(dchip, (px0 + px1)//2, (py0 + py1)//2 - 6, spec['chip'], spec['chip_sub'], (255, 255, 255))
@@ -173,40 +204,42 @@ def create_display_cutaway(base, model):
     w, h = base.size
     comp = base.copy()
     spec = MODEL_SPECS.get(model, MODEL_SPECS['xs'])
+    geo = PHONE_GEOMETRY.get(model, PHONE_GEOMETRY['xs'])
     
-    # Front OLED screen on the left phone
-    dx0, dy0, dx1, dy1 = 692, 542, 836, 1144
+    fx0, fy0, fx1, fy1 = geo['front']
+    dx0, dy0, dx1, dy1 = fx0 + 8, fy0 + 8, fx1 - 8, fy1 - 8
+    cx_front = (dx0 + dx1) // 2
 
     # 1. Radiant OLED border aura
     bloom = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     dbloom = ImageDraw.Draw(bloom)
-    dbloom.rounded_rectangle([dx0, dy0, dx1, dy1], radius=38, outline=(231, 129, 56, 255), width=12)
-    dbloom.rounded_rectangle([dx0+2, dy0+2, dx1-2, dy1-2], radius=36, outline=(0, 113, 227, 240), width=6)
+    radius = 34 if 'flat' in spec['frame_type'] or 'titanium' in spec['frame_type'] else 38
+    dbloom.rounded_rectangle([dx0, dy0, dx1, dy1], radius=radius, outline=(231, 129, 56, 255), width=12)
+    dbloom.rounded_rectangle([dx0+2, dy0+2, dx1-2, dy1-2], radius=radius-2, outline=(0, 113, 227, 240), width=6)
     bloom = bloom.filter(ImageFilter.GaussianBlur(14))
 
     # 2. Electric neon perimeter line
     neon_line = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     dline = ImageDraw.Draw(neon_line)
-    dline.rounded_rectangle([dx0, dy0, dx1, dy1], radius=38, outline=(255, 170, 80, 255), width=4)
-    dline.rounded_rectangle([dx0+1, dy0+1, dx1-1, dy1-1], radius=37, outline=(255, 255, 255, 240), width=2)
+    dline.rounded_rectangle([dx0, dy0, dx1, dy1], radius=radius, outline=(255, 170, 80, 255), width=4)
+    dline.rounded_rectangle([dx0+1, dy0+1, dx1-1, dy1-1], radius=radius-1, outline=(255, 255, 255, 240), width=2)
 
     # 3. Model-specific cutout (Notch vs Dynamic Island vs Under-display)
     if spec['notch'] == 'dynamic_island':
-        # Dynamic Island pill cutout
-        dline.rounded_rectangle([746, 560, 782, 574], radius=7, fill=(0, 0, 0, 255), outline=(0, 113, 227, 200), width=1)
+        dline.rounded_rectangle([cx_front - 24, dy0 + 16, cx_front + 24, dy0 + 32], radius=8, fill=(0, 0, 0, 255), outline=(0, 113, 227, 200), width=1)
     elif spec['notch'] == 'wide_notch':
-        # Classic wide notch
-        dline.rounded_rectangle([736, 542, 792, 564], radius=6, fill=(0, 0, 0, 255), outline=(231, 129, 56, 200), width=1)
+        dline.rounded_rectangle([cx_front - 30, dy0, cx_front + 30, dy0 + 24], radius=6, fill=(0, 0, 0, 255), outline=(231, 129, 56, 200), width=1)
     elif spec['notch'] == 'narrow_notch':
-        # Narrow notch
-        dline.rounded_rectangle([742, 542, 786, 560], radius=5, fill=(0, 0, 0, 255), outline=(231, 129, 56, 200), width=1)
+        dline.rounded_rectangle([cx_front - 22, dy0, cx_front + 22, dy0 + 18], radius=5, fill=(0, 0, 0, 255), outline=(231, 129, 56, 200), width=1)
+    elif spec['notch'] == 'under_display':
+        dline.ellipse([cx_front - 5, dy0 + 20, cx_front + 5, dy0 + 30], outline=(80, 227, 194, 220), width=1)
 
     neon_line = neon_line.filter(ImageFilter.GaussianBlur(1))
 
-    # 4. Enhance vibrance of the front screen
+    # 4. Enhance vibrance of front screen
     screen_mask = Image.new('L', (w, h), 0)
     ds = ImageDraw.Draw(screen_mask)
-    ds.rounded_rectangle([dx0, dy0, dx1, dy1], radius=38, fill=255)
+    ds.rounded_rectangle([dx0, dy0, dx1, dy1], radius=radius, fill=255)
     screen_mask = screen_mask.filter(ImageFilter.GaussianBlur(2))
 
     enhancer = ImageEnhance.Color(base)
@@ -223,17 +256,16 @@ def create_frame_cutaway(base, model):
     w, h = base.size
     comp = base.copy()
     spec = MODEL_SPECS.get(model, MODEL_SPECS['xs'])
+    geo = PHONE_GEOMETRY.get(model, PHONE_GEOMETRY['xs'])
     
-    # Outer perimeter contours
-    fx0, fy0, fx1, fy1 = 676, 540, 836, 1148 # left phone
-    rx0, ry0, rx1, ry1 = 760, 540, 974, 1148 # right phone
-
+    fx0, fy0, fx1, fy1 = geo['front']
+    rx0, ry0, rx1, ry1 = geo['back']
     color = spec['frame_color']
 
     # 1. Model-specific metallic glow (surgical steel vs titanium vs desert titanium)
     bloom = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     dbloom = ImageDraw.Draw(bloom)
-    radius = 36 if 'flat' in spec['frame_type'] or 'titanium' in spec['frame_type'] else 40
+    radius = 34 if 'flat' in spec['frame_type'] or 'titanium' in spec['frame_type'] else 40
     dbloom.rounded_rectangle([fx0, fy0, fx1, fy1], radius=radius, outline=color + (255,), width=8)
     dbloom.rounded_rectangle([rx0, ry0, rx1, ry1], radius=radius, outline=color + (255,), width=8)
     bloom = bloom.filter(ImageFilter.GaussianBlur(12))
@@ -256,9 +288,11 @@ def create_wireless_cutaway(base, model):
     w, h = base.size
     comp = base.copy()
     spec = MODEL_SPECS.get(model, MODEL_SPECS['xs'])
+    geo = PHONE_GEOMETRY.get(model, PHONE_GEOMETRY['xs'])
     
-    # Center of right phone: cx=866, cy=844, r=64
-    cx, cy, r = 866, 844, 64
+    cx, cy = geo['cx_back'], geo['cy_back']
+    rw = geo['back'][2] - geo['back'][0]
+    r = 64 if model == 'xs' else int(rw * 0.28)
     x0, y0, x1, y1 = cx - r, cy - r, cx + r, cy + r
 
     # 1. Dark smoky glass window for coil
@@ -276,7 +310,6 @@ def create_wireless_cutaway(base, model):
     # 3. Model-specific MagSafe indicator (12 Pro and later)
     if spec['has_magsafe']:
         dmag = ImageDraw.Draw(comp)
-        # MagSafe vertical orientation alignment pill at bottom of ring
         dmag.rounded_rectangle([cx - 4, cy + r - 4, cx + 4, cy + r + 18], radius=3, fill=(255, 215, 120, 240), outline=(216, 189, 72, 255))
 
     # 4. Amber / Gold electromagnetic aura
@@ -299,14 +332,14 @@ def create_wireless_cutaway(base, model):
 def create_glass_cutaway(base, model):
     w, h = base.size
     comp = base.copy()
-    
-    rx0, ry0, rx1, ry1 = 760, 542, 970, 1146
-    fx0, fy0, fx1, fy1 = 692, 542, 836, 1144
+    geo = PHONE_GEOMETRY.get(model, PHONE_GEOMETRY['xs'])
+    fx0, fy0, fx1, fy1 = geo['front']
+    rx0, ry0, rx1, ry1 = geo['back']
 
     sheen = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     dsheen = ImageDraw.Draw(sheen)
-    dsheen.rounded_rectangle([rx0, ry0, rx1, ry1], radius=38, fill=(137, 154, 56, 35), outline=(137, 154, 56, 200), width=4)
-    dsheen.rounded_rectangle([fx0, fy0, fx1, fy1], radius=38, fill=(137, 154, 56, 25), outline=(137, 154, 56, 180), width=4)
+    dsheen.rounded_rectangle([rx0, ry0, rx1, ry1], radius=36, fill=(137, 154, 56, 35), outline=(137, 154, 56, 200), width=4)
+    dsheen.rounded_rectangle([fx0, fy0, fx1, fy1], radius=36, fill=(137, 154, 56, 25), outline=(137, 154, 56, 180), width=4)
     
     bloom = sheen.filter(ImageFilter.GaussianBlur(10))
     comp = Image.alpha_composite(comp, bloom)
@@ -316,25 +349,31 @@ def create_glass_cutaway(base, model):
 def create_plastics_cutaway(base, model):
     w, h = base.size
     comp = base.copy()
+    geo = PHONE_GEOMETRY.get(model, PHONE_GEOMETRY['xs'])
+    rx0, ry0, rx1, ry1 = geo['back']
+    rw = rx1 - rx0
     
-    px0, py0, px1, py1 = 780, 1036, 952, 1146
+    px0 = rx0 + 16
+    px1 = rx1 - 16
+    py0 = ry1 - int((ry1 - ry0) * 0.16)
+    py1 = ry1 - 10
 
     mask = Image.new('L', (w, h), 0)
     dmask = ImageDraw.Draw(mask)
-    dmask.rounded_rectangle([px0, py0, px1, py1], radius=16, fill=220)
+    dmask.rounded_rectangle([px0, py0, px1, py1], radius=14, fill=220)
     mask = mask.filter(ImageFilter.GaussianBlur(3))
     tint = Image.new('RGBA', (w, h), (14, 14, 18, 195))
     comp = Image.composite(tint, comp, mask)
 
     bloom = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     dbloom = ImageDraw.Draw(bloom)
-    dbloom.rounded_rectangle([px0, py0, px1, py1], radius=16, outline=(191, 163, 98, 255), width=6)
+    dbloom.rounded_rectangle([px0, py0, px1, py1], radius=14, outline=(191, 163, 98, 255), width=6)
     bloom = bloom.filter(ImageFilter.GaussianBlur(10))
 
     neon_line = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     dline = ImageDraw.Draw(neon_line)
-    dline.rounded_rectangle([px0, py0, px1, py1], radius=16, outline=(240, 215, 150, 255), width=3)
-    dline.rounded_rectangle([px0+1, py0+1, px1-1, py1-1], radius=15, outline=(255, 255, 255, 220), width=1)
+    dline.rounded_rectangle([px0, py0, px1, py1], radius=14, outline=(240, 215, 150, 255), width=3)
+    dline.rounded_rectangle([px0+1, py0+1, px1-1, py1-1], radius=13, outline=(255, 255, 255, 220), width=1)
     neon_line = neon_line.filter(ImageFilter.GaussianBlur(1))
 
     comp = Image.alpha_composite(comp, bloom)
@@ -344,47 +383,72 @@ def create_plastics_cutaway(base, model):
 def create_aluminum_cutaway(base, model):
     w, h = base.size
     comp = base.copy()
+    geo = PHONE_GEOMETRY.get(model, PHONE_GEOMETRY['xs'])
+    cx, cy = geo['cx_back'], geo['cy_back']
+    rw = geo['back'][2] - geo['back'][0]
     
-    ax0, ay0, ax1, ay1 = 850, 728, 934, 872
+    ax0 = cx - int(rw * 0.22)
+    ax1 = cx + int(rw * 0.22)
+    ay0 = cy - 70
+    ay1 = cy + 70
 
     bloom = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     dbloom = ImageDraw.Draw(bloom)
-    dbloom.rounded_rectangle([ax0, ay0, ax1, ay1], radius=12, outline=(200, 72, 59, 255), width=6)
+    dbloom.rounded_rectangle([ax0, ay0, ax1, ay1], radius=14, outline=(160, 165, 175, 255), width=6)
     bloom = bloom.filter(ImageFilter.GaussianBlur(10))
 
     neon_line = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     dline = ImageDraw.Draw(neon_line)
-    dline.rounded_rectangle([ax0, ay0, ax1, ay1], radius=12, outline=(255, 140, 130, 255), width=3)
-    dline.rounded_rectangle([ax0+1, ay0+1, ax1-1, ay1-1], radius=11, outline=(255, 255, 255, 220), width=1)
+    dline.rounded_rectangle([ax0, ay0, ax1, ay1], radius=14, outline=(220, 230, 240, 255), width=3)
+    dline.rounded_rectangle([ax0+1, ay0+1, ax1-1, ay1-1], radius=13, outline=(255, 255, 255, 230), width=1)
     neon_line = neon_line.filter(ImageFilter.GaussianBlur(1))
 
     comp = Image.alpha_composite(comp, bloom)
     comp = Image.alpha_composite(comp, neon_line)
     return comp
 
-# Process all 9 models and generate aligned, model-specific upscaled cutaways
-for m in TARGET_MODELS:
-    base_file = f'assets/phone_{m}.png'
-    if not os.path.exists(base_file):
-        continue
-    base = Image.open(base_file).convert('RGBA')
-    print(f'Generating model-specific upscaled cutaways for {m}...')
+def build_all():
+    print("Generating model-aligned 2048x1152 high-resolution component cutaways...")
+    for model in TARGET_MODELS:
+        base_path = f"assets/phone_{model}.png"
+        if not os.path.exists(base_path):
+            print(f"Skipping {model} (base file missing)")
+            continue
+        base = Image.open(base_path).convert('RGBA')
 
-    # 1. Battery
-    create_battery_cutaway(base, m).save(f'assets/comp_{m}_battery.png', 'PNG')
-    # 2. Circuit Boards
-    create_circuit_boards_cutaway(base, m).save(f'assets/comp_{m}_circuit_boards.png', 'PNG')
-    # 3. Display
-    create_display_cutaway(base, m).save(f'assets/comp_{m}_display.png', 'PNG')
-    # 4. Frame / Stainless Steel / Titanium
-    create_frame_cutaway(base, m).save(f'assets/comp_{m}_stainless_steel.png', 'PNG')
-    # 5. Wireless Qi / MagSafe
-    create_wireless_cutaway(base, m).save(f'assets/comp_{m}_other.png', 'PNG')
-    # 6. Glass
-    create_glass_cutaway(base, m).save(f'assets/comp_{m}_glass.png', 'PNG')
-    # 7. Plastics / Acoustics
-    create_plastics_cutaway(base, m).save(f'assets/comp_{m}_plastics.png', 'PNG')
-    # 8. Aluminum
-    create_aluminum_cutaway(base, m).save(f'assets/comp_{m}_aluminum.png', 'PNG')
+        # 1. Battery
+        bat_img = create_battery_cutaway(base, model)
+        bat_img.save(f"assets/comp_{model}_battery.png", "PNG", compress_level=1)
 
-print('✓ Successfully generated all 72 model-specific upscaled component reveal images!')
+        # 2. Circuit Boards & Logic Chip
+        pcb_img = create_circuit_boards_cutaway(base, model)
+        pcb_img.save(f"assets/comp_{model}_circuit_boards.png", "PNG", compress_level=1)
+
+        # 3. Display
+        disp_img = create_display_cutaway(base, model)
+        disp_img.save(f"assets/comp_{model}_display.png", "PNG", compress_level=1)
+
+        # 4. Frame / Stainless Steel / Titanium
+        frame_img = create_frame_cutaway(base, model)
+        frame_img.save(f"assets/comp_{model}_stainless_steel.png", "PNG", compress_level=1)
+
+        # 5. Wireless Qi / MagSafe Coil
+        coil_img = create_wireless_cutaway(base, model)
+        coil_img.save(f"assets/comp_{model}_other.png", "PNG", compress_level=1)
+
+        # 6. Glass
+        glass_img = create_glass_cutaway(base, model)
+        glass_img.save(f"assets/comp_{model}_glass.png", "PNG", compress_level=1)
+
+        # 7. Plastics
+        plastics_img = create_plastics_cutaway(base, model)
+        plastics_img.save(f"assets/comp_{model}_plastics.png", "PNG", compress_level=1)
+
+        # 8. Aluminum
+        alum_img = create_aluminum_cutaway(base, model)
+        alum_img.save(f"assets/comp_{model}_aluminum.png", "PNG", compress_level=1)
+
+        print(f"✓ Generated 8 unique upscaled 2048x1152 cutaways for {model}", flush=True)
+
+if __name__ == '__main__':
+    build_all()

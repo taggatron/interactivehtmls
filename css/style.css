@@ -511,43 +511,27 @@ body.studio-dark-theme .chart-center-title {
   fill: var(--apple-blue);
 }
 
-/* ---------------- Phone Hotspot Mesh Overlay ---------------- */
+/* ---------------- Phone Hotspot Hit Areas (Invisible overlay) ---------------- */
 .phone-mesh-part {
   cursor: pointer;
-  fill-opacity: 0.001; /* Invisible hit area by default */
-  stroke-opacity: 0;
-  stroke-width: 2.5;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  fill: transparent !important;
+  fill-opacity: 0 !important;
+  stroke: none !important;
+  stroke-opacity: 0 !important;
+  stroke-width: 0 !important;
+  filter: none !important;
+  pointer-events: auto;
 }
 
 .phone-mesh-part:hover,
-.mesh-hovered {
-  fill-opacity: 0.18 !important;
-  stroke-opacity: 0.9 !important;
-  filter: drop-shadow(0 0 10px currentColor);
-}
-
+.mesh-hovered,
 .mesh-active {
-  fill-opacity: 0.05 !important;
-  stroke-opacity: 0.85 !important;
-  stroke-width: 2px !important;
-  filter: drop-shadow(0 0 10px currentColor) !important;
-  animation: pulse-mesh 2.4s infinite ease-in-out;
-}
-
-@keyframes pulse-mesh {
-  0% {
-    fill-opacity: 0.03;
-    stroke-opacity: 0.7;
-  }
-  50% {
-    fill-opacity: 0.1;
-    stroke-opacity: 1;
-  }
-  100% {
-    fill-opacity: 0.03;
-    stroke-opacity: 0.7;
-  }
+  fill: transparent !important;
+  fill-opacity: 0 !important;
+  stroke: none !important;
+  stroke-opacity: 0 !important;
+  stroke-width: 0 !important;
+  filter: none !important;
 }
 
 /* ---------------- Part Hover Tooltip ---------------- */

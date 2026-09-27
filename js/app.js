@@ -6,8 +6,6 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const modelIds = Object.keys(IPHONE_MODELS_DATA);
-  let activeModelId = currentModelId || "xs";
-  let activeComponentId = null;
 
   // DOM Elements
   const timelineBar = document.getElementById("timeline-bar");
@@ -134,6 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const hotspots = new PhoneHotspots({
+    modelId: activeModelId,
     onSelect: (id) => selectComponent(id),
     onHover: (id, isHovered) => hoverComponent(id, isHovered)
   });
@@ -208,8 +207,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Re-render chart engines with new model data
     charts.update(null);
 
-    // Refresh phone hotspots mesh colors
-    hotspots.renderHotspotMesh();
+    // Refresh phone hotspots mesh colors and positions for the selected model
+    hotspots.renderHotspotMesh(modelId);
     hotspots.update(null);
 
     // Refresh top-right integrated info card
