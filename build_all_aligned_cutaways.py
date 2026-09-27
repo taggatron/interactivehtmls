@@ -1,7 +1,8 @@
 import os
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 
-TARGET_MODELS = ['13pro', '14pro', '15pro', '16pro', '17pro', '18pro']
+# All 9 iPhone generations
+TARGET_MODELS = ['xs', '11pro', '12pro', '13pro', '14pro', '15pro', '16pro', '17pro', '18pro']
 
 # Load base badge assets
 bat_badge = Image.open('assets/badge_battery.png').convert('RGBA')
@@ -14,7 +15,7 @@ frame_badge = Image.open('assets/badge_stainless_steel.png').convert('RGBA')
 MODEL_SPECS = {
     'xs': {
         'chip': 'A12', 'chip_sub': 'Bionic • 7nm', 'has_magsafe': False,
-        'bat_type': 'pouch_l', 'bat_cap': '2658 mAh', 'bat_label': 'Li-ion • Apple Daisy Recycled',
+        'bat_type': 'pouch_l', 'bat_cap': '2658 mAh', 'bat_label': 'Li-ion • Daisy Recycled',
         'frame_type': 'steel_round', 'frame_color': (0, 113, 227), 'notch': 'wide_notch'
     },
     '11pro': {
@@ -72,15 +73,29 @@ PHONE_GEOMETRY = {
     '18pro': {'front': (583, 551, 810, 1142), 'back': (846, 551, 1073, 1142), 'cx_back': 959, 'cy_back': 846},
 }
 
-def draw_chip_label(draw, cx, cy, chip_name, sub_name, color=(255, 255, 255)):
-    w, h = 90, 80
+def add_ambient_shadow(base, obj_alpha, x, y, blur=4, opacity=130):
+    """Adds a soft natural ambient occlusion drop-shadow under hardware components."""
+    w, h = base.size
+    shadow_mask = Image.new('L', (w, h), 0)
+    shadow_mask.paste(obj_alpha, (x, y + 3))
+    shadow_mask = shadow_mask.filter(ImageFilter.GaussianBlur(blur))
+    shadow_fill = Image.new('RGBA', (w, h), (0, 0, 0, opacity))
+    return Image.composite(shadow_fill, base, shadow_mask)
+
+def draw_chip_label(draw, cx, cy, chip_name, sub_name):
+    """Draws an authentic Apple Silicon package with matte dark substrate and crisp markings."""
+    w, h = 92, 80
     x0, y0 = cx - w//2, cy - h//2
-    draw.rounded_rectangle([x0, y0, x0 + w, y0 + h], radius=8, fill=(20, 24, 28, 240), outline=color, width=2)
-    draw.ellipse([cx - 7, y0 + 12, cx + 7, y0 + 26], fill=color)
-    draw.text((cx - len(chip_name)*4, y0 + 34), chip_name, fill=color)
-    draw.text((cx - len(sub_name)*3, y0 + 52), sub_name, fill=(180, 200, 220))
+    # Realistic matte dark silicon package with subtle bevel edge
+    draw.rounded_rectangle([x0, y0, x0 + w, y0 + h], radius=8, fill=(22, 25, 30, 250), outline=(52, 58, 66, 255), width=1)
+    # Apple logo icon
+    draw.ellipse([cx - 7, y0 + 12, cx + 7, y0 + 26], fill=(240, 240, 245, 240))
+    # Chip name & specs
+    draw.text((cx - len(chip_name)*4, y0 + 34), chip_name, fill=(255, 255, 255, 250))
+    draw.text((cx - len(sub_name)*3, y0 + 52), sub_name, fill=(180, 195, 210, 220))
 
 def create_battery_cutaway(base, model):
+    """Reveals the internal battery pack seamlessly with realistic hardware texture and specifications."""
     w, h = base.size
     comp = base.copy()
     spec = MODEL_SPECS.get(model, MODEL_SPECS['xs'])
@@ -98,49 +113,25 @@ def create_battery_cutaway(base, model):
         by1 = ry1 - int((ry1 - ry0) * 0.15)
     bw, bh = bx1 - bx0, by1 - by0
 
-    # 1. Dark smoky glass window for internal cavity
-    mask = Image.new('L', (w, h), 0)
-    dmask = ImageDraw.Draw(mask)
-    dmask.rounded_rectangle([bx0, by0, bx1, by1], radius=16, fill=225)
-    mask = mask.filter(ImageFilter.GaussianBlur(3))
-    
-    tint_color = (18, 22, 28, 210) if spec['bat_type'] == 'metal_case' else (10, 16, 22, 195)
-    tint = Image.new('RGBA', (w, h), tint_color)
-    comp = Image.composite(tint, comp, mask)
-
-    # 2. Battery pack hardware render with model-specific styling
-    bat_scaled = bat_badge.resize((bw - 12, bh - 12), Image.Resampling.LANCZOS)
+    bat_scaled = bat_badge.resize((bw, bh), Image.Resampling.LANCZOS)
     if spec['bat_type'] == 'metal_case':
         enhancer = ImageEnhance.Color(bat_scaled)
         bat_scaled = enhancer.enhance(0.4)
         enhancer_b = ImageEnhance.Brightness(bat_scaled)
         bat_scaled = enhancer_b.enhance(1.25)
-    comp.paste(bat_scaled, (bx0 + 6, by0 + 6), bat_scaled)
 
-    # 3. Model-specific battery markings
+    # Ambient drop shadow nestled inside the chassis cavity
+    comp = add_ambient_shadow(comp, bat_scaled.split()[3], bx0, by0, blur=5, opacity=140)
+    comp.paste(bat_scaled, (bx0, by0), bat_scaled)
+
+    # Clean technical markings printed directly on the battery
     dcomp = ImageDraw.Draw(comp)
-    dcomp.text((bx0 + 16, by0 + bh - 44), spec['bat_cap'], fill=(255, 255, 255, 220))
-    dcomp.text((bx0 + 16, by0 + bh - 26), spec['bat_label'], fill=(160, 220, 180, 200))
-
-    # 4. Radiant neon green bloom
-    neon_green = (52, 199, 89, 255)
-    bloom = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    dbloom = ImageDraw.Draw(bloom)
-    dbloom.rounded_rectangle([bx0, by0, bx1, by1], radius=16, outline=neon_green, width=8)
-    bloom = bloom.filter(ImageFilter.GaussianBlur(12))
-
-    # 5. Crisp inner neon stroke + core white specular
-    neon_line = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    dline = ImageDraw.Draw(neon_line)
-    dline.rounded_rectangle([bx0, by0, bx1, by1], radius=16, outline=(120, 255, 170, 255), width=4)
-    dline.rounded_rectangle([bx0+1, by0+1, bx1-1, by1-1], radius=15, outline=(255, 255, 255, 230), width=2)
-    neon_line = neon_line.filter(ImageFilter.GaussianBlur(1))
-
-    comp = Image.alpha_composite(comp, bloom)
-    comp = Image.alpha_composite(comp, neon_line)
+    dcomp.text((bx0 + 16, by0 + bh - 40), spec['bat_cap'], fill=(240, 240, 245, 230))
+    dcomp.text((bx0 + 16, by0 + bh - 24), spec['bat_label'], fill=(180, 190, 200, 200))
     return comp
 
 def create_circuit_boards_cutaway(base, model):
+    """Reveals the logic board PCB, camera modules, and Apple Silicon processor package."""
     w, h = base.size
     comp = base.copy()
     spec = MODEL_SPECS.get(model, MODEL_SPECS['xs'])
@@ -162,45 +153,19 @@ def create_circuit_boards_cutaway(base, model):
         py1 = ry0 + int((ry1 - ry0) * 0.35)
     pw, ph = px1 - px0, py1 - py0
 
-    # 1. Dark cavity
-    mask = Image.new('L', (w, h), 0)
-    dmask = ImageDraw.Draw(mask)
-    dmask.rounded_rectangle([px0, py0, px1, py1], radius=14, fill=225)
-    dmask.rounded_rectangle([cx0, cy0, cx1, cy1], radius=16, fill=225)
-    mask = mask.filter(ImageFilter.GaussianBlur(3))
-    tint = Image.new('RGBA', (w, h), (10, 15, 24, 195))
-    comp = Image.composite(tint, comp, mask)
+    pcb_scaled = pcb_badge.resize((pw, ph), Image.Resampling.LANCZOS)
+    comp = add_ambient_shadow(comp, pcb_scaled.split()[3], px0, py0, blur=4, opacity=130)
+    comp.paste(pcb_scaled, (px0, py0), pcb_scaled)
 
-    # 2. Logic board hardware render
-    pcb_scaled = pcb_badge.resize((pw - 8, ph - 8), Image.Resampling.LANCZOS)
-    comp.paste(pcb_scaled, (px0 + 4, py0 + 4), pcb_scaled)
-
-    # 3. Model-specific Silicon Chip overlay (A12 through A20 Pro)
+    # Apple Silicon Chip package
     chip_layer = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     dchip = ImageDraw.Draw(chip_layer)
-    draw_chip_label(dchip, (px0 + px1)//2, (py0 + py1)//2 - 6, spec['chip'], spec['chip_sub'], (255, 255, 255))
+    draw_chip_label(dchip, (px0 + px1)//2, (py0 + py1)//2 - 6, spec['chip'], spec['chip_sub'])
     comp = Image.alpha_composite(comp, chip_layer)
-
-    # 4. Cyan & Lime circuitry neon bloom
-    bloom = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    dbloom = ImageDraw.Draw(bloom)
-    dbloom.rounded_rectangle([px0, py0, px1, py1], radius=14, outline=(48, 209, 88, 255), width=7)
-    dbloom.rounded_rectangle([cx0, cy0, cx1, cy1], radius=16, outline=(100, 210, 255, 255), width=6)
-    bloom = bloom.filter(ImageFilter.GaussianBlur(10))
-
-    # 5. Crisp neon edge
-    neon_line = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    dline = ImageDraw.Draw(neon_line)
-    dline.rounded_rectangle([px0, py0, px1, py1], radius=14, outline=(140, 255, 170, 255), width=3)
-    dline.rounded_rectangle([cx0, cy0, cx1, cy1], radius=16, outline=(180, 240, 255, 255), width=3)
-    dline.rounded_rectangle([px0+1, py0+1, px1-1, py1-1], radius=13, outline=(255, 255, 255, 220), width=1)
-    neon_line = neon_line.filter(ImageFilter.GaussianBlur(1))
-
-    comp = Image.alpha_composite(comp, bloom)
-    comp = Image.alpha_composite(comp, neon_line)
     return comp
 
 def create_display_cutaway(base, model):
+    """Reveals the Super Retina XDR OLED display panel by enhancing screen vibrance and contrast."""
     w, h = base.size
     comp = base.copy()
     spec = MODEL_SPECS.get(model, MODEL_SPECS['xs'])
@@ -208,51 +173,23 @@ def create_display_cutaway(base, model):
     
     fx0, fy0, fx1, fy1 = geo['front']
     dx0, dy0, dx1, dy1 = fx0 + 8, fy0 + 8, fx1 - 8, fy1 - 8
-    cx_front = (dx0 + dx1) // 2
-
-    # 1. Radiant OLED border aura
-    bloom = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    dbloom = ImageDraw.Draw(bloom)
     radius = 34 if 'flat' in spec['frame_type'] or 'titanium' in spec['frame_type'] else 38
-    dbloom.rounded_rectangle([dx0, dy0, dx1, dy1], radius=radius, outline=(231, 129, 56, 255), width=12)
-    dbloom.rounded_rectangle([dx0+2, dy0+2, dx1-2, dy1-2], radius=radius-2, outline=(0, 113, 227, 240), width=6)
-    bloom = bloom.filter(ImageFilter.GaussianBlur(14))
 
-    # 2. Electric neon perimeter line
-    neon_line = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    dline = ImageDraw.Draw(neon_line)
-    dline.rounded_rectangle([dx0, dy0, dx1, dy1], radius=radius, outline=(255, 170, 80, 255), width=4)
-    dline.rounded_rectangle([dx0+1, dy0+1, dx1-1, dy1-1], radius=radius-1, outline=(255, 255, 255, 240), width=2)
-
-    # 3. Model-specific cutout (Notch vs Dynamic Island vs Under-display)
-    if spec['notch'] == 'dynamic_island':
-        dline.rounded_rectangle([cx_front - 24, dy0 + 16, cx_front + 24, dy0 + 32], radius=8, fill=(0, 0, 0, 255), outline=(0, 113, 227, 200), width=1)
-    elif spec['notch'] == 'wide_notch':
-        dline.rounded_rectangle([cx_front - 30, dy0, cx_front + 30, dy0 + 24], radius=6, fill=(0, 0, 0, 255), outline=(231, 129, 56, 200), width=1)
-    elif spec['notch'] == 'narrow_notch':
-        dline.rounded_rectangle([cx_front - 22, dy0, cx_front + 22, dy0 + 18], radius=5, fill=(0, 0, 0, 255), outline=(231, 129, 56, 200), width=1)
-    elif spec['notch'] == 'under_display':
-        dline.ellipse([cx_front - 5, dy0 + 20, cx_front + 5, dy0 + 30], outline=(80, 227, 194, 220), width=1)
-
-    neon_line = neon_line.filter(ImageFilter.GaussianBlur(1))
-
-    # 4. Enhance vibrance of front screen
     screen_mask = Image.new('L', (w, h), 0)
     ds = ImageDraw.Draw(screen_mask)
     ds.rounded_rectangle([dx0, dy0, dx1, dy1], radius=radius, fill=255)
     screen_mask = screen_mask.filter(ImageFilter.GaussianBlur(2))
 
+    # Brighten and enrich the active OLED panel
     enhancer = ImageEnhance.Color(base)
     vibrant_base = enhancer.enhance(1.35)
     enhancer_b = ImageEnhance.Brightness(vibrant_base)
-    vibrant_base = enhancer_b.enhance(1.12)
+    vibrant_base = enhancer_b.enhance(1.15)
     comp = Image.composite(vibrant_base, comp, screen_mask)
-
-    comp = Image.alpha_composite(comp, bloom)
-    comp = Image.alpha_composite(comp, neon_line)
     return comp
 
 def create_frame_cutaway(base, model):
+    """Enhances the physical precision-machined metallic chassis bevel with natural studio luster."""
     w, h = base.size
     comp = base.copy()
     spec = MODEL_SPECS.get(model, MODEL_SPECS['xs'])
@@ -260,31 +197,22 @@ def create_frame_cutaway(base, model):
     
     fx0, fy0, fx1, fy1 = geo['front']
     rx0, ry0, rx1, ry1 = geo['back']
-    color = spec['frame_color']
-
-    # 1. Model-specific metallic glow (surgical steel vs titanium vs desert titanium)
-    bloom = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    dbloom = ImageDraw.Draw(bloom)
     radius = 34 if 'flat' in spec['frame_type'] or 'titanium' in spec['frame_type'] else 40
-    dbloom.rounded_rectangle([fx0, fy0, fx1, fy1], radius=radius, outline=color + (255,), width=8)
-    dbloom.rounded_rectangle([rx0, ry0, rx1, ry1], radius=radius, outline=color + (255,), width=8)
-    bloom = bloom.filter(ImageFilter.GaussianBlur(12))
 
-    # 2. Gleaming chrome core line
-    neon_line = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    dline = ImageDraw.Draw(neon_line)
-    core_color = (min(color[0]+80, 255), min(color[1]+80, 255), min(color[2]+80, 255), 255)
-    dline.rounded_rectangle([fx0, fy0, fx1, fy1], radius=radius, outline=core_color, width=4)
-    dline.rounded_rectangle([rx0, ry0, rx1, ry1], radius=radius, outline=core_color, width=4)
-    dline.rounded_rectangle([fx0+1, fy0+1, fx1-1, fy1-1], radius=radius-1, outline=(255, 255, 255, 230), width=2)
-    dline.rounded_rectangle([rx0+1, ry0+1, rx1-1, ry1-1], radius=radius-1, outline=(255, 255, 255, 230), width=2)
-    neon_line = neon_line.filter(ImageFilter.GaussianBlur(1))
+    # Natural metallic edge highlight along physical perimeter bevel (no neon vector lines)
+    edge_mask = Image.new('L', (w, h), 0)
+    dedge = ImageDraw.Draw(edge_mask)
+    dedge.rounded_rectangle([fx0, fy0, fx1, fy1], radius=radius, outline=200, width=5)
+    dedge.rounded_rectangle([rx0, ry0, rx1, ry1], radius=radius, outline=200, width=5)
+    edge_mask = edge_mask.filter(ImageFilter.GaussianBlur(3))
 
-    comp = Image.alpha_composite(comp, bloom)
-    comp = Image.alpha_composite(comp, neon_line)
+    enhancer = ImageEnhance.Brightness(base)
+    bright_base = enhancer.enhance(1.28)
+    comp = Image.composite(bright_base, comp, edge_mask)
     return comp
 
 def create_wireless_cutaway(base, model):
+    """Reveals the internal copper wireless charging coil and MagSafe neodymium alignment magnets."""
     w, h = base.size
     comp = base.copy()
     spec = MODEL_SPECS.get(model, MODEL_SPECS['xs'])
@@ -293,122 +221,102 @@ def create_wireless_cutaway(base, model):
     cx, cy = geo['cx_back'], geo['cy_back']
     rw = geo['back'][2] - geo['back'][0]
     r = 64 if model == 'xs' else int(rw * 0.28)
-    x0, y0, x1, y1 = cx - r, cy - r, cx + r, cy + r
+    x0, y0 = cx - r, cy - r
 
-    # 1. Dark smoky glass window for coil
-    mask = Image.new('L', (w, h), 0)
-    dmask = ImageDraw.Draw(mask)
-    dmask.ellipse([x0, y0, x1, y1], fill=220)
-    mask = mask.filter(ImageFilter.GaussianBlur(3))
-    tint = Image.new('RGBA', (w, h), (16, 12, 10, 195))
-    comp = Image.composite(tint, comp, mask)
+    coil_scaled = coil_badge.resize((r * 2, r * 2), Image.Resampling.LANCZOS)
+    comp = add_ambient_shadow(comp, coil_scaled.split()[3], x0, y0, blur=5, opacity=140)
+    comp.paste(coil_scaled, (x0, y0), coil_scaled)
 
-    # 2. Paste wireless coil & MagSafe array
-    coil_scaled = coil_badge.resize((r * 2 - 8, r * 2 - 8), Image.Resampling.LANCZOS)
-    comp.paste(coil_scaled, (x0 + 4, y0 + 4), coil_scaled)
-
-    # 3. Model-specific MagSafe indicator (12 Pro and later)
     if spec['has_magsafe']:
         dmag = ImageDraw.Draw(comp)
-        dmag.rounded_rectangle([cx - 4, cy + r - 4, cx + 4, cy + r + 18], radius=3, fill=(255, 215, 120, 240), outline=(216, 189, 72, 255))
-
-    # 4. Amber / Gold electromagnetic aura
-    bloom = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    dbloom = ImageDraw.Draw(bloom)
-    dbloom.ellipse([x0, y0, x1, y1], outline=(216, 189, 72, 255), width=8)
-    bloom = bloom.filter(ImageFilter.GaussianBlur(12))
-
-    # 5. Neon ring
-    neon_line = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    dline = ImageDraw.Draw(neon_line)
-    dline.ellipse([x0, y0, x1, y1], outline=(255, 215, 120, 255), width=3)
-    dline.ellipse([x0+1, y0+1, x1-1, y1-1], outline=(255, 255, 255, 220), width=2)
-    neon_line = neon_line.filter(ImageFilter.GaussianBlur(1))
-
-    comp = Image.alpha_composite(comp, bloom)
-    comp = Image.alpha_composite(comp, neon_line)
+        dmag.rounded_rectangle([cx - 4, cy + r - 2, cx + 4, cy + r + 16], radius=3, fill=(215, 220, 228, 245), outline=(150, 155, 165, 230), width=1)
     return comp
 
 def create_glass_cutaway(base, model):
+    """Reveals the precision rear glass with a clean optical light reflection (no colored tint or outline)."""
     w, h = base.size
     comp = base.copy()
     geo = PHONE_GEOMETRY.get(model, PHONE_GEOMETRY['xs'])
-    fx0, fy0, fx1, fy1 = geo['front']
     rx0, ry0, rx1, ry1 = geo['back']
+    radius = 36
+
+    # Pure neutral white optical glass reflection beam (zero green tint, zero outline)
+    glass_mask = Image.new('L', (w, h), 0)
+    dmask = ImageDraw.Draw(glass_mask)
+    dmask.rounded_rectangle([rx0 + 2, ry0 + 2, rx1 - 2, ry1 - 2], radius=radius, fill=255)
 
     sheen = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     dsheen = ImageDraw.Draw(sheen)
-    dsheen.rounded_rectangle([rx0, ry0, rx1, ry1], radius=36, fill=(137, 154, 56, 35), outline=(137, 154, 56, 200), width=4)
-    dsheen.rounded_rectangle([fx0, fy0, fx1, fy1], radius=36, fill=(137, 154, 56, 25), outline=(137, 154, 56, 180), width=4)
-    
-    bloom = sheen.filter(ImageFilter.GaussianBlur(10))
-    comp = Image.alpha_composite(comp, bloom)
-    comp = Image.alpha_composite(comp, sheen)
+    # Soft diagonal light beam at 45 degrees across rear glass
+    beam_w = (rx1 - rx0) * 0.4
+    center_beam = rx0 + (rx1 - rx0) * 0.55
+    dsheen.polygon([
+        (center_beam - beam_w, ry0),
+        (center_beam + beam_w, ry0),
+        (center_beam + beam_w - 90, ry1),
+        (center_beam - beam_w - 90, ry1)
+    ], fill=(255, 255, 255, 38))
+    sheen = sheen.filter(ImageFilter.GaussianBlur(14))
+
+    sheen_clipped = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+    sheen_clipped = Image.composite(sheen, sheen_clipped, glass_mask)
+    comp = Image.alpha_composite(comp, sheen_clipped)
     return comp
 
 def create_plastics_cutaway(base, model):
+    """Reveals the internal bottom acoustic module, speaker chamber, and Taptic Engine."""
     w, h = base.size
     comp = base.copy()
     geo = PHONE_GEOMETRY.get(model, PHONE_GEOMETRY['xs'])
     rx0, ry0, rx1, ry1 = geo['back']
-    rw = rx1 - rx0
     
     px0 = rx0 + 16
     px1 = rx1 - 16
     py0 = ry1 - int((ry1 - ry0) * 0.16)
-    py1 = ry1 - 10
+    py1 = ry1 - 12
+    pw, ph = px1 - px0, py1 - py0
 
-    mask = Image.new('L', (w, h), 0)
-    dmask = ImageDraw.Draw(mask)
-    dmask.rounded_rectangle([px0, py0, px1, py1], radius=14, fill=220)
-    mask = mask.filter(ImageFilter.GaussianBlur(3))
-    tint = Image.new('RGBA', (w, h), (14, 14, 18, 195))
-    comp = Image.composite(tint, comp, mask)
+    # Realistic internal acoustic module hardware
+    module = Image.new('RGBA', (pw, ph), (0, 0, 0, 0))
+    dmod = ImageDraw.Draw(module)
+    dmod.rounded_rectangle([0, 0, pw, ph], radius=8, fill=(28, 30, 34, 245), outline=(55, 58, 65, 255), width=1)
+    # Speaker grille ports
+    for x in range(16, pw - 16, 8):
+        dmod.rounded_rectangle([x, ph//2 - 6, x + 4, ph//2 + 6], radius=2, fill=(15, 16, 18, 255))
+    dmod.text((18, ph - 16), "ACOUSTIC ENCLOSURE • TAPTIC", fill=(170, 180, 190, 220))
 
-    bloom = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    dbloom = ImageDraw.Draw(bloom)
-    dbloom.rounded_rectangle([px0, py0, px1, py1], radius=14, outline=(191, 163, 98, 255), width=6)
-    bloom = bloom.filter(ImageFilter.GaussianBlur(10))
-
-    neon_line = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    dline = ImageDraw.Draw(neon_line)
-    dline.rounded_rectangle([px0, py0, px1, py1], radius=14, outline=(240, 215, 150, 255), width=3)
-    dline.rounded_rectangle([px0+1, py0+1, px1-1, py1-1], radius=13, outline=(255, 255, 255, 220), width=1)
-    neon_line = neon_line.filter(ImageFilter.GaussianBlur(1))
-
-    comp = Image.alpha_composite(comp, bloom)
-    comp = Image.alpha_composite(comp, neon_line)
+    comp = add_ambient_shadow(comp, module.split()[3], px0, py0, blur=4, opacity=130)
+    comp.paste(module, (px0, py0), module)
     return comp
 
 def create_aluminum_cutaway(base, model):
+    """Reveals the laser-etched internal aluminum thermal dissipation matrix."""
     w, h = base.size
     comp = base.copy()
     geo = PHONE_GEOMETRY.get(model, PHONE_GEOMETRY['xs'])
     cx, cy = geo['cx_back'], geo['cy_back']
     rw = geo['back'][2] - geo['back'][0]
     
-    ax0 = cx - int(rw * 0.22)
-    ax1 = cx + int(rw * 0.22)
-    ay0 = cy - 70
-    ay1 = cy + 70
+    ax0 = cx - int(rw * 0.24)
+    ax1 = cx + int(rw * 0.24)
+    ay0 = cy - 65
+    ay1 = cy + 65
+    aw, ah = ax1 - ax0, ay1 - ay0
 
-    bloom = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    dbloom = ImageDraw.Draw(bloom)
-    dbloom.rounded_rectangle([ax0, ay0, ax1, ay1], radius=14, outline=(160, 165, 175, 255), width=6)
-    bloom = bloom.filter(ImageFilter.GaussianBlur(10))
+    # Realistic brushed aluminum thermal dissipation shield
+    shield = Image.new('RGBA', (aw, ah), (0, 0, 0, 0))
+    dshield = ImageDraw.Draw(shield)
+    dshield.rounded_rectangle([0, 0, aw, ah], radius=10, fill=(160, 165, 175, 235), outline=(200, 205, 215, 255), width=1)
+    # Subtle thermal plate laser markings
+    dshield.text((12, 14), "THERMAL MATRIX", fill=(90, 95, 105, 240))
+    dshield.text((12, 30), "100% RECYCLED ALUMINUM", fill=(100, 105, 115, 220))
 
-    neon_line = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    dline = ImageDraw.Draw(neon_line)
-    dline.rounded_rectangle([ax0, ay0, ax1, ay1], radius=14, outline=(220, 230, 240, 255), width=3)
-    dline.rounded_rectangle([ax0+1, ay0+1, ax1-1, ay1-1], radius=13, outline=(255, 255, 255, 230), width=1)
-    neon_line = neon_line.filter(ImageFilter.GaussianBlur(1))
-
-    comp = Image.alpha_composite(comp, bloom)
-    comp = Image.alpha_composite(comp, neon_line)
+    comp = add_ambient_shadow(comp, shield.split()[3], ax0, ay0, blur=4, opacity=130)
+    comp.paste(shield, (ax0, ay0), shield)
     return comp
 
 def build_all():
-    print("Generating model-aligned 2048x1152 high-resolution component cutaways...")
+    print("Generating model-aligned 2048x1152 clean high-resolution component cutaways...")
     for model in TARGET_MODELS:
         base_path = f"assets/phone_{model}.png"
         if not os.path.exists(base_path):
@@ -448,7 +356,7 @@ def build_all():
         alum_img = create_aluminum_cutaway(base, model)
         alum_img.save(f"assets/comp_{model}_aluminum.png", "PNG", compress_level=1)
 
-        print(f"✓ Generated 8 unique upscaled 2048x1152 cutaways for {model}", flush=True)
+        print(f"✓ Generated 8 clean 2048x1152 cutaways for {model}", flush=True)
 
 if __name__ == '__main__':
     build_all()
