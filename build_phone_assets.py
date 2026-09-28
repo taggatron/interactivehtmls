@@ -77,9 +77,8 @@ def encode_rgba_png(w, h, grid, outfile):
     with open(outfile, 'wb') as f:
         f.write(out)
 
-# Copy XS
-subprocess.run(['cp', 'assets/phone_cutout.png', 'assets/phone_xs.png'], check=True)
-print('✓ iPhone XS asset ready')
+# XS is generated from high-resolution separated studio asset in assets/cutout_xs.png
+print('✓ iPhone XS separated asset maintained')
 
 TARGET_W, TARGET_H = 1024, 576
 PHONE_HEIGHT = 304

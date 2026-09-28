@@ -1981,7 +1981,9 @@ for (const [mId, m] of Object.entries(IPHONE_MODELS_DATA)) {
   m.componentImages = MODEL_COMPONENT_IMAGES[mId] || MODEL_COMPONENT_IMAGES.xs;
   if (m.components) {
     for (const [cId, comp] of Object.entries(m.components)) {
-      if (!comp.badgeImage && COMPONENT_BADGES[cId]) {
+      if (cId === "battery") {
+        comp.badgeImage = `assets/battery_${mId}.png`;
+      } else if (!comp.badgeImage && COMPONENT_BADGES[cId]) {
         comp.badgeImage = COMPONENT_BADGES[cId];
       }
     }

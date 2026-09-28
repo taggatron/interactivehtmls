@@ -62,7 +62,7 @@ MODEL_SPECS = {
 
 # Subpixel 2048x1152 coordinate bounds for left phone (front display) and right phone (rear chassis)
 PHONE_GEOMETRY = {
-    'xs':    {'front': (684, 546, 836, 1148), 'back': (760, 557, 972, 1148), 'cx_back': 866, 'cy_back': 844},
+    'xs':    {'front': (488, 541, 797, 1147), 'back': (860, 541, 1168, 1147), 'cx_back': 1014, 'cy_back': 844},
     '11pro': {'front': (511, 540, 811, 1147), 'back': (900, 555, 1145, 1147), 'cx_back': 1022, 'cy_back': 851},
     '12pro': {'front': (595, 554, 820, 1146), 'back': (841, 554, 1060, 1145), 'cx_back': 950, 'cy_back': 849},
     '13pro': {'front': (533, 542, 827, 1147), 'back': (872, 546, 1124, 1147), 'cx_back': 998, 'cy_back': 846},
@@ -73,7 +73,7 @@ PHONE_GEOMETRY = {
     '18pro': {'front': (583, 551, 810, 1142), 'back': (846, 551, 1073, 1142), 'cx_back': 959, 'cy_back': 846},
 }
 
-def add_ambient_shadow(base, obj_alpha, x, y, blur=4, opacity=130):
+def add_ambient_shadow(base, obj_alpha, x=0, y=0, blur=5, opacity=140):
     """Adds a soft natural ambient occlusion drop-shadow under hardware components."""
     w, h = base.size
     shadow_mask = Image.new('L', (w, h), 0)
@@ -86,49 +86,20 @@ def draw_chip_label(draw, cx, cy, chip_name, sub_name):
     """Draws an authentic Apple Silicon package with matte dark substrate and crisp markings."""
     w, h = 92, 80
     x0, y0 = cx - w//2, cy - h//2
-    # Realistic matte dark silicon package with subtle bevel edge
     draw.rounded_rectangle([x0, y0, x0 + w, y0 + h], radius=8, fill=(22, 25, 30, 250), outline=(52, 58, 66, 255), width=1)
-    # Apple logo icon
     draw.ellipse([cx - 7, y0 + 12, cx + 7, y0 + 26], fill=(240, 240, 245, 240))
-    # Chip name & specs
     draw.text((cx - len(chip_name)*4, y0 + 34), chip_name, fill=(255, 255, 255, 250))
     draw.text((cx - len(sub_name)*3, y0 + 52), sub_name, fill=(180, 195, 210, 220))
 
 def create_battery_cutaway(base, model):
     """Reveals the internal battery pack seamlessly with realistic hardware texture and specifications."""
+    from render_custom_batteries import BATTERY_SPECS, render_battery_layer
     w, h = base.size
-    comp = base.copy()
-    spec = MODEL_SPECS.get(model, MODEL_SPECS['xs'])
-    geo = PHONE_GEOMETRY.get(model, PHONE_GEOMETRY['xs'])
-    
-    rx0, ry0, rx1, ry1 = geo['back']
-    rw = rx1 - rx0
-    if model == 'xs':
-        bx0, by0, bx1, by1 = 812, 770, 928, 1040
-    else:
-        bw = int(rw * 0.52)
-        bx0 = geo['cx_back'] - bw // 2 - 10
-        bx1 = bx0 + bw
-        by0 = ry0 + int((ry1 - ry0) * 0.36)
-        by1 = ry1 - int((ry1 - ry0) * 0.15)
-    bw, bh = bx1 - bx0, by1 - by0
-
-    bat_scaled = bat_badge.resize((bw, bh), Image.Resampling.LANCZOS)
-    if spec['bat_type'] == 'metal_case':
-        enhancer = ImageEnhance.Color(bat_scaled)
-        bat_scaled = enhancer.enhance(0.4)
-        enhancer_b = ImageEnhance.Brightness(bat_scaled)
-        bat_scaled = enhancer_b.enhance(1.25)
-
-    # Ambient drop shadow nestled inside the chassis cavity
-    comp = add_ambient_shadow(comp, bat_scaled.split()[3], bx0, by0, blur=5, opacity=140)
-    comp.paste(bat_scaled, (bx0, by0), bat_scaled)
-
-    # Clean technical markings printed directly on the battery
-    dcomp = ImageDraw.Draw(comp)
-    dcomp.text((bx0 + 16, by0 + bh - 40), spec['bat_cap'], fill=(240, 240, 245, 230))
-    dcomp.text((bx0 + 16, by0 + bh - 24), spec['bat_label'], fill=(180, 190, 200, 200))
-    return comp
+    if model in BATTERY_SPECS:
+        bat_layer, mask = render_battery_layer(BATTERY_SPECS[model], w, h)
+        comp = add_ambient_shadow(base, mask, 0, 0, blur=6, opacity=150)
+        return Image.alpha_composite(comp, bat_layer)
+    return base
 
 def create_circuit_boards_cutaway(base, model):
     """Reveals the logic board PCB, camera modules, and Apple Silicon processor package."""
@@ -139,18 +110,14 @@ def create_circuit_boards_cutaway(base, model):
     
     rx0, ry0, rx1, ry1 = geo['back']
     rw = rx1 - rx0
-    if model == 'xs':
-        px0, py0, px1, py1 = 824, 552, 942, 744
-        cx0, cy0, cx1, cy1 = 774, 554, 824, 686
-    else:
-        cx0 = rx0 + 14
-        cx1 = rx0 + int(rw * 0.44)
-        cy0 = ry0 + 14
-        cy1 = ry0 + int((ry1 - ry0) * 0.28)
-        px0 = cx1 + 4
-        px1 = rx1 - 18
-        py0 = ry0 + 14
-        py1 = ry0 + int((ry1 - ry0) * 0.35)
+    cx0 = rx0 + 14
+    cx1 = rx0 + int(rw * 0.44)
+    cy0 = ry0 + 14
+    cy1 = ry0 + int((ry1 - ry0) * 0.28)
+    px0 = cx1 + 4
+    px1 = rx1 - 18
+    py0 = ry0 + 14
+    py1 = ry0 + int((ry1 - ry0) * 0.35)
     pw, ph = px1 - px0, py1 - py0
 
     pcb_scaled = pcb_badge.resize((pw, ph), Image.Resampling.LANCZOS)
