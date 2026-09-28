@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iPhone Xs Environmental Report — Interactive Lifecycle Assessment</title>
+  <meta name="description" content="Interactive lifecycle greenhouse gas emissions and material use breakdown for iPhone Xs. Click various parts of the phone to inspect component impacts." />
+  <link rel="stylesheet" href="css/style.css?v=6" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>" />
+</head>
+<body>
+
+  <!-- Timeline Navigation Bar: Evolution from Xs (2018) to 16 Pro (2024) -->
+  <header class="timeline-header" aria-label="Model Evolution Timeline">
+    <nav class="timeline-bar" id="timeline-bar" role="tablist" aria-label="Select Model">
+      <!-- Populated dynamically by app.js -->
+    </nav>
+  </header>
+
+  <!-- Main Interactive 16:9 Stage (Slide Presentation) -->
+  <main class="stage-wrapper">
+    <div class="stage-container" id="interactive-stage">
+      <!-- High-resolution iPhone hardware presentation cutout -->
+      <img class="stage-bg-image" id="stage-phone-img" src="assets/phone_xs.png" alt="iPhone hardware presentation cutout" />
+      <!-- Seamless Component Cutaway Overlay (revealed on hover and click) -->
+      <img class="stage-bg-image stage-component-overlay" id="stage-component-img" alt="Component hardware reveal" aria-hidden="true" />
+
+      <!-- Interactive SVG vector layer -->
+      <svg class="interactive-svg-layer" viewBox="0 0 1024 576" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <filter id="glow-effect" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+
+        <!-- Crisp Vector Chart Titles matching Apple slide typography -->
+        <text class="svg-chart-title" id="emissions-chart-title" x="26" y="27">Greenhouse Gas Emissions for iPhone Xs—64GB model</text>
+        <text class="svg-chart-title" id="materials-chart-title" x="576" y="294">Material Use for iPhone Xs</text>
+
+        <!-- Left Emissions Donut Chart -->
+        <g id="emissions-chart-group"></g>
+        <g id="emissions-center-text"></g>
+
+        <!-- Right Materials Donut Chart -->
+        <g id="materials-chart-group"></g>
+        <g id="materials-center-text"></g>
+
+        <!-- Dynamic Laser Leader Line -->
+        <g id="leader-line-group"></g>
+
+        <!-- Center Phone Interactive Clickable Contours (Hotspots) -->
+        <g id="phone-hotspots-group"></g>
+      </svg>
+
+      <!-- HTML Interactive Legends & Info Layer -->
+      <div class="stage-html-overlays">
+        <!-- Top-Right Integrated Information Card -->
+        <div id="top-info-card" class="top-info-card" aria-live="polite">
+          <!-- Dynamically populated by app.js -->
+        </div>
+
+        <div id="emissions-legend-container" class="legend-container" aria-label="Emissions breakdown legend">
+          <!-- Populated by charts.js -->
+        </div>
+
+        <div id="materials-legend-container" class="legend-container" aria-label="Materials breakdown legend">
+          <!-- Populated by charts.js -->
+        </div>
+      </div>
+
+      <!-- Floating Hover Tooltip -->
+      <div id="phone-part-tooltip" class="part-tooltip"></div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="js/data.js?v=6"></script>
+  <script src="js/charts.js?v=6"></script>
+  <script src="js/phone-hotspots.js?v=6"></script>
+  <script src="js/app.js?v=6"></script>
+</body>
+</html>

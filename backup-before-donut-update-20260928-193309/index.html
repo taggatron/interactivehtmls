@@ -9,7 +9,9 @@
 </head>
 <body>
 <a class="skip" href="#explore">Skip to explorer</a>
+<header class="site-header"><a class="brand" href="#"><span class="brand-icon" aria-hidden="true">▯</span> Inside iPhone<span class="brand-divider">/</span><span class="brand-sub">Materials & carbon</span></a><nav aria-label="Main"><a href="#explore">Explore the device</a><a href="#compare">Compare over time <span aria-hidden="true">↗</span></a></nav></header>
 <main>
+<div class="intro"><div><p class="eyebrow">THE IMPACT BENEATH THE SURFACE</p><h1>A closer look. A longer view.</h1><p>Explore what goes into a phone — and how its footprint changes with each generation.</p></div><a class="data-link" href="#data-notes">About this dataset <span aria-hidden="true">↗</span></a></div>
 <section id="explore" aria-label="Explore the device">
 <div class="timeline" id="timeline" aria-label="Choose an iPhone model"></div>
 <div class="explorer">
@@ -21,11 +23,8 @@
 </div>
 <div class="inspector">
 <div class="inspector-heading"><div><p class="eyebrow" id="selection-category">COMPLETE DEVICE</p><h2 id="selection-name">The whole picture</h2></div><span class="dataset-tag">Supplied estimates</span></div>
-<div class="stats donut-stats" aria-live="polite">
-<div class="donut-stat"><h3 class="stat-label">Lifecycle carbon footprint</h3><div class="donut-display"><div id="emissions-donut" class="donut-host"></div><div class="donut-center"><strong id="carbon-value"></strong></div></div><span class="stat-detail" id="carbon-share"></span></div>
-<div class="donut-stat"><h3 class="stat-label">Material mass by component</h3><div class="donut-display"><div id="materials-donut" class="donut-host"></div><div class="donut-center"><strong id="mass-value"></strong></div></div><span class="stat-detail" id="mass-share"></span></div>
-</div>
-<div class="lifecycle"><div class="subheading"><h3>Where emissions occur</h3><span id="phase-caption">Share of lifecycle CO₂e</span></div><div id="phase-legend" class="phase-legend"></div></div>
+<div class="stats" aria-live="polite"><div><span class="stat-label">Lifecycle carbon footprint</span><strong id="carbon-value"></strong><span class="stat-detail" id="carbon-share"></span></div><div><span class="stat-label">Material mass</span><strong id="mass-value"></strong><span class="stat-detail" id="mass-share"></span></div></div>
+<div class="lifecycle"><div class="subheading"><h3>Where emissions occur</h3><span id="phase-caption">Share of lifecycle CO₂e</span></div><div id="phase-bar" class="phase-bar"></div><div id="phase-legend" class="phase-legend"></div></div>
 <div class="component-table"><div class="component-table-head"><h3>Inside this model</h3><span>Mass</span><span>kg CO₂e</span></div><div id="component-list"></div></div>
 <details class="source-facts"><summary>Notes from the supplied interactive <span>Unverified</span></summary><ul id="source-facts"></ul></details>
 </div>
@@ -42,6 +41,7 @@
 <div class="comparison-table-wrap"><table id="comparison-table"><caption id="comparison-caption"></caption><thead><tr><th scope="col">Component group</th><th scope="col">CO₂e at start → end</th><th scope="col">Change</th><th scope="col">Mass at start → end</th><th scope="col">Change</th></tr></thead><tbody></tbody></table></div>
 <details id="all-values"><summary>View values for every year</summary><div class="data-table-scroll" id="all-values-table"></div></details>
 </section>
+<footer id="data-notes"><div><p class="eyebrow">READING THE DATA</p><h2>Keep the context in view.</h2></div><div><p>This experience uses the values supplied with the original interactive. Component CO₂e allocations, material breakdowns, technical notes and images have not been independently verified. Some component estimates do not sum to the stated device total; totals are shown as supplied.</p><p>The 2025–26 entries are treated as illustrative scenarios, excluded from comparisons by default. Storage configurations vary between generations. “Enclosure” groups steel and titanium/aluminium frames; “Shielding / thermal” groups aluminium and later copper systems. These are functional comparisons, not like-for-like raw material inventories.</p><p>Material mass does not measure mined ore, extraction waste, recycled content or resource depletion. No extraction figures have been inferred.</p></div></footer>
 </main><div id="chart-tooltip" role="tooltip" class="chart-tooltip" hidden></div>
 <script src="js/data.js"></script><script src="js/phone-hotspots.js"></script><script src="js/app.js"></script>
 </body></html>

@@ -23,12 +23,12 @@ class PhoneHotspots {
     this.tooltipEl = document.getElementById("phone-part-tooltip");
     this.onSelect = options.onSelect || (() => {});
     this.onHover = options.onHover || (() => {});
-    this.audioEnabled = false;
+    this.audioEnabled = true;
     this.audioCtx = null;
     this.activeComponentId = null;
     this.currentModelId = options.modelId || (typeof currentModelId !== "undefined" ? currentModelId : "xs");
 
-    // Sound is off by default.
+    this.initAudio();
     this.render();
   }
 

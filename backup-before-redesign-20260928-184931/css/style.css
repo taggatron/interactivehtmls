@@ -1,0 +1,1049 @@
+/* --------------------------------------------------------------------------
+   Apple Environmental Report — iPhone Xs Interactive Lifecycle Experience
+   Clean, modern Apple Design System with Glassmorphism and Micro-Animations
+   -------------------------------------------------------------------------- */
+
+:root {
+  --apple-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --bg-primary: #f5f5f7;
+  --bg-card: #ffffff;
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary: #86868b;
+  --apple-blue: #0071e3;
+  --apple-blue-hover: #0077ed;
+  --apple-green: #34c759;
+  --border-light: rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.12);
+  --stage-width: 1024px;
+  --stage-height: 576px;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+}
+
+/* Studio OLED Dark Mode variables */
+body.studio-dark-theme {
+  --bg-primary: #0a0a0c;
+  --bg-card: #151518;
+  --text-primary: #f5f5f7;
+  --text-secondary: #a1a1a6;
+  --text-tertiary: #6e6e73;
+  --border-light: rgba(255, 255, 255, 0.12);
+  --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--apple-font);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 8px 0 16px;
+  overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* ---------------- Apple Model Evolution Timeline Navigation ---------------- */
+.timeline-header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 0 8px;
+  padding: 0;
+  z-index: 50;
+  overflow: visible;
+}
+
+.timeline-bar {
+  display: flex;
+  align-items: stretch;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 8px 12px 10px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+  gap: 4px;
+  width: 100%;
+  justify-content: space-between;
+  user-select: none;
+  overflow: visible;
+  position: relative;
+}
+
+body.studio-dark-theme .timeline-bar {
+  background: rgba(26, 26, 30, 0.92);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Continuous Timeline Track Line Graphic Joining the Years */
+.timeline-track-line {
+  position: absolute;
+  top: 25px; /* Aligned through center of .t-node-point */
+  left: 5.555%;
+  width: 88.888%;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+body.studio-dark-theme .timeline-track-line {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.timeline-track-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #34c759, #30d158);
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(52, 199, 89, 0.5);
+  transition: width 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Timeline Node */
+.timeline-node {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 0 3px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--apple-font);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  outline: none;
+  position: relative;
+  overflow: visible;
+  z-index: 2;
+}
+
+/* Year Header sitting on the timeline track */
+.t-year-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  position: relative;
+  z-index: 3;
+}
+
+.t-year {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+  padding: 1px 6px;
+  border-radius: 980px;
+  background: rgba(255, 255, 255, 0.9);
+  transition: all 0.25s ease;
+}
+
+body.studio-dark-theme .t-year {
+  background: rgba(26, 26, 30, 0.9);
+  color: var(--text-tertiary);
+}
+
+.timeline-node:hover .t-year {
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.timeline-node.active .t-year {
+  color: #34c759;
+  font-weight: 700;
+  background: rgba(52, 199, 89, 0.12);
+}
+
+body.studio-dark-theme .timeline-node.active .t-year {
+  color: #34c759;
+  background: rgba(52, 199, 89, 0.18);
+}
+
+/* Node Point on the line */
+.t-node-point {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 4;
+}
+
+body.studio-dark-theme .t-node-point {
+  background: #1a1a1e;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.timeline-node:hover .t-node-point {
+  border-color: var(--text-primary);
+  transform: scale(1.25);
+}
+
+.t-node-point.passed-point {
+  border-color: #34c759;
+  background: #34c759;
+}
+
+.t-node-point.active-point {
+  width: 10px;
+  height: 10px;
+  border: 2px solid #ffffff;
+  background: #34c759;
+  box-shadow: 0 0 10px rgba(52, 199, 89, 0.85);
+  transform: scale(1.25);
+}
+
+body.studio-dark-theme .t-node-point.active-point {
+  border-color: #1a1a1e;
+}
+
+/* Device Row Below the Year Axis */
+.t-device-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 980px;
+  transition: all 0.25s ease;
+  background: transparent;
+  white-space: nowrap;
+}
+
+.timeline-node:hover .t-device-row {
+  background: rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+}
+
+body.studio-dark-theme .timeline-node:hover .t-device-row {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.timeline-node.active .t-device-row {
+  background: #1d1d1f;
+  color: #ffffff;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+  transform: translateY(-1px);
+}
+
+body.studio-dark-theme .timeline-node.active .t-device-row {
+  background: #2c2c30;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+/* Little Phone Thumbnail & Interactive Hover Magnification */
+.timeline-thumb-wrapper {
+  width: 16px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.timeline-thumb {
+  height: 25px;
+  width: auto;
+  max-width: 22px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.16));
+  transform-origin: center center;
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+              filter 0.32s ease;
+  position: relative;
+  z-index: 2;
+}
+
+/* Make phone appear larger when user hovers over the timeline node */
+.timeline-node:hover .timeline-thumb {
+  transform: scale(2.2);
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.32));
+  z-index: 100;
+}
+
+.timeline-node.active .timeline-thumb {
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.28));
+}
+
+.timeline-node.active:hover .timeline-thumb {
+  transform: scale(2.3);
+  filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.45));
+  z-index: 100;
+}
+
+.timeline-node .t-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.timeline-node.active .t-name {
+  color: #ffffff;
+}
+
+.timeline-node .t-co2 {
+  font-size: 9.5px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 980px;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-secondary);
+  letter-spacing: 0;
+  transition: all 0.28s ease;
+}
+
+.timeline-node.active .t-co2 {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+/* ---------------- The Main Stage Canvas (Slide Presentation) ---------------- */
+.stage-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.stage-container {
+  width: 100%;
+  aspect-ratio: 1024 / 576;
+  position: relative;
+  background: #ffffff;
+  border-radius: 0;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  border-left: none;
+  border-right: none;
+  transition: all 0.35s ease;
+}
+
+body.studio-dark-theme .stage-container {
+  background: #0f0f13;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Base slide image */
+.stage-bg-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.25s ease, filter 0.4s ease;
+}
+
+.stage-bg-image.phone-fade-out {
+  opacity: 0;
+}
+
+/* Seamless Component Reveal Overlay */
+.stage-component-overlay {
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity;
+}
+
+.stage-component-overlay.visible {
+  opacity: 1;
+}
+
+body.studio-dark-theme .stage-bg-image {
+  filter: contrast(1.1) brightness(0.92);
+}
+
+/* Interactive SVG Layer */
+.interactive-svg-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.interactive-svg-layer * {
+  pointer-events: auto;
+}
+
+/* Backdrop Mask Plates for crisp SVG vector overlay */
+.chart-mask-plate {
+  fill: #ffffff;
+  transition: fill 0.35s ease;
+}
+
+body.studio-dark-theme .chart-mask-plate {
+  fill: #0f0f13;
+}
+
+/* Chart Title SVG Elements */
+.svg-chart-title {
+  font-family: var(--apple-font);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  fill: var(--text-primary);
+  transition: fill 0.35s ease;
+}
+
+body.studio-dark-theme .svg-chart-title {
+  fill: #ffffff;
+}
+
+/* SVG Chart Slices */
+.chart-slice {
+  cursor: pointer;
+  stroke: #ffffff;
+  stroke-width: 1.5;
+  transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.studio-dark-theme .chart-slice {
+  stroke: #0f0f13;
+}
+
+.chart-slice:hover {
+  filter: brightness(1.12) drop-shadow(0 0 8px rgba(0, 113, 227, 0.5));
+}
+
+.active-slice {
+  stroke-width: 2.5;
+  stroke: #ffffff;
+  filter: drop-shadow(0 0 12px rgba(0, 113, 227, 0.65)) !important;
+}
+
+body.studio-dark-theme .active-slice {
+  stroke: #0071e3;
+}
+
+/* Center Text Inside Donut Charts */
+.chart-center-num {
+  font-family: var(--apple-font);
+  font-size: 34px;
+  font-weight: 700;
+  fill: #1d1d1f;
+  letter-spacing: -0.03em;
+  transition: fill 0.35s ease;
+}
+
+body.studio-dark-theme .chart-center-num {
+  fill: #ffffff;
+}
+
+.chart-center-unit {
+  font-family: var(--apple-font);
+  font-size: 16px;
+  font-weight: 500;
+  fill: #86868b;
+  letter-spacing: -0.01em;
+}
+
+.chart-center-title {
+  font-family: var(--apple-font);
+  font-size: 18px;
+  font-weight: 600;
+  fill: #1d1d1f;
+  letter-spacing: -0.01em;
+  transition: fill 0.35s ease;
+}
+
+body.studio-dark-theme .chart-center-title {
+  fill: #ffffff;
+}
+
+.chart-center-sub {
+  font-family: var(--apple-font);
+  font-size: 11px;
+  font-weight: 400;
+  fill: #86868b;
+}
+
+.active-badge {
+  font-weight: 600;
+  fill: var(--apple-blue);
+}
+
+/* ---------------- Phone Hotspot Hit Areas (Invisible overlay) ---------------- */
+.phone-mesh-part {
+  cursor: pointer;
+  fill: transparent !important;
+  fill-opacity: 0 !important;
+  stroke: none !important;
+  stroke-opacity: 0 !important;
+  stroke-width: 0 !important;
+  filter: none !important;
+  pointer-events: auto;
+}
+
+.phone-mesh-part:hover,
+.mesh-hovered,
+.mesh-active {
+  fill: transparent !important;
+  fill-opacity: 0 !important;
+  stroke: none !important;
+  stroke-opacity: 0 !important;
+  stroke-width: 0 !important;
+  filter: none !important;
+}
+
+/* ---------------- Part Hover Tooltip ---------------- */
+.part-tooltip {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px);
+  background: rgba(29, 29, 31, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 980px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+  z-index: 100;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  white-space: nowrap;
+}
+
+.part-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tooltip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ---------------- Dynamic Legends on Stage ---------------- */
+.stage-html-overlays {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.legend-container {
+  position: absolute;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Left Legend positioned next to Emissions Breakdown */
+#emissions-legend-container {
+  left: 28%;
+  top: 15%;
+  width: 15.5%;
+  max-width: 160px;
+}
+
+/* Right Legend positioned next to Materials Breakdown */
+#materials-legend-container {
+  left: 80.5%;
+  top: 52%;
+  width: 19%;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1.25;
+  color: #1d1d1f;
+  transition: all 0.25s ease;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+body.studio-dark-theme .legend-row {
+  color: #f5f5f7;
+}
+
+.active-comp-row .legend-name {
+  font-size: 11.5px;
+  white-space: normal;
+  line-height: 1.2;
+}
+
+.legend-pct,
+.legend-val {
+  font-weight: 600;
+  width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+  color: #515154;
+}
+
+body.studio-dark-theme .legend-pct,
+body.studio-dark-theme .legend-val {
+  color: #a1a1a6;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-name {
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.selected-legend-row {
+  background: rgba(0, 113, 227, 0.12);
+  border-radius: 980px;
+  padding: 4px 10px;
+  transform: translateX(4px);
+}
+
+.selected-legend-row .legend-name {
+  font-weight: 700;
+  color: var(--apple-blue);
+}
+
+.dimmed-legend-row {
+  opacity: 0.35;
+}
+
+.legend-tag {
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--apple-blue);
+  color: #ffffff;
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-left: auto;
+}
+
+.legend-header-badge {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ---------------- Top-Right Integrated Info Card ---------------- */
+.top-info-card {
+  position: absolute;
+  left: 54.5%;
+  top: 3.5%;
+  width: 43.5%;
+  height: 39%;
+  max-height: 226px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: auto;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  z-index: 10;
+}
+
+body.studio-dark-theme .top-info-card {
+  background: rgba(21, 21, 24, 0.9);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.top-info-card.anim-update {
+  animation: card-reveal 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes card-reveal {
+  0% {
+    opacity: 0.3;
+    transform: translateY(-4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.info-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.info-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -0.01em;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 3px 10px;
+  border-radius: 980px;
+  transition: all 0.25s ease;
+}
+
+body.studio-dark-theme .info-badge {
+  color: #f5f5f7;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.info-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--apple-green);
+  transition: background-color 0.25s ease;
+}
+
+.info-hint {
+  font-size: 11px;
+  color: #86868b;
+  font-weight: 500;
+}
+
+.info-reset-btn {
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  border-radius: 980px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6e6e73;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+body.studio-dark-theme .info-reset-btn {
+  background: #2c2c2e;
+  color: #f5f5f7;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.info-reset-btn:hover {
+  background: #f5f5f7;
+  color: #1d1d1f;
+  border-color: rgba(0, 0, 0, 0.2);
+  transform: scale(1.03);
+}
+
+.info-component-main {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.info-component-badge-preview {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+body.studio-dark-theme .info-component-badge-preview {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+}
+
+.info-component-badge-preview:hover {
+  transform: scale(1.08);
+}
+
+.info-badge-render-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.16));
+}
+
+.info-kpi-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.info-kpi-row.with-badge {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.info-kpi-box {
+  background: rgba(0, 0, 0, 0.025);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 10px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.22s ease;
+}
+
+body.studio-dark-theme .info-kpi-box {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.info-kpi-box:hover {
+  background: rgba(0, 113, 227, 0.05);
+  border-color: rgba(0, 113, 227, 0.2);
+  transform: translateY(-1px);
+}
+
+.kpi-val {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  animation: kpi-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes kpi-pop {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+body.studio-dark-theme .kpi-val {
+  color: #f5f5f7;
+}
+
+.kpi-val small {
+  font-size: 11px;
+  font-weight: 500;
+  color: #86868b;
+  margin-left: 2px;
+}
+
+.kpi-sub {
+  font-size: 10.5px;
+  color: #86868b;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.info-key-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fact-pill {
+  font-size: 11px;
+  line-height: 1.32;
+  color: #515154;
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  background: rgba(0, 0, 0, 0.025);
+  padding: 3px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  white-space: normal;
+  animation: fact-slide 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.fact-text {
+  flex: 1;
+}
+
+@keyframes fact-slide {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+body.studio-dark-theme .fact-pill {
+  color: #a1a1a6;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.fact-pill:hover {
+  background: rgba(0, 113, 227, 0.08);
+  color: #1d1d1f;
+  transform: translateX(3px);
+}
+
+body.studio-dark-theme .fact-pill:hover {
+  color: #ffffff;
+}
+
+.fact-icon {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+/* ---------------- Dynamic Leader Line Animation ---------------- */
+.leader-line-animated .laser-flow-line {
+  stroke-dasharray: 6 3;
+  animation: laser-flow 1.2s linear infinite;
+}
+
+@keyframes laser-flow {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+
+.laser-origin-ping {
+  animation: radar-ping 1.8s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+  transform-origin: center;
+}
+
+@keyframes radar-ping {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  60% {
+    transform: scale(2.2);
+    opacity: 0.15;
+  }
+  100% {
+    transform: scale(3.0);
+    opacity: 0;
+  }
+}
+
+/* ---------------- Enhanced Slice Hover & Pop Animation ---------------- */
+.chart-slice {
+  cursor: pointer;
+  stroke: #ffffff;
+  stroke-width: 1.5;
+  transform-origin: 676px 428px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.emissions-slice {
+  transform-origin: 170.5px 213.5px;
+}
+
+.chart-slice:hover,
+.slice-hover-highlight {
+  filter: brightness(1.2) drop-shadow(0 0 10px rgba(0, 113, 227, 0.6)) !important;
+  stroke-width: 2.5 !important;
+  stroke: #ffffff !important;
+}
+
+.active-slice {
+  stroke-width: 2.5;
+  stroke: #ffffff;
+  filter: drop-shadow(0 0 14px currentColor) !important;
+  animation: slice-active-pulse 2.2s infinite ease-in-out;
+}
+
+@keyframes slice-active-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px currentColor);
+  }
+  50% {
+    filter: drop-shadow(0 0 18px currentColor);
+  }
+}
+
+.legend-row-hovered {
+  background: rgba(0, 113, 227, 0.08) !important;
+  border-radius: 980px !important;
+  transform: translateX(4px) !important;
+}

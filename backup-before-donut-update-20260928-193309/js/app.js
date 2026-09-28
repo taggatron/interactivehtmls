@@ -22,76 +22,8 @@ const value = (m,id,metric) => id==='whole' ? (metric==='carbon'?m.overview.tota
 const available = () => models.filter(m=>state.scenarios||m.year<=2024);
 const ranged = () => available().filter(m=>m.year>=IPHONE_MODELS_DATA[state.from].year&&m.year<=IPHONE_MODELS_DATA[state.to].year);
 const selectedGroups = () => [...state.selected].map(group).filter(Boolean);
-// Keep SVG paths stable so selection moves smoothly and model changes morph arcs.
-const donutState = new Map();
-let activePhase = null;
-function arcPath(start, end) {
-  const outer=88,inner=64,cx=110,cy=110;
-  if(end-start<.00001)return '';
-  const point=(r,a)=>[cx+r*Math.cos(a),cy+r*Math.sin(a)];
-  const [ax,ay]=point(outer,start),[bx,by]=point(outer,end),[cx1,cy1]=point(inner,end),[dx,dy]=point(inner,start);
-  const large=end-start>Math.PI?1:0;
-  return `M${ax},${ay} A${outer},${outer} 0 ${large} 1 ${bx},${by} L${cx1},${cy1} A${inner},${inner} 0 ${large} 0 ${dx},${dy} Z`;
-}
-function drawDonut(hostId,segments,selected,onSelect,onPreview) {
-  const host=$(hostId),svgNS='http://www.w3.org/2000/svg';
-  let saved=donutState.get(hostId);
-  if(!saved){
-    const svg=document.createElementNS(svgNS,'svg');svg.setAttribute('viewBox','0 0 220 220');svg.setAttribute('role','group');svg.setAttribute('aria-label',hostId==='emissions-donut'?'Lifecycle emissions by phase':'Material mass by component');
-    host.appendChild(svg);saved={svg,paths:new Map(),angles:new Map(),frame:0};donutState.set(hostId,saved);
-  }
-  cancelAnimationFrame(saved.frame);
-  const sum=segments.reduce((s,x)=>s+x.value,0);let angle=-Math.PI/2;
-  const moves=[];
-  segments.forEach(segment=>{
-    const sweep=segment.value/sum*2*Math.PI,gap=Math.min(.024,sweep*.16);
-    const start=angle+gap/2,end=angle+sweep-gap/2,mid=angle+sweep/2;angle+=sweep;
-    let path=saved.paths.get(segment.id);
-    if(!path){path=document.createElementNS(svgNS,'path');path.setAttribute('class','donut-slice');path.setAttribute('tabindex','0');path.setAttribute('role','button');path.dataset.segment=segment.id;saved.svg.appendChild(path);saved.paths.set(segment.id,path);}
-    path.setAttribute('fill',segment.color);path.setAttribute('aria-label',segment.label+': '+num(segment.amount)+' '+segment.unit+', '+num(segment.value/sum*100)+'%.');
-    path.setAttribute('aria-pressed',String(selected===segment.id));path.style.setProperty('--lift-x',Math.cos(mid)*6+'px');path.style.setProperty('--lift-y',Math.sin(mid)*6+'px');
-    path.classList.toggle('is-selected',selected===segment.id);
-    path.onclick=()=>onSelect(segment.id);
-    path.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect(segment.id);}};
-    path.onmouseenter=()=>onPreview(segment.id);path.onmouseleave=()=>onPreview(null);
-    path.onfocus=()=>onPreview(segment.id);path.onblur=()=>onPreview(null);
-    moves.push({id:segment.id,path,from:saved.angles.get(segment.id)||[start,start],to:[start,end]});
-  });
-  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const started=performance.now();
-  function tick(now){
-    const t=reduced?1:Math.min(1,(now-started)/480),ease=1-Math.pow(1-t,3);
-    moves.forEach(({id,path,from,to})=>{const next=from.map((a,i)=>a+(to[i]-a)*ease);path.setAttribute('d',arcPath(...next));saved.angles.set(id,next);});
-    if(t<1)saved.frame=requestAnimationFrame(tick);
-  }
-  saved.frame=requestAnimationFrame(tick);
-}
-function renderDonuts(m,c){
-  const phases=c?c.emissionsBreakdown:m.overview.emissionsBreakdown;
-  const total=c?c.carbonFootprint:m.overview.totalEmissions;
-  const colors=['#27684f','#92ad6b','#d4b465','#a8bcad'];
-  const labels=['Production','Use','Transport',c?'Recovery':'Recycling'];
-  function previewPhase(id){
-    const chosen=id===null?activePhase:Number(id),p=chosen===null?null:phases[chosen];
-    $('carbon-value').innerHTML=num(p?total*p.percentage/100:total)+'<small>kg CO₂e</small>';
-    $('carbon-share').textContent=p?labels[chosen]+' · '+p.percentage+'% of lifecycle':c?num(total/m.overview.totalEmissions*100)+'% of stated device footprint':'Total across the supplied lifecycle';
-    document.querySelectorAll('[data-phase]').forEach(el=>el.classList.toggle('phase-highlight',p&&Number(el.dataset.phase)===chosen));
-  }
-  drawDonut('emissions-donut',phases.map((p,i)=>({id:String(i),label:p.label,value:p.percentage,amount:total*p.percentage/100,color:colors[i],unit:'kg CO₂e'})),activePhase===null?null:String(activePhase),id=>{
-    activePhase=activePhase===Number(id)?null:Number(id);
-    document.querySelectorAll('#emissions-donut .donut-slice').forEach(el=>{const selected=Number(el.dataset.segment)===activePhase;el.classList.toggle('is-selected',selected);el.setAttribute('aria-pressed',selected);});previewPhase(null);
-  },previewPhase);
-  drawDonut('materials-donut',groups.map(g=>({id:g.id,label:g.label,value:value(m,g.id,'mass'),amount:value(m,g.id,'mass'),color:g.color,unit:'grams'})),state.component,id=>selectComponent(state.component===id?null:id),id=>{
-    showCutaway(id||state.component);
-    const selected=id||state.component;
-    $('mass-value').innerHTML=num(value(m,selected||'whole','mass'))+'<small>grams</small>';
-    $('mass-share').textContent=selected?group(selected).label+' · '+num(value(m,selected,'mass')/m.overview.totalWeight*100)+'% of device mass':'Materials contained in the device';
-  });
-  document.querySelectorAll('.donut-center').forEach(el=>{el.getAnimations().forEach(a=>a.cancel());if(!matchMedia('(prefers-reduced-motion: reduce)').matches)el.animate([{opacity:.25,transform:'translateY(4px)'},{opacity:1,transform:'translateY(0)'}],{duration:320,easing:'ease-out'});});
-}
-
 function selectComponent(id){
-  state.component=id;activePhase=null;
+  state.component=id;
   if(id){state.selected=new Set([id]);renderFilters();renderComparison();}
   hotspots.update(id);renderInspector();showCutaway(id);
 }
@@ -112,11 +44,11 @@ function accessibleHotspots(){
   });
 }
 function renderTimeline(){
-  $('timeline').innerHTML=models.map(m=>`<button class="model-button" data-model="${m.id}" aria-pressed="${state.model===m.id}" aria-label="Explore ${m.name}, ${m.year}${m.year>2024?', illustrative scenario':''}"><span class="year">${m.year}</span><span class="timeline-device"><img src="${m.thumbImage}" alt="" width="42" height="48"><strong>${m.timelineName}</strong></span>${m.year>2024?'<span class="scenario">Illustrative scenario</span>':''}</button>`).join('');
+  $('timeline').innerHTML=models.map(m=>`<button class="model-button" data-model="${m.id}" aria-pressed="${state.model===m.id}" aria-label="Explore ${m.name}, ${m.year}${m.year>2024?', illustrative scenario':''}"><span class="year">${m.year}</span><strong>${m.timelineName}</strong>${m.year>2024?'<span class="scenario">Illustrative scenario</span>':''}</button>`).join('');
   $('timeline').querySelectorAll('button').forEach(b=>b.onclick=()=>switchModel(b.dataset.model));
 }
 function switchModel(id){
-  state.model=id;activePhase=null;setModelData(id);
+  state.model=id;setModelData(id);
   const m=IPHONE_MODELS_DATA[id];
   $('phone-image').setAttribute('href',m.image);
   $('model-name').textContent=m.name;$('model-spec').textContent=m.storage.replace(' model','')+' · '+(m.year>2024?'Illustrative scenario':'Supplied lifecycle dataset');
@@ -139,7 +71,8 @@ function renderInspector(){
   const phases=c?c.emissionsBreakdown:m.overview.emissionsBreakdown;
   const phaseNames=c?['Production','Use','Transport','Recovery']:['Production','Use','Transport','Recycling'];
   const colors=['#27684f','#92ad6b','#d4b465','#a8bcad'];
-  $('phase-legend').innerHTML=phases.map((p,i)=>`<span class="phase-item" data-phase="${i}" title="${esc(p.label)}"><span class="dot" style="--dot:${colors[i]}"></span>${phaseNames[i]}<b>${p.percentage}%</b></span>`).join('');
+  $('phase-bar').innerHTML=phases.map((p,i)=>`<div style="width:${p.percentage}%;background:${colors[i]}" title="${esc(p.label)}: ${p.percentage}%"></div>`).join('');
+  $('phase-legend').innerHTML=phases.map((p,i)=>`<span class="phase-item" title="${esc(p.label)}"><span class="dot" style="--dot:${colors[i]}"></span>${phaseNames[i]}<b>${p.percentage}%</b></span>`).join('');
   $('component-list').innerHTML=groups.map(g=>`<button class="component-row" data-component="${g.id}" aria-pressed="${id===g.id}" aria-label="Inspect ${g.label}" style="--dot:${g.color}"><span class="component-name"><span class="dot"></span>${g.label}<span class="tiny-bar" aria-hidden="true"><i style="width:${value(m,g.id,'mass')/m.overview.totalWeight*100}%"></i></span></span><span>${num(value(m,g.id,'mass'))} g</span><span>${num(value(m,g.id,'carbon'))}</span></button>`).join('');
   $('component-list').querySelectorAll('button').forEach(b=>{
     b.onclick=()=>selectComponent(state.component===b.dataset.component?null:b.dataset.component);
@@ -147,7 +80,6 @@ function renderInspector(){
   });
   $('source-facts').innerHTML=(c?c.quickFacts:m.overview.quickFacts).map(f=>'<li>'+esc(f)+'</li>').join('');
   $('reset').disabled=!id;
-  renderDonuts(m,c);
 }
 function renderOptions(){
   const ms=available();
