@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Clinical Pedigree Lab: Chart Builder & Genetics Workbench</title>
-  <meta name="description" content="Interactive clinical pedigree chart builder based on international standard nomenclature. Construct, analyze, and diagnose genetic pedigrees featuring Cystic Fibrosis (autosomal recessive) and Huntington's Chorea (autosomal dominant).">
+  <title>Pedigree Chart Builder | Standard Clinical Nomenclature</title>
+  <meta name="description" content="Simple, intuitive clinical pedigree chart builder using standard international symbols. Interactive examples of Cystic Fibrosis (autosomal recessive) and Huntington's Chorea (autosomal dominant).">
   
-  <!-- Modern Typography -->
+  <!-- Modern Clean Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   
   <!-- Inline SVG Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='4' y='4' width='24' height='24' fill='%23d800a6' rx='3'/></svg>">
@@ -17,69 +17,85 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-theme="dark">
-  <!-- Top Navigation & Global Controls -->
-  <header class="app-header">
-    <div class="header-left">
-      <div class="brand-badge" title="Clinical Pedigree Studio">
-        <svg class="dna-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M2 15c6.667-6 13.333 0 20-6"></path>
-          <path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"></path>
-          <path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993"></path>
-          <path d="M17 6l-2.5-2.5"></path>
-          <path d="M14 8l-1-1"></path>
-          <path d="M7 18l2.5 2.5"></path>
-          <path d="M3.5 14.5L5 16"></path>
-          <path d="M20 9.5L18.5 8"></path>
+
+  <!-- =========================================================================
+       TOP HEADER: CLEAN, MINIMALIST, HIGH-IMPACT
+       ========================================================================= -->
+  <header class="top-nav">
+    <div class="nav-left">
+      <div class="app-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="logo-icon">
+          <rect x="3" y="3" width="7" height="7" rx="1" fill="#d800a6" stroke="#d800a6"></rect>
+          <circle cx="17.5" cy="6.5" r="3.5" fill="none" stroke="currentColor"></circle>
+          <line x1="10" y1="6.5" x2="14" y2="6.5" stroke="currentColor"></line>
+          <line x1="12" y1="6.5" x2="12" y2="14" stroke="currentColor"></line>
+          <polygon points="12,14 16,18 12,22 8,18" fill="none" stroke="currentColor"></polygon>
         </svg>
-        <div class="brand-text">
-          <span class="brand-title">GeneTree Studio</span>
-          <span class="brand-subtitle">Clinical Pedigree Workbench</span>
+        <div class="logo-text">
+          <h1>Pedigree Chart Builder</h1>
+          <span class="logo-sub">Standard Clinical Nomenclature</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center: 3 Primary Case Switchers (Instant Focus!) -->
+    <div class="case-switcher" role="tablist" aria-label="Pedigree Examples">
+      <button id="btn-case-cf" class="case-btn active" role="tab" aria-selected="true">
+        <span class="case-dot recessive"></span>
+        <span class="case-name">Cystic Fibrosis</span>
+        <span class="case-tag">Recessive</span>
+      </button>
+
+      <button id="btn-case-hd" class="case-btn" role="tab" aria-selected="false">
+        <span class="case-dot dominant"></span>
+        <span class="case-name">Huntington's Chorea</span>
+        <span class="case-tag">Dominant</span>
+      </button>
+
+      <button id="btn-case-blank" class="case-btn" role="tab" aria-selected="false">
+        <span class="case-dot blank"></span>
+        <span class="case-name">Blank Canvas</span>
+        <span class="case-tag">Build Free</span>
+      </button>
+    </div>
+
+    <!-- Right Controls: Essentials Only -->
+    <div class="nav-right">
+      <button id="btn-open-guide" class="btn-ghost" title="Standard Clinical Pedigree Nomenclature Guide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span>Symbols Guide</span>
+      </button>
+
+      <button id="btn-auto-layout" class="btn-ghost" title="Automatically align individuals by generation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        <span>Auto-Align</span>
+      </button>
+
+      <div class="dropdown-wrap">
+        <button id="btn-export" class="btn-ghost" title="Export Chart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Export</span>
+        </button>
+        <div id="export-dropdown" class="dropdown-popover hidden">
+          <button id="opt-export-png" class="popover-item">Download Image (PNG)</button>
+          <button id="opt-export-svg" class="popover-item">Download Vector (SVG)</button>
         </div>
       </div>
 
-      <nav class="mode-nav" role="tablist" aria-label="Application Modules">
-        <button id="tab-builder" class="nav-tab active" role="tab" aria-selected="true" aria-controls="view-builder" tabindex="0">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-icon"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-          <span>Pedigree Builder</span>
-        </button>
-        <button id="tab-cf" class="nav-tab" role="tab" aria-selected="false" aria-controls="view-cf" tabindex="-1">
-          <span class="case-badge recessive">AR</span>
-          <span>Cystic Fibrosis Case</span>
-        </button>
-        <button id="tab-hd" class="nav-tab" role="tab" aria-selected="false" aria-controls="view-hd" tabindex="-1">
-          <span class="case-badge dominant">AD</span>
-          <span>Huntington's Chorea Case</span>
-        </button>
-        <button id="tab-quiz" class="nav-tab" role="tab" aria-selected="false" aria-controls="view-quiz" tabindex="-1">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-icon"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-          <span>Clinical Quiz</span>
-        </button>
-      </nav>
-    </div>
-
-    <div class="header-right">
-      <button id="btn-open-nomenclature" class="header-btn secondary" aria-haspopup="dialog" aria-expanded="false" title="Standard Clinical Pedigree Nomenclature Guide">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-        </svg>
-        <span>Standard Nomenclature</span>
-      </button>
-
-      <button id="btn-toggle-sound" class="icon-btn" aria-label="Toggle Sound Effects" title="Sound Effects">
-        <svg id="icon-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-        </svg>
-        <svg id="icon-sound-off" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-          <line x1="23" y1="9" x2="17" y2="15"></line>
-          <line x1="17" y1="9" x2="23" y2="15"></line>
-        </svg>
-      </button>
-
-      <button id="btn-toggle-theme" class="icon-btn" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
-        <svg id="icon-sun" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button id="btn-theme-toggle" class="btn-icon-only" aria-label="Toggle Theme" title="Toggle Theme">
+        <svg id="icon-sun" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="5"></circle>
           <line x1="12" y1="1" x2="12" y2="3"></line>
           <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -90,1081 +106,462 @@
           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
         </svg>
-        <svg id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
         </svg>
       </button>
     </div>
   </header>
 
-  <!-- Live Announcer for Screen Readers -->
-  <div id="live-announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+  <!-- =========================================================================
+       MAIN 3-PANE WORKSPACE: FOCUSED & UNCLUTTERED
+       ========================================================================= -->
+  <main class="app-workspace">
 
-  <!-- Main Container -->
-  <main class="app-main">
-    
-    <!-- =========================================================================
-         VIEW 1: PEDIGREE BUILDER CANVAS
-         ========================================================================= -->
-    <section id="view-builder" class="view-panel active" role="tabpanel" aria-labelledby="tab-builder">
-      <!-- Builder Sub-Header Toolbar -->
-      <div class="canvas-toolbar">
-        <div class="toolbar-group">
-          <label for="template-select" class="toolbar-label">Preset / Template:</label>
-          <select id="template-select" class="select-control">
-            <option value="cf-standard">Cystic Fibrosis (Autosomal Recessive)</option>
-            <option value="hd-standard">Huntington's Chorea (Autosomal Dominant)</option>
-            <option value="cf-consanguinity">CF with Consanguineous Mating (Double Line)</option>
-            <option value="3-gen-blank">Blank 3-Generation Family</option>
-            <option value="empty">Empty Canvas (Start from scratch)</option>
-          </select>
-          <button id="btn-load-template" class="btn-sm primary" title="Load selected template into canvas">Load</button>
-        </div>
+    <!-- 1. LEFT PALETTE: STANDARD SYMBOLS (Directly from reference image) -->
+    <aside class="symbols-sidebar" aria-label="Standard Pedigree Symbols">
+      <div class="sidebar-title">
+        <span>Standard Symbols</span>
+        <span class="hint-small">Click or drag to add</span>
+      </div>
 
-        <div class="toolbar-divider"></div>
-
-        <div class="toolbar-group">
-          <button id="btn-undo" class="tool-btn icon-only" title="Undo (Ctrl+Z)" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+      <div class="symbols-group">
+        <span class="group-label">Biological Sex</span>
+        <div class="symbols-grid">
+          <button class="sym-card" data-action="add-person" data-sex="male" data-status="unaffected" title="Add Male (Square)">
+            <svg viewBox="0 0 40 40" class="sym-svg">
+              <rect x="8" y="8" width="24" height="24" class="sym-shape unshaded"></rect>
+            </svg>
+            <span class="sym-name">Male</span>
           </button>
-          <button id="btn-redo" class="tool-btn icon-only" title="Redo (Ctrl+Y)" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-          </button>
-          <button id="btn-auto-layout" class="tool-btn" title="Automatically arrange individuals by generation and family alignment">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
-            <span>Auto Layout</span>
-          </button>
-        </div>
 
-        <div class="toolbar-divider"></div>
-
-        <div class="toolbar-group">
-          <label class="toolbar-label">Carrier Style:</label>
-          <div class="segmented-control" role="radiogroup" aria-label="Carrier Display Style">
-            <button id="carrier-style-half" class="segment-btn active" role="radio" aria-checked="true" title="Half-shaded symbol (left half filled)">Half-Shaded</button>
-            <button id="carrier-style-dot" class="segment-btn" role="radio" aria-checked="false" title="Centered dot symbol">Centered Dot</button>
-          </div>
-        </div>
-
-        <div class="toolbar-divider"></div>
-
-        <div class="toolbar-group">
-          <button id="btn-analyze-inheritance" class="tool-btn highlight" title="Analyze inheritance pattern (Autosomal Dominant vs Recessive vs X-linked)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <span>Analyze Genetics</span>
+          <button class="sym-card" data-action="add-person" data-sex="female" data-status="unaffected" title="Add Female (Circle)">
+            <svg viewBox="0 0 40 40" class="sym-svg">
+              <circle cx="20" cy="20" r="12" class="sym-shape unshaded"></circle>
+            </svg>
+            <span class="sym-name">Female</span>
           </button>
-        </div>
 
-        <div class="toolbar-group ml-auto">
-          <button id="btn-zoom-out" class="tool-btn icon-only" title="Zoom Out (-)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+          <button class="sym-card" data-action="add-person" data-sex="unspecified" data-status="unaffected" title="Add Unspecified Sex (Diamond)">
+            <svg viewBox="0 0 40 40" class="sym-svg">
+              <polygon points="20,6 34,20 20,34 6,20" class="sym-shape unshaded"></polygon>
+            </svg>
+            <span class="sym-name">Unspecified</span>
           </button>
-          <span id="zoom-level-text" class="zoom-text">100%</span>
-          <button id="btn-zoom-in" class="tool-btn icon-only" title="Zoom In (+)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
-          </button>
-          <button id="btn-reset-view" class="tool-btn icon-only" title="Fit to Screen (0)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
-          </button>
-          
-          <div class="export-dropdown-wrapper">
-            <button id="btn-export-menu" class="btn-sm secondary" aria-haspopup="menu" aria-expanded="false">
-              <span>Export</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </button>
-            <div id="export-menu" class="dropdown-menu hidden" role="menu">
-              <button id="btn-export-svg" class="dropdown-item" role="menuitem">Download as SVG Vector</button>
-              <button id="btn-export-png" class="dropdown-item" role="menuitem">Download as High-Res PNG</button>
-              <button id="btn-export-json" class="dropdown-item" role="menuitem">Export Pedigree JSON</button>
-              <label class="dropdown-item file-upload-item" role="menuitem">
-                Import Pedigree JSON
-                <input type="file" id="input-import-json" accept=".json" class="sr-only">
-              </label>
-              <div class="dropdown-separator"></div>
-              <button id="btn-print-pedigree" class="dropdown-item" role="menuitem">Print Pedigree Report</button>
-            </div>
-          </div>
         </div>
       </div>
 
-      <!-- Main Interactive Workbench Work Area -->
-      <div class="builder-workspace">
+      <div class="symbols-group">
+        <span class="group-label">Clinical Phenotype</span>
+        <div class="symbols-grid">
+          <button class="sym-card" data-action="add-person" data-sex="female" data-status="affected" title="Add Affected Individual (Magenta)">
+            <svg viewBox="0 0 40 40" class="sym-svg">
+              <circle cx="20" cy="20" r="12" class="sym-shape affected-magenta"></circle>
+            </svg>
+            <span class="sym-name">Affected</span>
+          </button>
+
+          <button class="sym-card" data-action="add-person" data-sex="male" data-status="carrier" title="Add Heterozygous Carrier (Half-shaded)">
+            <svg viewBox="0 0 40 40" class="sym-svg">
+              <rect x="8" y="8" width="24" height="24" class="sym-shape unshaded"></rect>
+              <path d="M 8 8 L 20 8 L 20 32 L 8 32 Z" class="sym-half-fill"></path>
+            </svg>
+            <span class="sym-name">Carrier</span>
+          </button>
+
+          <button class="sym-card" data-action="add-person" data-sex="male" data-deceased="true" title="Add Deceased Individual (Diagonal Slash)">
+            <svg viewBox="0 0 40 40" class="sym-svg">
+              <rect x="8" y="8" width="24" height="24" class="sym-shape unshaded"></rect>
+              <line x1="5" y1="35" x2="35" y2="5" class="sym-slash-line"></line>
+            </svg>
+            <span class="sym-name">Deceased</span>
+          </button>
+
+          <button class="sym-card" data-action="add-person" data-sex="female" data-proband="true" title="Add Proband / Consultand (Arrow ↗ P)">
+            <svg viewBox="0 0 40 40" class="sym-svg">
+              <circle cx="22" cy="18" r="11" class="sym-shape unshaded"></circle>
+              <line x1="4" y1="36" x2="14" y2="26" class="sym-arrow-line"></line>
+              <polyline points="7,26 14,26 14,33" class="sym-arrow-line"></polyline>
+              <text x="2" y="28" class="sym-arrow-text">P</text>
+            </svg>
+            <span class="sym-name">Proband</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="symbols-group">
+        <span class="group-label">Connections</span>
+        <div class="symbols-grid">
+          <button class="sym-card full-width" data-action="connect-mode" data-conn-type="mating" title="Connect two partners (Single Horizontal Line)">
+            <svg viewBox="0 0 70 30" class="conn-svg">
+              <rect x="6" y="8" width="14" height="14" class="sym-shape unshaded"></rect>
+              <line x1="20" y1="15" x2="50" y2="15" class="conn-line"></line>
+              <circle cx="57" cy="15" r="7" class="sym-shape unshaded"></circle>
+            </svg>
+            <span class="sym-name">Mating (Single Line)</span>
+          </button>
+
+          <button class="sym-card full-width" data-action="connect-mode" data-conn-type="consanguinity" title="Consanguineous Union between Blood Relatives (Double Line)">
+            <svg viewBox="0 0 70 30" class="conn-svg">
+              <rect x="6" y="8" width="14" height="14" class="sym-shape unshaded"></rect>
+              <line x1="20" y1="13" x2="50" y2="13" class="conn-line"></line>
+              <line x1="20" y1="17" x2="50" y2="17" class="conn-line"></line>
+              <circle cx="57" cy="15" r="7" class="sym-shape unshaded"></circle>
+            </svg>
+            <span class="sym-name">Consanguinity (Double Line)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Canvas Instructions -->
+      <div class="canvas-tips">
+        <div class="tip-row">
+          <span class="tip-icon">🖱️</span>
+          <span>Click a person to edit or add family</span>
+        </div>
+        <div class="tip-row">
+          <span class="tip-icon">✋</span>
+          <span>Drag to position anywhere</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 2. CENTER: THE INTERACTIVE PEDIGREE CANVAS -->
+    <section class="canvas-viewport" id="canvas-container">
+      
+      <!-- Roman Numerals Generation Ruler (Left) -->
+      <div class="generation-ruler" aria-hidden="true">
+        <div class="ruler-gen"><span>I</span></div>
+        <div class="ruler-gen"><span>II</span></div>
+        <div class="ruler-gen"><span>III</span></div>
+      </div>
+
+      <!-- Main SVG Canvas -->
+      <svg id="pedigree-svg" class="pedigree-svg" width="100%" height="100%">
+        <defs>
+          <pattern id="grid-dots" width="36" height="36" patternUnits="userSpaceOnUse">
+            <circle cx="18" cy="18" r="1" fill="var(--grid-dot)"></circle>
+          </pattern>
+        </defs>
+
+        <!-- Canvas Background Pattern -->
+        <rect width="100%" height="100%" fill="url(#grid-dots)"></rect>
+
+        <!-- Transform Root for Smooth Pan & Zoom -->
+        <g id="canvas-root" transform="matrix(1 0 0 1 0 0)">
+          <!-- Connectors Layer -->
+          <g id="layer-connections"></g>
+          <!-- Individuals Layer -->
+          <g id="layer-nodes"></g>
+          <!-- Interactive Preview Line -->
+          <g id="layer-interaction"></g>
+        </g>
+      </svg>
+
+      <!-- Floating In-Place Toolbar for Selected Individual -->
+      <div id="quick-toolbar" class="quick-toolbar hidden" role="toolbar" aria-label="Individual Quick Actions">
+        <button id="qb-partner" class="qb-btn" title="Add Reproductive Partner">+ Partner</button>
+        <button id="qb-child" class="qb-btn" title="Add Child">+ Child</button>
+        <button id="qb-parents" class="qb-btn" title="Add Parents">+ Parents</button>
+        <div class="qb-divider"></div>
+        <button id="qb-affected" class="qb-btn magenta" title="Toggle Affected Status (Magenta)">Affected</button>
+        <button id="qb-carrier" class="qb-btn" title="Toggle Carrier Status">Carrier</button>
+        <button id="qb-proband" class="qb-btn" title="Toggle Proband Arrow">↗ P</button>
+        <div class="qb-divider"></div>
+        <button id="qb-delete" class="qb-btn danger" title="Delete Individual">✕</button>
+      </div>
+
+      <!-- Floating Zoom Controls (Bottom Right) -->
+      <div class="canvas-controls">
+        <button id="btn-zoom-out" class="ctrl-btn" title="Zoom Out (-)">−</button>
+        <span id="zoom-text" class="ctrl-text">100%</span>
+        <button id="btn-zoom-in" class="ctrl-btn" title="Zoom In (+)">+</button>
+        <button id="btn-zoom-reset" class="ctrl-btn" title="Reset View">⊙</button>
+      </div>
+    </section>
+
+    <!-- 3. RIGHT PANEL: INTUITIVE DUAL-STATE PANEL (CASE INFO OR SELECTED PERSON) -->
+    <aside class="info-sidebar" id="info-sidebar">
+      
+      <!-- STATE A: CLINICAL CASE EXPLANATION & GENETIC RULES (Shown by default) -->
+      <div id="panel-case-info" class="panel-section">
         
-        <!-- Left Dock: Symbol Palette matching the Prompt's Reference Image -->
-        <aside class="symbol-palette" aria-label="Clinical Symbol Palette">
-          <div class="palette-header">
-            <h3>Standard Symbols</h3>
-            <span class="palette-hint">Drag & drop onto canvas or click to add</span>
+        <!-- Header with disease badge -->
+        <div class="case-header-card">
+          <div class="case-badge-wrap">
+            <span id="case-pill-type" class="pill-badge recessive">Autosomal Recessive</span>
+            <span id="case-pill-gene" class="pill-badge-outline">CFTR Gene</span>
           </div>
-
-          <div class="palette-grid">
-            <!-- Sex / Gender Shapes -->
-            <div class="palette-section-title">Gender / Biological Sex</div>
-            
-            <button class="palette-item" data-action="add-person" data-sex="male" data-status="unaffected" title="Add Male (Square)">
-              <svg viewBox="0 0 50 50" class="palette-svg">
-                <rect x="10" y="10" width="30" height="30" class="sym-shape sym-unshaded"></rect>
-              </svg>
-              <span class="palette-label">Male (Square)</span>
-            </button>
-
-            <button class="palette-item" data-action="add-person" data-sex="female" data-status="unaffected" title="Add Female (Circle)">
-              <svg viewBox="0 0 50 50" class="palette-svg">
-                <circle cx="25" cy="25" r="15" class="sym-shape sym-unshaded"></circle>
-              </svg>
-              <span class="palette-label">Female (Circle)</span>
-            </button>
-
-            <button class="palette-item" data-action="add-person" data-sex="unspecified" data-status="unaffected" title="Add Unspecified Sex (Diamond)">
-              <svg viewBox="0 0 50 50" class="palette-svg">
-                <polygon points="25,9 41,25 25,41 9,25" class="sym-shape sym-unshaded"></polygon>
-              </svg>
-              <span class="palette-label">Unspecified (Diamond)</span>
-            </button>
-
-            <!-- Phenotype States -->
-            <div class="palette-section-title">Clinical Phenotype</div>
-
-            <button class="palette-item" data-action="add-person" data-sex="female" data-status="affected" title="Add Affected Individual (Magenta Shaded)">
-              <svg viewBox="0 0 50 50" class="palette-svg">
-                <circle cx="25" cy="25" r="15" class="sym-shape sym-affected"></circle>
-              </svg>
-              <span class="palette-label">Affected (Magenta)</span>
-            </button>
-
-            <button class="palette-item" data-action="add-person" data-sex="male" data-status="carrier" title="Add Heterozygous Carrier (Half-shaded / Dot)">
-              <svg viewBox="0 0 50 50" class="palette-svg">
-                <rect x="10" y="10" width="30" height="30" class="sym-shape sym-unshaded"></rect>
-                <path d="M 10 10 L 25 10 L 25 40 L 10 40 Z" class="sym-carrier-half"></path>
-              </svg>
-              <span class="palette-label">Carrier (Half-shaded)</span>
-            </button>
-
-            <button class="palette-item" data-action="add-person" data-sex="female" data-status="carrier" data-carrier-dot="true" title="Add Carrier with Centered Dot">
-              <svg viewBox="0 0 50 50" class="palette-svg">
-                <circle cx="25" cy="25" r="15" class="sym-shape sym-unshaded"></circle>
-                <circle cx="25" cy="25" r="5" class="sym-dot"></circle>
-              </svg>
-              <span class="palette-label">Carrier (Centered Dot)</span>
-            </button>
-
-            <button class="palette-item" data-action="add-person" data-sex="male" data-deceased="true" title="Add Deceased Individual (Diagonal Slash)">
-              <svg viewBox="0 0 50 50" class="palette-svg">
-                <rect x="10" y="10" width="30" height="30" class="sym-shape sym-unshaded"></rect>
-                <line x1="7" y1="43" x2="43" y2="7" class="sym-slash"></line>
-              </svg>
-              <span class="palette-label">Deceased (Slashed)</span>
-            </button>
-
-            <button class="palette-item" data-action="add-person" data-sex="female" data-proband="true" title="Add Proband / Consultand (Arrow ↗)">
-              <svg viewBox="0 0 50 50" class="palette-svg">
-                <circle cx="28" cy="22" r="14" class="sym-shape sym-unshaded"></circle>
-                <path d="M 5 45 L 18 32 M 8 32 L 18 32 L 18 42" class="sym-arrow" stroke-width="2.5"></path>
-                <text x="3" y="36" class="sym-p-text" font-size="10" font-weight="bold">P</text>
-              </svg>
-              <span class="palette-label">Proband (Arrow ↗)</span>
-            </button>
-
-            <!-- Relationships & Unions -->
-            <div class="palette-section-title">Relationships</div>
-
-            <button class="palette-item" data-action="connect-mode" data-conn-type="mating" title="Connect two individuals with a single horizontal line (Mating)">
-              <svg viewBox="0 0 50 50" class="palette-svg">
-                <rect x="6" y="17" width="14" height="14" class="sym-shape sym-unshaded"></rect>
-                <line x1="20" y1="24" x2="30" y2="24" class="sym-line"></line>
-                <circle cx="37" cy="24" r="7" class="sym-shape sym-unshaded"></circle>
-              </svg>
-              <span class="palette-label">Single Line: Mating</span>
-            </button>
-
-            <button class="palette-item" data-action="connect-mode" data-conn-type="consanguinity" title="Connect two individuals with a double horizontal line (Consanguinity)">
-              <svg viewBox="0 0 50 50" class="palette-svg">
-                <rect x="6" y="17" width="14" height="14" class="sym-shape sym-unshaded"></rect>
-                <line x1="20" y1="22" x2="30" y2="22" class="sym-line"></line>
-                <line x1="20" y1="26" x2="30" y2="26" class="sym-line"></line>
-                <circle cx="37" cy="24" r="7" class="sym-shape sym-unshaded"></circle>
-              </svg>
-              <span class="palette-label">Double Line: Consanguinity</span>
-            </button>
-          </div>
-
-          <div class="palette-footer">
-            <button id="btn-quick-cf-insert" class="quick-preset-btn" title="Quickly inject Cystic Fibrosis family core">
-              <span class="dot cf-dot"></span> Insert CF Core Family
-            </button>
-            <button id="btn-quick-hd-insert" class="quick-preset-btn" title="Quickly inject Huntington's family core">
-              <span class="dot hd-dot"></span> Insert HD Core Family
-            </button>
-          </div>
-        </aside>
-
-        <!-- Center: Interactive SVG Canvas -->
-        <div class="canvas-viewport-container" id="canvas-container">
-          <!-- Generation Labels Rail (Left) -->
-          <div class="generation-rail" id="generation-rail" aria-hidden="true">
-            <div class="gen-marker gen-i"><span>I</span></div>
-            <div class="gen-marker gen-ii"><span>II</span></div>
-            <div class="gen-marker gen-iii"><span>III</span></div>
-            <div class="gen-marker gen-iv"><span>IV</span></div>
-          </div>
-
-          <!-- Main SVG Canvas Engine -->
-          <svg id="pedigree-svg" class="pedigree-svg-surface" width="100%" height="100%" tabIndex="0" aria-label="Interactive Pedigree Chart Canvas. Use mouse or touch to pan, zoom, and arrange individuals. Press Tab to cycle through members.">
-            <!-- Grid Pattern -->
-            <defs>
-              <pattern id="grid-dots" width="40" height="40" patternUnits="userSpaceOnUse">
-                <circle cx="20" cy="20" r="1" fill="var(--grid-dot-color)"></circle>
-              </pattern>
-              
-              <!-- Arrowhead Marker for Proband -->
-              <marker id="proband-arrowhead" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                <path d="M 0 0 L 8 4 L 0 8 Z" fill="var(--symbol-stroke)"></path>
-              </marker>
-
-              <!-- Subtle Drop Shadow Filter for Selected Elements -->
-              <filter id="node-glow" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="var(--primary)" flood-opacity="0.3"></feDropShadow>
-              </filter>
-            </defs>
-
-            <!-- Background Grid Surface -->
-            <rect width="100%" height="100%" fill="url(#grid-dots)" class="svg-bg-grid"></rect>
-
-            <!-- Transform Root Group (for Pan & Zoom) -->
-            <g id="canvas-transform-group" transform="matrix(1 0 0 1 0 0)">
-              <!-- Generation Guidelines -->
-              <g id="generation-guidelines" class="generation-guidelines"></g>
-
-              <!-- Relationship Lines Layer (Matings, Consanguinity, Descendant Bars) -->
-              <g id="layer-connections" class="layer-connections"></g>
-
-              <!-- Individuals Layer (Square, Circle, Diamond, Slashes, Arrows) -->
-              <g id="layer-nodes" class="layer-nodes"></g>
-
-              <!-- Drag Preview / Connect Line Layer -->
-              <g id="layer-interaction" class="layer-interaction"></g>
-            </g>
-          </svg>
-
-          <!-- Floating Context Quick-Actions (Appears above selected individual) -->
-          <div id="node-quick-bar" class="node-quick-bar hidden" role="toolbar" aria-label="Individual Actions">
-            <button id="qbtn-add-partner" class="quick-action-btn" title="Add partner / mating">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-              <span>+ Partner</span>
-            </button>
-            <button id="qbtn-add-child" class="quick-action-btn" title="Add child to this mating">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
-              <span>+ Child</span>
-            </button>
-            <button id="qbtn-add-parents" class="quick-action-btn" title="Add parents to this individual">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"></path></svg>
-              <span>+ Parents</span>
-            </button>
-            <button id="qbtn-toggle-affected" class="quick-action-btn magenta" title="Toggle clinical affected status (Magenta)">
-              <span class="magenta-square"></span>
-              <span>Affected</span>
-            </button>
-            <button id="qbtn-toggle-carrier" class="quick-action-btn" title="Toggle carrier status">
-              <span class="carrier-icon-mini"></span>
-              <span>Carrier</span>
-            </button>
-            <button id="qbtn-toggle-proband" class="quick-action-btn" title="Toggle Proband arrow">
-              <span>↗ P</span>
-            </button>
-            <button id="qbtn-delete" class="quick-action-btn danger" title="Delete individual (Del)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-            </button>
-          </div>
-
-          <!-- Bottom Canvas Instructions Badge -->
-          <div class="canvas-hints-badge">
-            <span class="hint-pill">💡 Click person to inspect</span>
-            <span class="hint-pill">🖱️ Drag to position</span>
-            <span class="hint-pill">🔍 Scroll to zoom</span>
-            <span class="hint-pill">⌨️ Del to remove</span>
-          </div>
-        </div>
-
-        <!-- Right Dock: Clinical Inspector & Individual Properties -->
-        <aside class="clinical-inspector" id="clinical-inspector" aria-label="Clinical Member Inspector">
-          <div class="inspector-header">
-            <div class="inspector-title-wrap">
-              <span id="insp-badge-id" class="gen-badge">II-2</span>
-              <h3 id="insp-title">Individual Details</h3>
-            </div>
-            <button id="btn-close-inspector" class="icon-btn-close" aria-label="Close Inspector">✕</button>
-          </div>
-
-          <div id="inspector-content" class="inspector-content">
-            <!-- Selected Member Form -->
-            <form id="form-edit-member" class="inspector-form" onsubmit="return false;">
-              <!-- Identification -->
-              <div class="form-group">
-                <label for="input-member-name" class="form-label">Clinical Identifier / Name</label>
-                <input type="text" id="input-member-name" class="text-input" placeholder="e.g. Emma, Consultand, II-2">
-              </div>
-
-              <!-- Biological Sex (Image symbols: Square, Circle, Diamond) -->
-              <div class="form-group">
-                <label class="form-label" id="label-biological-sex">Biological Sex (Symbol Shape)</label>
-                <div class="sex-selector-row" role="radiogroup" aria-labelledby="label-biological-sex">
-                  <label class="sex-option">
-                    <input type="radio" name="member-sex" value="male" id="sex-male" aria-label="Male (Square)">
-                    <span class="sex-card">
-                      <svg viewBox="0 0 30 30" class="mini-svg"><rect x="5" y="5" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"></rect></svg>
-                      <span>Male</span>
-                    </span>
-                  </label>
-                  <label class="sex-option">
-                    <input type="radio" name="member-sex" value="female" id="sex-female" aria-label="Female (Circle)">
-                    <span class="sex-card">
-                      <svg viewBox="0 0 30 30" class="mini-svg"><circle cx="15" cy="15" r="10" stroke="currentColor" stroke-width="2" fill="none"></circle></svg>
-                      <span>Female</span>
-                    </span>
-                  </label>
-                  <label class="sex-option">
-                    <input type="radio" name="member-sex" value="unspecified" id="sex-unspecified" aria-label="Unspecified Sex (Diamond)">
-                    <span class="sex-card">
-                      <svg viewBox="0 0 30 30" class="mini-svg"><polygon points="15,4 26,15 15,26 4,15" stroke="currentColor" stroke-width="2" fill="none"></polygon></svg>
-                      <span>Unspecified</span>
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Phenotypic Clinical Status (Image symbols: Unshaded, Shaded Magenta, Half-shaded) -->
-              <div class="form-group">
-                <label class="form-label" id="label-phenotypic-status">Phenotypic Status (Clinical Manifestation)</label>
-                <div class="status-selector-column" role="radiogroup" aria-labelledby="label-phenotypic-status">
-                  <label class="status-option">
-                    <input type="radio" name="member-status" value="unaffected" id="status-unaffected" aria-label="Unaffected (Unshaded)">
-                    <span class="status-card">
-                      <span class="status-indicator unaffected"></span>
-                      <div class="status-text-wrap">
-                        <strong>Unaffected (Unshaded)</strong>
-                        <span>No clinical symptoms of disorder</span>
-                      </div>
-                    </span>
-                  </label>
-
-                  <label class="status-option">
-                    <input type="radio" name="member-status" value="affected" id="status-affected" aria-label="Affected (Shaded Magenta)">
-                    <span class="status-card">
-                      <span class="status-indicator affected-magenta"></span>
-                      <div class="status-text-wrap">
-                        <strong>Affected (Shaded Magenta)</strong>
-                        <span>Expresses clinical disease phenotype</span>
-                      </div>
-                    </span>
-                  </label>
-
-                  <label class="status-option">
-                    <input type="radio" name="member-status" value="carrier" id="status-carrier" aria-label="Heterozygous Carrier (Half-shaded or Dot)">
-                    <span class="status-card">
-                      <span class="status-indicator carrier-half"></span>
-                      <div class="status-text-wrap">
-                        <strong>Heterozygous Carrier</strong>
-                        <span>Unaffected carrier (half-shaded / dot)</span>
-                      </div>
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Modifiers: Deceased (Slash) and Proband (Arrow) -->
-              <div class="form-group">
-                <label class="form-label">Clinical Modifiers</label>
-                <div class="modifier-checkboxes">
-                  <label class="checkbox-card">
-                    <input type="checkbox" id="check-deceased" aria-label="Deceased individual (Diagonal Slash)">
-                    <span class="check-box-custom"></span>
-                    <div class="mod-label-text">
-                      <span class="mod-title">Deceased (Slashed Symbol ⧄)</span>
-                      <span class="mod-desc">Individual has passed away</span>
-                    </div>
-                  </label>
-
-                  <label class="checkbox-card">
-                    <input type="checkbox" id="check-proband" aria-label="Proband or Consultand (Arrow P)">
-                    <span class="check-box-custom"></span>
-                    <div class="mod-label-text">
-                      <span class="mod-title">Proband / Index Case (Arrow ↗ P)</span>
-                      <span class="mod-desc">Person bringing family to medical attention</span>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Clinical Genetic Annotations -->
-              <div class="form-row">
-                <div class="form-group col-6">
-                  <label for="input-member-age" class="form-label">Age / Year</label>
-                  <input type="text" id="input-member-age" class="text-input" placeholder="e.g. 34y or d. 58y">
-                </div>
-                <div class="form-group col-6">
-                  <label for="input-member-genotype" class="form-label">Genotype Label</label>
-                  <input type="text" id="input-member-genotype" class="text-input mono" placeholder="e.g. wt/ΔF508, Hh">
-                </div>
-              </div>
-
-              <!-- Clinical Phenotype Notes -->
-              <div class="form-group">
-                <label for="input-member-notes" class="form-label">Clinical Phenotype / Genetic Notes</label>
-                <textarea id="input-member-notes" class="textarea-input" rows="2" placeholder="e.g. Diagnosed via sweat chloride test at 6 months; recurrent pneumonia."></textarea>
-              </div>
-
-              <!-- Quick Generation Tier Selector -->
-              <div class="form-group">
-                <label for="select-generation" class="form-label">Generational Row (Roman Numeral)</label>
-                <select id="select-generation" class="select-control">
-                  <option value="1">Generation I (Grandparents / Oldest)</option>
-                  <option value="2">Generation II (Parents / Aunts / Uncles)</option>
-                  <option value="3">Generation III (Offspring / Consultand)</option>
-                  <option value="4">Generation IV (Great-grandchildren)</option>
-                </select>
-              </div>
-
-              <!-- Relationships on Canvas -->
-              <div class="inspector-relationships">
-                <div class="section-subheading">Family Connections</div>
-                <div class="rel-button-grid">
-                  <button type="button" id="btn-add-partner-insp" class="btn-sm secondary">+ Add Partner</button>
-                  <button type="button" id="btn-add-child-insp" class="btn-sm secondary">+ Add Child</button>
-                  <button type="button" id="btn-add-parents-insp" class="btn-sm secondary">+ Add Parents</button>
-                  <button type="button" id="btn-toggle-consanguinity-insp" class="btn-sm secondary" title="Toggle double horizontal line with partner">Toggle Consanguinity</button>
-                </div>
-              </div>
-
-              <!-- Danger Action -->
-              <div class="inspector-actions">
-                <button type="button" id="btn-delete-member" class="btn-sm danger-full">Delete This Individual</button>
-              </div>
-            </form>
-
-            <!-- Empty Inspector State -->
-            <div id="inspector-empty" class="inspector-empty hidden">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="empty-icon"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-              <h4>No Individual Selected</h4>
-              <p>Click any symbol on the canvas to inspect and edit details, or drag symbols from the left palette to add members.</p>
-            </div>
-          </div>
-        </aside>
-
-      </div>
-
-      <!-- Bottom Genetic Analyzer Drawer / Card -->
-      <section class="analysis-drawer" id="analysis-drawer" aria-label="Pedigree Inheritance Analysis">
-        <div class="drawer-header" id="drawer-toggle">
-          <div class="drawer-title-wrap">
-            <span class="analyzer-pulse"></span>
-            <h3>Genetic Inheritance Diagnostic & Validation Engine</h3>
-            <span id="diagnostic-summary-badge" class="badge-status-neutral">Analyzing Family Tree...</span>
-          </div>
-          <button id="btn-minimize-drawer" class="icon-btn-toggle" aria-expanded="true" title="Toggle Analysis Panel">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron"><polyline points="18 15 12 9 6 15"></polyline></svg>
-          </button>
-        </div>
-
-        <div class="drawer-body" id="drawer-body">
-          <div class="analysis-grid">
-            <!-- Evaluated Pattern Card -->
-            <div class="analysis-card">
-              <h4>Pattern Compatibility</h4>
-              <div class="pattern-score-list" id="pattern-score-list">
-                <!-- Dynamically populated scores -->
-                <div class="pattern-item ar-item">
-                  <div class="pattern-item-head">
-                    <span class="pattern-name">Autosomal Recessive (e.g. Cystic Fibrosis)</span>
-                    <span class="pattern-probability prob-high" id="score-ar">High Compatibility</span>
-                  </div>
-                  <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-ar" style="width: 85%;"></div></div>
-                  <p class="pattern-clues" id="clues-ar">Unaffected parents (carriers) have affected offspring; horizontal inheritance pattern.</p>
-                </div>
-
-                <div class="pattern-item ad-item">
-                  <div class="pattern-item-head">
-                    <span class="pattern-name">Autosomal Dominant (e.g. Huntington's)</span>
-                    <span class="pattern-probability prob-low" id="score-ad">Unlikely</span>
-                  </div>
-                  <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-ad" style="width: 15%;"></div></div>
-                  <p class="pattern-clues" id="clues-ad">No vertical transmission; affected children do not have affected parents.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Clinical Risk Assessment & Mendelian Odds -->
-            <div class="analysis-card">
-              <h4>Consultand Recurrence Risk Calculator</h4>
-              <div class="risk-calc-display" id="risk-calc-display">
-                <div class="risk-stat-row">
-                  <span class="risk-stat-label">Identified Proband:</span>
-                  <strong class="risk-stat-val" id="risk-proband-name">Emma (III-2, Affected ♀)</strong>
-                </div>
-                <div class="risk-stat-row">
-                  <span class="risk-stat-label">Inheritance Mode:</span>
-                  <span class="risk-stat-badge" id="risk-mode-badge">Autosomal Recessive</span>
-                </div>
-                <div class="risk-odds-box">
-                  <div class="odds-unit">
-                    <span class="odds-number text-magenta" id="odds-affected">25%</span>
-                    <span class="odds-label">Risk Child Affected</span>
-                  </div>
-                  <div class="odds-unit">
-                    <span class="odds-number text-carrier" id="odds-carrier">50%</span>
-                    <span class="odds-label">Risk Child Carrier</span>
-                  </div>
-                  <div class="odds-unit">
-                    <span class="odds-number text-unaffected" id="odds-wildtype">25%</span>
-                    <span class="odds-label">Risk Normal Non-carrier</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Clinical Rules & Warnings -->
-            <div class="analysis-card">
-              <h4>Clinical Rules & Quality Check</h4>
-              <ul class="clinical-check-list" id="clinical-check-list">
-                <li class="check-item check-pass">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="check-icon pass"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>Proband clearly indicated with clinical arrow (↗).</span>
-                </li>
-                <li class="check-item check-pass">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="check-icon pass"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>Standard generation numbering (I, II, III) aligned.</span>
-                </li>
-                <li class="check-item check-info" id="consanguinity-warning">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="check-icon info"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                  <span>No consanguineous unions detected in this pedigree.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-    </section>
-
-
-    <!-- =========================================================================
-         VIEW 2: CYSTIC FIBROSIS CLINICAL CASE STUDY (AUTOSOMAL RECESSIVE)
-         ========================================================================= -->
-    <section id="view-cf" class="view-panel" role="tabpanel" aria-labelledby="tab-cf" hidden>
-      <div class="case-study-container">
-        <!-- Case Header -->
-        <div class="case-study-hero cf-hero">
-          <div class="case-hero-meta">
-            <span class="case-pill recessive">Autosomal Recessive</span>
-            <span class="gene-pill">Gene: <em>CFTR</em> (7q31.2)</span>
-            <span class="mutation-pill">Common Variant: ΔF508 (c.1521_1523delCTT)</span>
-          </div>
-          <h2>Case 1: Cystic Fibrosis Pedigree Analysis</h2>
-          <p class="case-lead">
-            Explore how an autosomal recessive condition travels silently through unaffected heterozygous carriers across generations, manifesting only when both parents contribute a mutant allele.
+          <h2 id="case-display-title">Cystic Fibrosis Case</h2>
+          <p id="case-display-desc" class="case-lead-text">
+            Inherited when both parents are unaffected heterozygous carriers (half-shaded). Emma (III-2) is the affected proband.
           </p>
         </div>
 
-        <div class="case-study-grid">
-          <!-- Left Column: Pedigree & Interactive Legend -->
-          <div class="case-card chart-view-card">
-            <div class="case-card-header">
-              <h3>Three-Generation Cystic Fibrosis Pedigree</h3>
-              <div class="case-view-controls">
-                <button id="btn-load-cf-into-builder" class="btn-sm primary">Open in Builder to Edit</button>
-              </div>
-            </div>
-
-            <!-- Pre-rendered Interactive SVG Chart for CF -->
-            <div class="pedigree-static-frame" id="cf-static-frame">
-              <!-- Rendered via JS -->
-            </div>
-
-            <!-- Pedigree Legend specific to this case -->
-            <div class="case-symbol-legend">
-              <div class="legend-item">
-                <svg viewBox="0 0 30 30" class="leg-svg"><rect x="5" y="5" width="20" height="20" class="sym-shape sym-unshaded"></rect></svg>
-                <span>Unaffected Male (<em>CFTR</em> wt/wt)</span>
-              </div>
-              <div class="legend-item">
-                <svg viewBox="0 0 30 30" class="leg-svg"><circle cx="15" cy="15" r="10" class="sym-shape sym-affected"></circle></svg>
-                <span>Affected Female (<em>CFTR</em> ΔF508/ΔF508, Emma III-2)</span>
-              </div>
-              <div class="legend-item">
-                <svg viewBox="0 0 30 30" class="leg-svg">
-                  <rect x="5" y="5" width="20" height="20" class="sym-shape sym-unshaded"></rect>
-                  <path d="M 5 5 L 15 5 L 15 25 L 5 25 Z" class="sym-carrier-half"></path>
-                </svg>
-                <span>Carrier Male (<em>CFTR</em> wt/ΔF508)</span>
-              </div>
-              <div class="legend-item">
-                <svg viewBox="0 0 30 30" class="leg-svg">
-                  <circle cx="15" cy="15" r="10" class="sym-shape sym-unshaded"></circle>
-                  <path d="M 15 5 A 10 10 0 0 0 15 25 Z" class="sym-carrier-half"></path>
-                </svg>
-                <span>Carrier Female (<em>CFTR</em> wt/ΔF508)</span>
-              </div>
-              <div class="legend-item">
-                <svg viewBox="0 0 30 30" class="leg-svg">
-                  <circle cx="16" cy="14" r="9" class="sym-shape sym-unshaded"></circle>
-                  <path d="M 4 28 L 11 21 M 6 21 L 11 21 L 11 26" class="sym-arrow" stroke-width="2"></path>
-                  <text x="2" y="24" class="sym-p-text" font-size="8">P</text>
-                </svg>
-                <span>Proband (Index Case Emma)</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Column: Clinical Genetics & Punnett Square -->
-          <div class="case-card clinical-depth-card">
-            <div class="case-card-header">
-              <h3>Clinical Synopsis & Mendelian Risk</h3>
-            </div>
-
-            <div class="case-patient-file">
-              <div class="file-row">
-                <span class="file-label">Proband:</span>
-                <strong>Emma (III-2), 4-year-old female</strong>
-              </div>
-              <div class="file-row">
-                <span class="file-label">Clinical Presentation:</span>
-                <span>Meconium ileus at birth, failure to thrive, recurrent <em>Pseudomonas aeruginosa</em> bronchopulmonary infections, elevated sweat chloride (84 mmol/L, normal &lt;30).</span>
-              </div>
-              <div class="file-row">
-                <span class="file-label">Molecular Confirmation:</span>
-                <span>Homozygous for the ΔF508 deletion (Phe508del) in the <em>CFTR</em> gene, resulting in defective chloride transport across epithelial cells.</span>
-              </div>
-              <div class="file-row">
-                <span class="file-label">Parental Genetics:</span>
-                <span>Both parents (David II-2 and Sarah II-3) are completely asymptomatic but confirmed heterozygous carriers (wt/ΔF508).</span>
-              </div>
-            </div>
-
-            <!-- Interactive Punnett Square -->
-            <div class="punnett-section">
-              <h4>Punnett Square: Carrier Mating (wt/ΔF508 × wt/ΔF508)</h4>
-              <p class="punnett-desc">Click each quadrant to highlight how Mendelian segregation produces the 1:2:1 genotype ratio and 3:1 phenotype ratio:</p>
-              
-              <div class="punnett-table-wrap">
-                <table class="punnett-table" aria-label="Punnett Square for Cystic Fibrosis">
-                  <thead>
-                    <tr>
-                      <th class="empty-corner"></th>
-                      <th scope="col" class="parent-allele">Mother Allele: <span>wt</span> (Normal)</th>
-                      <th scope="col" class="parent-allele">Mother Allele: <span class="text-magenta">ΔF508</span> (Mutant)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <th scope="row" class="parent-allele">Father Allele:<br><span>wt</span> (Normal)</th>
-                      <td class="punnett-cell wt-wt" tabindex="0" data-phenotype="normal">
-                        <div class="genotype-tag">wt / wt</div>
-                        <div class="cell-desc">Unaffected Non-Carrier (25%)</div>
-                      </td>
-                      <td class="punnett-cell carrier-cell" tabindex="0" data-phenotype="carrier">
-                        <div class="genotype-tag">wt / ΔF508</div>
-                        <div class="cell-desc">Unaffected Carrier (25%)</div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <th scope="row" class="parent-allele">Father Allele:<br><span class="text-magenta">ΔF508</span> (Mutant)</th>
-                      <td class="punnett-cell carrier-cell" tabindex="0" data-phenotype="carrier">
-                        <div class="genotype-tag">wt / ΔF508</div>
-                        <div class="cell-desc">Unaffected Carrier (25%)</div>
-                      </td>
-                      <td class="punnett-cell affected-cell" tabindex="0" data-phenotype="affected">
-                        <div class="genotype-tag affected">ΔF508 / ΔF508</div>
-                        <div class="cell-desc">Affected Cystic Fibrosis (25%)</div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Consanguinity Insight Accordion -->
-            <div class="accordion-box">
-              <details class="clinical-details">
-                <summary class="details-summary">
-                  <span class="summary-icon">💡</span>
-                  <strong>Why Consanguinity Increases Autosomal Recessive Risk</strong>
-                </summary>
-                <div class="details-body">
-                  <p>In standard pedigrees, a <strong>double horizontal line</strong> denotes consanguinity (mating between blood relatives, such as first or second cousins). Because related partners inherit segments of their genome identical-by-descent from a common ancestor, the probability that both partners carry the identical rare recessive mutation (like CFTR ΔF508) is substantially higher than in the general population.</p>
-                  <button id="btn-demo-cf-consanguinity" class="btn-sm secondary mt-2">Load Consanguineous CF Pedigree</button>
-                </div>
-              </details>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- =========================================================================
-         VIEW 3: HUNTINGTON'S CHOREA CLINICAL CASE STUDY (AUTOSOMAL DOMINANT)
-         ========================================================================= -->
-    <section id="view-hd" class="view-panel" role="tabpanel" aria-labelledby="tab-hd" hidden>
-      <div class="case-study-container">
-        <!-- Case Header -->
-        <div class="case-study-hero hd-hero">
-          <div class="case-hero-meta">
-            <span class="case-pill dominant">Autosomal Dominant</span>
-            <span class="gene-pill">Gene: <em>HTT</em> (4p16.3)</span>
-            <span class="mutation-pill">Trinucleotide CAG Repeat Expansion</span>
-          </div>
-          <h2>Case 2: Huntington's Chorea Pedigree Analysis</h2>
-          <p class="case-lead">
-            Explore vertical transmission in an autosomal dominant neurodegenerative disorder where every affected individual has an affected parent, and unaffected carriers do NOT exist in clinical practice.
-          </p>
+        <!-- Key Pedigree Rules Card -->
+        <div class="guide-card">
+          <h3 class="guide-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mini-icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            How to Read this Pedigree
+          </h3>
+          <ul id="case-rules-list" class="rules-list">
+            <li><strong>Horizontal Pattern:</strong> Typically skips generations; healthy carrier parents have affected children.</li>
+            <li><strong>Equal Sex Distribution:</strong> Affects males and females with equal frequency.</li>
+            <li><strong>Recurrence Risk:</strong> When both parents carry the allele, each child has a <strong>25% chance</strong> of being affected.</li>
+          </ul>
         </div>
 
-        <div class="case-study-grid">
-          <!-- Left Column: Pedigree & Interactive Legend -->
-          <div class="case-card chart-view-card">
-            <div class="case-card-header">
-              <h3>Three-Generation Huntington's Chorea Pedigree</h3>
-              <div class="case-view-controls">
-                <button id="btn-load-hd-into-builder" class="btn-sm primary">Open in Builder to Edit</button>
-              </div>
-            </div>
-
-            <!-- Pre-rendered Interactive SVG Chart for HD -->
-            <div class="pedigree-static-frame" id="hd-static-frame">
-              <!-- Rendered via JS -->
-            </div>
-
-            <!-- Pedigree Legend specific to this case -->
-            <div class="case-symbol-legend">
-              <div class="legend-item">
-                <svg viewBox="0 0 30 30" class="leg-svg"><circle cx="15" cy="15" r="10" class="sym-shape sym-unshaded"></circle></svg>
-                <span>Unaffected Female (<em>HTT</em> 18/19 CAG)</span>
-              </div>
-              <div class="legend-item">
-                <svg viewBox="0 0 30 30" class="leg-svg"><circle cx="15" cy="15" r="10" class="sym-shape sym-affected"></circle></svg>
-                <span>Affected Female (<em>HTT</em> 18/44 CAG, Mother II-1)</span>
-              </div>
-              <div class="legend-item">
-                <svg viewBox="0 0 30 30" class="leg-svg">
-                  <rect x="5" y="5" width="20" height="20" class="sym-shape sym-affected"></rect>
-                  <line x1="3" y1="27" x2="27" y2="3" class="sym-slash"></line>
-                </svg>
-                <span>Deceased Affected Male (Grandfather I-1, d. 57)</span>
-              </div>
-              <div class="legend-item">
-                <svg viewBox="0 0 30 30" class="leg-svg">
-                  <rect x="16" y="14" width="18" height="18" class="sym-shape sym-unshaded"></rect>
-                  <path d="M 4 28 L 11 21 M 6 21 L 11 21 L 11 26" class="sym-arrow" stroke-width="2"></path>
-                  <text x="2" y="24" class="sym-p-text" font-size="8">P</text>
-                </svg>
-                <span>Proband / Consultand (Marcus III-2, 26y)</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Column: Clinical Genetics & Trinucleotide CAG Tracker -->
-          <div class="case-card clinical-depth-card">
-            <div class="case-card-header">
-              <h3>Clinical Synopsis & Triplet Repeat Expansion</h3>
-            </div>
-
-            <div class="case-patient-file">
-              <div class="file-row">
-                <span class="file-label">Consultand (Proband):</span>
-                <strong>Marcus (III-2), 26-year-old asymptomatic male</strong>
-              </div>
-              <div class="file-row">
-                <span class="file-label">Reason for Consultation:</span>
-                <span>Presents for pre-symptomatic predictive genetic counseling before starting a family. His mother (II-1, age 49) was recently diagnosed with Huntington's Chorea.</span>
-              </div>
-              <div class="file-row">
-                <span class="file-label">Grandfather History:</span>
-                <span>Grandfather (I-1) passed away at age 57 (slashed square ⧄) with severe progressive involuntary choreiform movements, executive dysfunction, and dementia.</span>
-              </div>
-              <div class="file-row">
-                <span class="file-label">Prior Recurrence Risk:</span>
-                <span>50% prior probability of having inherited the expanded <em>HTT</em> mutant allele from his affected mother.</span>
-              </div>
-            </div>
-
-            <!-- CAG Repeat Diagnostic Threshold Scale -->
-            <div class="cag-scale-container">
-              <h4>CAG Repeat Length & Clinical Outcome Scale</h4>
-              <div class="cag-meter">
-                <div class="cag-segment seg-normal" title="Normal: 10-26 CAG Repeats">
-                  <span class="cag-range">10 - 26 CAG</span>
-                  <span class="cag-name">Normal (Unaffected)</span>
-                </div>
-                <div class="cag-segment seg-intermediate" title="Intermediate: 27-35 CAG Repeats">
-                  <span class="cag-range">27 - 35 CAG</span>
-                  <span class="cag-name">Intermediate (Normal)</span>
-                </div>
-                <div class="cag-segment seg-reduced" title="Reduced Penetrance: 36-39 CAG Repeats">
-                  <span class="cag-range">36 - 39 CAG</span>
-                  <span class="cag-name">Reduced Penetrance</span>
-                </div>
-                <div class="cag-segment seg-full" title="Full Penetrance: 40+ CAG Repeats">
-                  <span class="cag-range">40 - 120+ CAG</span>
-                  <span class="cag-name">Full Penetrance (Affected)</span>
-                </div>
-              </div>
-              <div class="cag-marker-legend">
-                <span class="cag-pointer-tag mom-tag">Mother (II-1): 44 CAG repeats (Full Penetrance, Chorea)</span>
-              </div>
-            </div>
-
-            <!-- Autosomal Dominant Clinical Rules -->
-            <div class="dominant-rules-card">
-              <h4>Hallmarks of Autosomal Dominant Inheritance</h4>
-              <ul class="hallmark-list">
-                <li>
-                  <strong>Vertical Transmission:</strong> Affected individuals are present in consecutive generations (I &rarr; II &rarr; III). Does <em>not</em> typically skip generations.
-                </li>
-                <li>
-                  <strong>Equal Sex Distribution:</strong> Males and females have an equal 50% probability of receiving the mutant allele from an affected parent.
-                </li>
-                <li>
-                  <strong>Absence of Unaffected Carriers:</strong> Anyone who inherits an expanded allele (&ge;40 repeats) will eventually develop the clinical phenotype if they live to the age of onset. Heterozygotes are affected.
-                </li>
-                <li>
-                  <strong>Anticipation:</strong> Paternal transmission of the mutant allele can lead to further trinucleotide repeat expansion, causing earlier age of onset in subsequent generations.
-                </li>
-              </ul>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- =========================================================================
-         VIEW 4: CLINICAL QUIZ & CHALLENGES
-         ========================================================================= -->
-    <section id="view-quiz" class="view-panel" role="tabpanel" aria-labelledby="tab-quiz" hidden>
-      <div class="quiz-container">
-        <!-- Quiz Hero -->
-        <div class="quiz-hero">
-          <div class="quiz-progress-wrap">
-            <span class="quiz-progress-label">Question <span id="quiz-current-num">1</span> of <span id="quiz-total-num">5</span></span>
-            <div class="quiz-progress-bar"><div id="quiz-progress-fill" style="width: 20%;"></div></div>
-          </div>
-          <h2>Clinical Pedigree Interpretation Quiz</h2>
-          <p>Test your mastery of clinical pedigree nomenclature, Mendelian transmission patterns, and recurrence risk calculations.</p>
-        </div>
-
-        <!-- Quiz Card -->
-        <div class="quiz-card" id="quiz-card">
-          <div class="quiz-question-header">
-            <span class="quiz-category-badge" id="quiz-category-badge">Autosomal Recessive</span>
-            <h3 id="quiz-question-title">Pedigree Analysis Question</h3>
-          </div>
-
-          <!-- Question Prompt Diagram / Frame -->
-          <div class="quiz-diagram-frame" id="quiz-diagram-frame">
-            <!-- Diagram or SVG rendered here -->
-          </div>
-
-          <div class="quiz-question-prompt" id="quiz-question-prompt">
-            <!-- Prompt text -->
-          </div>
-
-          <!-- Answer Options -->
-          <div class="quiz-options-grid" id="quiz-options-grid" role="radiogroup" aria-label="Quiz Answer Options">
-            <!-- Options populated dynamically -->
-          </div>
-
-          <!-- Feedback Box -->
-          <div class="quiz-feedback-box hidden" id="quiz-feedback-box" role="alert">
-            <div class="feedback-header">
-              <span class="feedback-icon" id="feedback-icon">✓</span>
-              <strong id="feedback-title">Correct!</strong>
-            </div>
-            <p id="feedback-explanation">Explanation text goes here.</p>
-          </div>
-
-          <!-- Navigation Footer -->
-          <div class="quiz-footer">
-            <button id="btn-quiz-prev" class="btn-sm secondary" disabled>Previous</button>
-            <button id="btn-quiz-check" class="btn-sm primary" disabled>Check Answer</button>
-            <button id="btn-quiz-next" class="btn-sm primary hidden">Next Question &rarr;</button>
-          </div>
-        </div>
-
-        <!-- Quiz Score Summary Screen -->
-        <div class="quiz-results-card hidden" id="quiz-results-card">
-          <div class="results-trophy">🏆</div>
-          <h3>Clinical Genetics Mastery Assessment Complete</h3>
-          <div class="score-display">
-            <span class="score-big" id="final-score">5 / 5</span>
-            <span class="score-percent" id="final-percent">100% Score</span>
-          </div>
-          <p id="results-narrative" class="results-narrative">Outstanding! You have mastered the international clinical pedigree nomenclature and genetic risk estimation.</p>
-          <div class="results-actions">
-            <button id="btn-restart-quiz" class="btn-sm primary">Retake Quiz</button>
-            <button id="btn-goto-builder-from-quiz" class="btn-sm secondary">Practice in Pedigree Builder</button>
-          </div>
+        <!-- Interactive Diagram Box (Punnett Square for CF, CAG Scale for HD) -->
+        <div id="case-interactive-widget" class="interactive-widget">
+          <!-- Populated by JavaScript for CF or HD -->
         </div>
 
       </div>
-    </section>
+
+      <!-- STATE B: STREAMLINED PERSON EDITOR (Shown when an individual is clicked) -->
+      <div id="panel-edit-person" class="panel-section hidden">
+        <div class="editor-header">
+          <div class="editor-title-group">
+            <div id="edit-symbol-preview" class="editor-preview-symbol"></div>
+            <div>
+              <span id="edit-gen-id" class="edit-id-badge">II-2</span>
+              <h3 id="edit-title">Edit Individual</h3>
+            </div>
+          </div>
+          <button id="btn-close-edit" class="btn-close-editor" title="Close editor">✕</button>
+        </div>
+
+        <!-- 1. Biological Sex -->
+        <div class="edit-group">
+          <label class="edit-label">Biological Sex</label>
+          <div class="choice-row">
+            <button type="button" class="choice-btn" data-set-sex="male" id="btn-set-male">
+              <span>Square</span> <strong>Male</strong>
+            </button>
+            <button type="button" class="choice-btn" data-set-sex="female" id="btn-set-female">
+              <span>Circle</span> <strong>Female</strong>
+            </button>
+            <button type="button" class="choice-btn" data-set-sex="unspecified" id="btn-set-unspecified">
+              <span>Diamond</span> <strong>Unknown</strong>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Phenotype Status -->
+        <div class="edit-group">
+          <label class="edit-label">Clinical Phenotype</label>
+          <div class="choice-row">
+            <button type="button" class="choice-btn" data-set-status="unaffected" id="btn-set-unaffected">
+              <span class="dot-preview white"></span> Unaffected
+            </button>
+            <button type="button" class="choice-btn" data-set-status="carrier" id="btn-set-carrier">
+              <span class="dot-preview half"></span> Carrier
+            </button>
+            <button type="button" class="choice-btn" data-set-status="affected" id="btn-set-affected">
+              <span class="dot-preview magenta"></span> Affected
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Deceased & Proband Toggles -->
+        <div class="edit-group">
+          <label class="edit-label">Clinical Modifiers</label>
+          <div class="toggle-cards-row">
+            <label class="toggle-card">
+              <input type="checkbox" id="check-edit-deceased">
+              <span class="toggle-box"></span>
+              <span class="toggle-text"><strong>Deceased</strong> (Diagonal Slash ⧄)</span>
+            </label>
+            <label class="toggle-card">
+              <input type="checkbox" id="check-edit-proband">
+              <span class="toggle-box"></span>
+              <span class="toggle-text"><strong>Proband</strong> (Index Case ↗ P)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 4. Simple Name & Genotype/Age Fields -->
+        <div class="edit-fields-row">
+          <div class="field-item">
+            <label for="input-edit-name" class="edit-label">Name / Identifier</label>
+            <input type="text" id="input-edit-name" class="simple-input" placeholder="e.g. Emma, David">
+          </div>
+          <div class="field-item">
+            <label for="input-edit-genotype" class="edit-label">Genotype / Age</label>
+            <input type="text" id="input-edit-genotype" class="simple-input mono" placeholder="e.g. wt/ΔF508, 44 CAG">
+          </div>
+        </div>
+
+        <!-- 5. Family Actions -->
+        <div class="edit-group">
+          <label class="edit-label">Family Connections</label>
+          <div class="family-action-grid">
+            <button type="button" id="btn-family-partner" class="action-btn-sm">+ Add Partner</button>
+            <button type="button" id="btn-family-child" class="action-btn-sm">+ Add Child</button>
+            <button type="button" id="btn-family-parents" class="action-btn-sm">+ Add Parents</button>
+          </div>
+        </div>
+
+        <!-- Delete & Done -->
+        <div class="editor-footer">
+          <button type="button" id="btn-delete-person" class="btn-danger-outline">Delete Individual</button>
+          <button type="button" id="btn-done-edit" class="btn-primary-sm">Done</button>
+        </div>
+
+      </div>
+
+    </aside>
 
   </main>
 
-
   <!-- =========================================================================
-       MODAL 1: STANDARD CLINICAL PEDIGREE NOMENCLATURE REFERENCE GUIDE
-       (Replicating and expanding on the attached image conventions)
+       STANDARD CLINICAL PEDIGREE NOMENCLATURE MODAL (Directly matching image)
        ========================================================================= -->
-  <dialog id="modal-nomenclature" class="modal-dialog" aria-labelledby="nomen-title" closedby="any">
-    <div class="modal-header">
-      <div class="modal-title-wrap">
-        <h2 id="nomen-title">Standard Clinical Pedigree Nomenclature</h2>
-        <p class="modal-subtitle">International conventions for mapping genetic history (Recommendations of the National Society of Genetic Counselors)</p>
+  <div id="guide-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="guide-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="guide-modal-title">Standard Clinical Pedigree Nomenclature</h2>
+          <p class="modal-sub">International conventions for mapping genetic history</p>
+        </div>
+        <button id="btn-close-guide" class="modal-close" aria-label="Close Guide">✕</button>
       </div>
-      <button class="modal-close-btn" onclick="document.getElementById('modal-nomenclature').close()" aria-label="Close dialog">✕</button>
-    </div>
 
-    <div class="modal-body">
-      <div class="nomenclature-table-wrapper">
-        <table class="nomenclature-table" aria-label="Standard Pedigree Symbols Reference">
+      <div class="modal-body">
+        <table class="nomenclature-table">
           <thead>
             <tr>
-              <th scope="col" style="width: 130px;">Symbol</th>
-              <th scope="col">Standard Clinical Convention</th>
-              <th scope="col">Clinical Meaning & Usage Notes</th>
+              <th>Symbol</th>
+              <th>Standard Nomenclature</th>
+              <th>Clinical Meaning</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td class="symbol-cell">
-                <svg viewBox="0 0 60 60" class="nomen-svg"><rect x="15" y="15" width="30" height="30" class="sym-shape sym-unshaded"></rect></svg>
+                <svg viewBox="0 0 40 40" class="guide-sym"><rect x="8" y="8" width="24" height="24" class="sym-shape unshaded"></rect></svg>
               </td>
               <td><strong>Square: Male</strong></td>
-              <td>Represents a biological male. Displayed as an open square when unaffected.</td>
+              <td>Biological male. Displayed as an open square when unaffected.</td>
             </tr>
             <tr>
               <td class="symbol-cell">
-                <svg viewBox="0 0 60 60" class="nomen-svg"><circle cx="30" cy="30" r="15" class="sym-shape sym-unshaded"></circle></svg>
+                <svg viewBox="0 0 40 40" class="guide-sym"><circle cx="20" cy="20" r="12" class="sym-shape unshaded"></circle></svg>
               </td>
               <td><strong>Circle: Female</strong></td>
-              <td>Represents a biological female. Displayed as an open circle when unaffected.</td>
+              <td>Biological female. Displayed as an open circle when unaffected.</td>
             </tr>
             <tr>
               <td class="symbol-cell">
-                <svg viewBox="0 0 60 60" class="nomen-svg"><polygon points="30,12 48,30 30,48 12,30" class="sym-shape sym-unshaded"></polygon></svg>
+                <svg viewBox="0 0 40 40" class="guide-sym"><polygon points="20,6 34,20 20,34 6,20" class="sym-shape unshaded"></polygon></svg>
               </td>
               <td><strong>Diamond: Unspecified sex</strong></td>
-              <td>Used when biological sex is unknown, unrecorded, or during early pregnancy counseling before fetal sex is determined.</td>
+              <td>Used when sex is unknown, unrecorded, or in early prenatal counseling.</td>
             </tr>
             <tr>
               <td class="symbol-cell">
-                <div class="flex-sym-row">
-                  <svg viewBox="0 0 40 40" class="nomen-svg-sm"><rect x="10" y="10" width="20" height="20" class="sym-shape sym-unshaded"></rect></svg>
-                  <svg viewBox="0 0 40 40" class="nomen-svg-sm"><circle cx="20" cy="20" r="10" class="sym-shape sym-unshaded"></circle></svg>
+                <div class="dual-sym">
+                  <svg viewBox="0 0 40 40" class="guide-sym-sm"><rect x="8" y="8" width="24" height="24" class="sym-shape unshaded"></rect></svg>
+                  <svg viewBox="0 0 40 40" class="guide-sym-sm"><circle cx="20" cy="20" r="12" class="sym-shape unshaded"></circle></svg>
                 </div>
               </td>
               <td><strong>Unshaded: Unaffected individual</strong></td>
-              <td>Denotes an individual who does not manifest the clinical phenotype under study.</td>
+              <td>Individual does not manifest the clinical phenotype under study.</td>
             </tr>
             <tr>
               <td class="symbol-cell">
-                <div class="flex-sym-row">
-                  <svg viewBox="0 0 40 40" class="nomen-svg-sm"><rect x="10" y="10" width="20" height="20" class="sym-shape sym-affected"></rect></svg>
-                  <svg viewBox="0 0 40 40" class="nomen-svg-sm"><circle cx="20" cy="20" r="10" class="sym-shape sym-affected"></circle></svg>
+                <div class="dual-sym">
+                  <svg viewBox="0 0 40 40" class="guide-sym-sm"><rect x="8" y="8" width="24" height="24" class="sym-shape affected-magenta"></rect></svg>
+                  <svg viewBox="0 0 40 40" class="guide-sym-sm"><circle cx="20" cy="20" r="12" class="sym-shape affected-magenta"></circle></svg>
                 </div>
               </td>
               <td><strong>Shaded (Magenta): Affected individual</strong></td>
-              <td>Denotes an individual displaying the clinical phenotype of the disorder (e.g., active Cystic Fibrosis or manifest Huntington's Chorea). In standard medical genetics, a clear legend must define the color.</td>
+              <td>Individual displaying the clinical phenotype (e.g. Cystic Fibrosis or Huntington's).</td>
             </tr>
             <tr>
               <td class="symbol-cell">
-                <div class="flex-sym-row">
-                  <svg viewBox="0 0 40 40" class="nomen-svg-sm">
-                    <rect x="10" y="10" width="20" height="20" class="sym-shape sym-unshaded"></rect>
-                    <path d="M 10 10 L 20 10 L 20 30 L 10 30 Z" class="sym-carrier-half"></path>
+                <div class="dual-sym">
+                  <svg viewBox="0 0 40 40" class="guide-sym-sm">
+                    <rect x="8" y="8" width="24" height="24" class="sym-shape unshaded"></rect>
+                    <path d="M 8 8 L 20 8 L 20 32 L 8 32 Z" class="sym-half-fill"></path>
                   </svg>
-                  <svg viewBox="0 0 40 40" class="nomen-svg-sm">
-                    <circle cx="20" cy="20" r="10" class="sym-shape sym-unshaded"></circle>
-                    <circle cx="20" cy="20" r="3.5" class="sym-dot"></circle>
+                  <svg viewBox="0 0 40 40" class="guide-sym-sm">
+                    <circle cx="20" cy="20" r="12" class="sym-shape unshaded"></circle>
+                    <circle cx="20" cy="20" r="4" class="sym-dot-fill"></circle>
                   </svg>
                 </div>
               </td>
               <td><strong>Half-shaded / Centered Dot: Carrier</strong></td>
-              <td>Denotes an unaffected heterozygous carrier of an autosomal recessive gene (e.g., CFTR wt/ΔF508) or X-linked carrier female (centered dot).</td>
+              <td>Unaffected heterozygous carrier of an autosomal or X-linked recessive trait.</td>
             </tr>
             <tr>
               <td class="symbol-cell">
-                <div class="flex-sym-row">
-                  <svg viewBox="0 0 40 40" class="nomen-svg-sm">
-                    <rect x="10" y="10" width="20" height="20" class="sym-shape sym-unshaded"></rect>
-                    <line x1="7" y1="33" x2="33" y2="7" class="sym-slash"></line>
+                <div class="dual-sym">
+                  <svg viewBox="0 0 40 40" class="guide-sym-sm">
+                    <rect x="8" y="8" width="24" height="24" class="sym-shape unshaded"></rect>
+                    <line x1="5" y1="35" x2="35" y2="5" class="sym-slash-line"></line>
                   </svg>
-                  <svg viewBox="0 0 40 40" class="nomen-svg-sm">
-                    <circle cx="20" cy="20" r="10" class="sym-shape sym-unshaded"></circle>
-                    <line x1="7" y1="33" x2="33" y2="7" class="sym-slash"></line>
+                  <svg viewBox="0 0 40 40" class="guide-sym-sm">
+                    <circle cx="20" cy="20" r="12" class="sym-shape unshaded"></circle>
+                    <line x1="5" y1="35" x2="35" y2="5" class="sym-slash-line"></line>
                   </svg>
                 </div>
               </td>
               <td><strong>Slashed Symbol: Deceased individual</strong></td>
-              <td>A diagonal slash from bottom-left to top-right indicates the individual is deceased. Often annotated with age at death (e.g., "d. 57y").</td>
+              <td>Diagonal slash from bottom-left to top-right indicates deceased status.</td>
             </tr>
             <tr>
               <td class="symbol-cell">
-                <svg viewBox="0 0 70 40" class="nomen-svg-wide">
-                  <rect x="5" y="12" width="16" height="16" class="sym-shape sym-unshaded"></rect>
-                  <line x1="21" y1="20" x2="49" y2="20" class="sym-line"></line>
-                  <circle cx="57" cy="20" r="8" class="sym-shape sym-unshaded"></circle>
+                <svg viewBox="0 0 70 30" class="guide-rel">
+                  <rect x="6" y="8" width="14" height="14" class="sym-shape unshaded"></rect>
+                  <line x1="20" y1="15" x2="50" y2="15" class="conn-line"></line>
+                  <circle cx="57" cy="15" r="7" class="sym-shape unshaded"></circle>
                 </svg>
               </td>
               <td><strong>Single Horizontal Line: Mating</strong></td>
-              <td>Connects two individuals representing a reproductive partnership / biological union.</td>
+              <td>Connects reproductive partners.</td>
             </tr>
             <tr>
               <td class="symbol-cell">
-                <svg viewBox="0 0 70 40" class="nomen-svg-wide">
-                  <rect x="5" y="12" width="16" height="16" class="sym-shape sym-unshaded"></rect>
-                  <line x1="21" y1="18" x2="49" y2="18" class="sym-line"></line>
-                  <line x1="21" y1="22" x2="49" y2="22" class="sym-line"></line>
-                  <circle cx="57" cy="20" r="8" class="sym-shape sym-unshaded"></circle>
+                <svg viewBox="0 0 70 30" class="guide-rel">
+                  <rect x="6" y="8" width="14" height="14" class="sym-shape unshaded"></rect>
+                  <line x1="20" y1="13" x2="50" y2="13" class="conn-line"></line>
+                  <line x1="20" y1="17" x2="50" y2="17" class="conn-line"></line>
+                  <circle cx="57" cy="15" r="7" class="sym-shape unshaded"></circle>
                 </svg>
               </td>
               <td><strong>Double Horizontal Line: Consanguinity</strong></td>
-              <td>Mating between blood relatives (e.g. first cousins). Significantly increases the probability of homozygous rare recessive conditions.</td>
+              <td>Mating between blood relatives (e.g., first cousins).</td>
             </tr>
             <tr>
               <td class="symbol-cell">
-                <svg viewBox="0 0 60 40" class="nomen-svg-wide">
-                  <rect x="25" y="10" width="20" height="20" class="sym-shape sym-unshaded"></rect>
-                  <path d="M 6 34 L 18 22 M 10 22 L 18 22 L 18 30" class="sym-arrow" stroke-width="2.5"></path>
-                  <text x="4" y="27" class="sym-p-text" font-size="9" font-weight="bold">P</text>
+                <svg viewBox="0 0 50 30" class="guide-rel">
+                  <circle cx="32" cy="15" r="10" class="sym-shape unshaded"></circle>
+                  <line x1="6" y1="28" x2="20" y2="18" class="sym-arrow-line"></line>
+                  <polyline points="13,18 20,18 20,25" class="sym-arrow-line"></polyline>
+                  <text x="3" y="22" class="sym-arrow-text">P</text>
                 </svg>
               </td>
-              <td><strong>Arrow: Proband (Consultand)</strong></td>
-              <td>Points to the index case or consultand who first brought the family to medical or genetic attention. Annotated with "P".</td>
+              <td><strong>Arrow: Proband (↗ P)</strong></td>
+              <td>The consultand or index case initiating the genetic evaluation.</td>
             </tr>
             <tr>
               <td class="symbol-cell">
-                <div class="roman-demo">
-                  <span>I</span>
-                  <span>II</span>
-                  <span>III</span>
-                </div>
+                <div class="guide-roman">I<br>II<br>III</div>
               </td>
-              <td><strong>Roman Numerals (I, II, III): Generational rows</strong></td>
-              <td>Identifies generational tiers placed along the left margin. Individuals within each generation are numbered sequentially from left to right (e.g., II-3).</td>
+              <td><strong>Roman Numerals (I, II, III): Generations</strong></td>
+              <td>Designates generational rows chronologically from top to bottom.</td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <div class="modal-footer">
+        <button id="btn-modal-close" class="btn-primary-sm">Close Guide</button>
+      </div>
     </div>
+  </div>
 
-    <div class="modal-footer">
-      <button class="btn-sm primary" onclick="document.getElementById('modal-nomenclature').close()">Close Nomenclature</button>
-    </div>
-  </dialog>
-
-
-  <!-- Audio Synthesizer Engine & Interactive App Scripts -->
   <script src="app.js"></script>
 </body>
 </html>
