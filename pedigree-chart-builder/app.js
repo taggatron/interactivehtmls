@@ -1116,8 +1116,16 @@
       exportDropdown.classList.add('hidden');
     });
 
-    document.getElementById('opt-export-svg').addEventListener('click', exportSvg);
-    document.getElementById('opt-export-png').addEventListener('click', exportPng);
+    document.getElementById('opt-export-svg').addEventListener('click', (e) => {
+      e.stopPropagation();
+      exportDropdown.classList.add('hidden');
+      exportSvg();
+    });
+    document.getElementById('opt-export-png').addEventListener('click', (e) => {
+      e.stopPropagation();
+      exportDropdown.classList.add('hidden');
+      exportPng();
+    });
 
     // Theme Toggle
     const btnTheme = document.getElementById('btn-theme-toggle');
@@ -1163,44 +1171,248 @@
   }
 
   // =========================================================================
-  // EXPORT FUNCTIONS
+  // TOAST NOTIFICATION HELPER
   // =========================================================================
+  function showToast(message, icon = '✓') {
+    let toast = document.getElementById('pedigree-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'pedigree-toast';
+      toast.className = 'pedigree-toast';
+      document.body.appendChild(toast);
+    }
+    toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+    toast.classList.add('show');
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2800);
+  }
+
+  // =========================================================================
+  // EXPORT FUNCTIONS (SELF-CONTAINED SVG & HIGH-DPI RETINA PNG)
+  // =========================================================================
+  function generateExportSvg() {
+    const isLight = document.body.getAttribute('data-theme') === 'light';
+
+    // Resolved clinical theme colors (no unresolved CSS variables)
+    const bgColor = isLight ? '#ffffff' : '#0b0f19';
+    const symStroke = isLight ? '#0f172a' : '#f1f5f9';
+    const symUnshaded = isLight ? '#ffffff' : '#0f1627';
+    const magenta = isLight ? '#c00092' : '#d800a6';
+    const symLine = isLight ? '#475569' : '#cbd5e1';
+    const textMain = isLight ? '#0f172a' : '#f1f5f9';
+    const textSecondary = isLight ? '#475569' : '#94a3b8';
+    const textMuted = isLight ? '#64748b' : '#64748b';
+    const headerBorder = isLight ? '#e2e8f0' : '#202d4a';
+    const rulerBg = isLight ? '#f1f5f9' : '#151f36';
+    const rulerBorder = isLight ? '#cbd5e1' : '#2a3a5e';
+
+    // Compute bounding box around all family members in world coordinates
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+
+    if (state.members.length === 0) {
+      minX = 200; maxX = 800; minY = 100; maxY = 500;
+    } else {
+      state.members.forEach(m => {
+        minX = Math.min(minX, m.x - 70);
+        maxX = Math.max(maxX, m.x + 70);
+        minY = Math.min(minY, m.y - 45);
+        maxY = Math.max(maxY, m.y + 75);
+      });
+    }
+
+    // Include generous clinical margin and space on the left for Roman numerals
+    const exportMinX = Math.round(minX - 70);
+    const exportMinY = Math.round(minY - 75);
+    const exportWidth = Math.max(680, Math.round(maxX - exportMinX + 70));
+    const exportHeight = Math.max(440, Math.round(maxY - exportMinY + 60));
+
+    // Case title and clinical descriptor
+    const casePreset = PRESETS[state.activeCase] || {
+      title: 'Clinical Pedigree Chart',
+      typeName: 'Family Study'
+    };
+    const titleText = state.activeCase === 'blank' ? 'Clinical Pedigree Chart' : (casePreset.title || 'Pedigree Chart');
+    const subText = `${casePreset.typeName || 'Clinical Study'} • Standard Clinical Pedigree Nomenclature`;
+
+    // Generation Roman numerals on the left ruler
+    const uniqueGens = Array.from(new Set(state.members.map(m => m.gen))).sort((a, b) => a - b);
+    let romanNumeralsSvg = '';
+    uniqueGens.forEach(gen => {
+      const genMembers = state.members.filter(m => m.gen === gen);
+      const avgY = genMembers.length > 0
+        ? Math.round(genMembers.reduce((sum, m) => sum + m.y, 0) / genMembers.length)
+        : (GEN_Y[gen] || (gen * 150 - 60));
+      const roman = toRoman(gen);
+      romanNumeralsSvg += `
+        <rect x="${exportMinX + 24}" y="${avgY - 14}" width="28" height="28" rx="6" fill="${rulerBg}" stroke="${rulerBorder}" stroke-width="1"/>
+        <text x="${exportMinX + 38}" y="${avgY}" class="gen-roman-num" dominant-baseline="central" text-anchor="middle">${roman}</text>
+      `;
+    });
+
+    // Clone connections and nodes, stripping any active selection halo
+    const clonedConnections = layerConnections.cloneNode(true);
+    const clonedNodes = layerNodes.cloneNode(true);
+
+    clonedNodes.querySelectorAll('.pedigree-node.selected').forEach(node => {
+      node.classList.remove('selected');
+    });
+
+    const connectionsXml = new XMLSerializer().serializeToString(clonedConnections);
+    const nodesXml = new XMLSerializer().serializeToString(clonedNodes);
+
+    const escapeXml = (str) => String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    const svgContent = `<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="${exportMinX} ${exportMinY} ${exportWidth} ${exportHeight}"
+     width="${exportWidth}" height="${exportHeight}">
+  <defs>
+    <style type="text/css">
+      .sym-shape { stroke: ${symStroke}; stroke-width: 2.5px; stroke-linejoin: round; fill: ${symUnshaded}; }
+      .sym-shape.unshaded { fill: ${symUnshaded}; stroke: ${symStroke}; }
+      .sym-shape.affected-magenta { fill: ${magenta}; stroke: ${symStroke}; }
+      .sym-half-fill { fill: ${magenta}; stroke: none; }
+      .sym-dot-fill { fill: ${magenta}; stroke: none; }
+      .sym-slash-line { stroke: ${symStroke}; stroke-width: 2.5px; }
+      .sym-arrow-line { stroke: ${symStroke}; stroke-width: 2px; fill: none; }
+      .sym-arrow-text { font-size: 9px; font-weight: 800; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: ${symStroke}; text-anchor: middle; }
+      .node-text-id { font-size: 11px; font-weight: 700; text-anchor: middle; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: ${textSecondary}; }
+      .node-text-name { font-size: 11px; font-weight: 600; text-anchor: middle; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: ${textMain}; }
+      .node-text-tag { font-size: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; text-anchor: middle; fill: ${textMuted}; }
+      .pedigree-line { stroke: ${symLine}; stroke-width: 2.2px; stroke-linecap: round; fill: none; }
+      .gen-roman-num { font-size: 12px; font-weight: 800; text-anchor: middle; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: ${textSecondary}; }
+      .chart-title-text { font-size: 16px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: ${textMain}; }
+      .chart-sub-text { font-size: 11px; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: ${textSecondary}; }
+    </style>
+  </defs>
+
+  <!-- Clean Background -->
+  <rect x="${exportMinX}" y="${exportMinY}" width="${exportWidth}" height="${exportHeight}" fill="${bgColor}" />
+
+  <!-- Header Title & Divider -->
+  <text x="${exportMinX + 30}" y="${exportMinY + 34}" class="chart-title-text">${escapeXml(titleText)}</text>
+  <text x="${exportMinX + 30}" y="${exportMinY + 50}" class="chart-sub-text">${escapeXml(subText)}</text>
+  <line x1="${exportMinX + 30}" y1="${exportMinY + 60}" x2="${exportMinX + exportWidth - 30}" y2="${exportMinY + 60}" stroke="${headerBorder}" stroke-width="1" />
+
+  <!-- Generation Roman Numerals Column -->
+  <g id="export-roman-numerals">
+    ${romanNumeralsSvg}
+  </g>
+
+  <!-- Pedigree Lines and Nodes -->
+  ${connectionsXml}
+  ${nodesXml}
+</svg>`;
+
+    return {
+      svgString: svgContent,
+      width: exportWidth,
+      height: exportHeight
+    };
+  }
+
   function exportSvg() {
-    const clone = svg.cloneNode(true);
-    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    const svgStr = new XMLSerializer().serializeToString(clone);
-    const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `pedigree_${state.activeCase}.svg`;
-    a.click();
-    URL.revokeObjectURL(url);
+    try {
+      const exportData = generateExportSvg();
+      const blob = new Blob([exportData.svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pedigree_${state.activeCase}.svg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      showToast(`Exported pedigree_${state.activeCase}.svg`, '📥');
+    } catch (err) {
+      console.error('Error exporting SVG:', err);
+      alert('Failed to export SVG: ' + err.message);
+    }
   }
 
   function exportPng() {
-    const clone = svg.cloneNode(true);
-    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    const svgStr = new XMLSerializer().serializeToString(clone);
-    const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = svg.clientWidth * 2 || 1600;
-      canvas.height = svg.clientHeight * 2 || 1200;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = document.body.getAttribute('data-theme') === 'light' ? '#ffffff' : '#0b0f19';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      const pngUrl = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = pngUrl;
-      a.download = `pedigree_${state.activeCase}.png`;
-      a.click();
-      URL.revokeObjectURL(url);
-    };
-    img.src = url;
+    try {
+      const exportData = generateExportSvg();
+      const svgStr = exportData.svgString;
+      const base64Svg = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+      const img = new Image();
+
+      img.onload = () => {
+        try {
+          const scale = 2; // High-resolution retina export
+          const canvas = document.createElement('canvas');
+          canvas.width = exportData.width * scale;
+          canvas.height = exportData.height * scale;
+          const ctx = canvas.getContext('2d');
+
+          const isLight = document.body.getAttribute('data-theme') === 'light';
+          ctx.fillStyle = isLight ? '#ffffff' : '#0b0f19';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          const pngUrl = canvas.toDataURL('image/png');
+          const a = document.createElement('a');
+          a.href = pngUrl;
+          a.download = `pedigree_${state.activeCase}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          showToast(`Exported pedigree_${state.activeCase}.png`, '🖼️');
+        } catch (err) {
+          console.error('Canvas export error:', err);
+          alert('Unable to generate PNG. Please use SVG export.');
+        }
+      };
+
+      img.onerror = (e) => {
+        console.error('Image load failed during PNG export, trying blob URL fallback...', e);
+        const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+        const blobUrl = URL.createObjectURL(blob);
+        const fallbackImg = new Image();
+        fallbackImg.onload = () => {
+          try {
+            const scale = 2;
+            const canvas = document.createElement('canvas');
+            canvas.width = exportData.width * scale;
+            canvas.height = exportData.height * scale;
+            const ctx = canvas.getContext('2d');
+            const isLight = document.body.getAttribute('data-theme') === 'light';
+            ctx.fillStyle = isLight ? '#ffffff' : '#0b0f19';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(fallbackImg, 0, 0, canvas.width, canvas.height);
+            const pngUrl = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = pngUrl;
+            a.download = `pedigree_${state.activeCase}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+            showToast(`Exported pedigree_${state.activeCase}.png`, '🖼️');
+          } catch (fallbackErr) {
+            console.error('Fallback canvas export error:', fallbackErr);
+            alert('Unable to generate PNG: ' + fallbackErr.message);
+          }
+        };
+        fallbackImg.onerror = (err) => {
+          console.error('Blob URL image load also failed:', err);
+          alert('Could not render PNG from SVG. Please use SVG export.');
+        };
+        fallbackImg.src = blobUrl;
+      };
+
+      img.src = base64Svg;
+    } catch (err) {
+      console.error('Error initiating PNG export:', err);
+      alert('Failed to export PNG: ' + err.message);
+    }
   }
 
   // =========================================================================

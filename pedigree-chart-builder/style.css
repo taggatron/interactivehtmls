@@ -1299,3 +1299,31 @@ input, textarea {
 
 /* Utilities */
 .hidden { display: none !important; }
+
+/* Non-intrusive Toast Notifications */
+.pedigree-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 200ms ease;
+  pointer-events: none;
+}
+
+.pedigree-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
