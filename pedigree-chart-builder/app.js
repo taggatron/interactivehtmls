@@ -117,7 +117,8 @@
     isPanning: false,
     dragStart: { x: 0, y: 0 },
     draggingId: null,
-    dragOffset: { x: 0, y: 0 }
+    dragOffset: { x: 0, y: 0 },
+    theme: 'light'
   };
 
   // DOM Elements
@@ -162,6 +163,7 @@
   // INITIALIZATION
   // =========================================================================
   function init() {
+    setupTheme();
     setupCaseSwitchers();
     setupCanvasEvents();
     setupPaletteEvents();
@@ -1010,42 +1012,104 @@
   // CANVAS PAN, ZOOM & DRAG NODES
   // =========================================================================
   function setupCanvasEvents() {
-    // Pan Canvas
-    svg.addEventListener('mousedown', (e) => {
-      if (e.target === svg || e.target.tagName === 'rect' && e.target.classList.contains('svg-bg-grid') || e.target.id === 'pedigree-svg') {
-        state.isPanning = true;
-        state.dragStart = { x: e.clientX - state.panX, y: e.clientY - state.panY };
-        state.selectedId = null;
-        showCaseInfoPanel();
-        renderChart();
-      }
-    });
+    let panStartX = 0;
+    let panStartY = 0;
+    let hasMoved = false;
 
-    window.addEventListener('mousemove', (e) => {
+    function onPointerDown(clientX, clientY, target) {
+      // If clicking inside quick toolbar, zoom controls, or a person node, don't pan canvas
+      if (target && target.closest && (target.closest('.pedigree-node') || target.closest('#quick-toolbar') || target.closest('.canvas-controls'))) {
+        return false;
+      }
+
+      state.isPanning = true;
+      hasMoved = false;
+      panStartX = clientX;
+      panStartY = clientY;
+      state.dragStart = { x: clientX - state.panX, y: clientY - state.panY };
+      svg.classList.add('panning');
+      document.body.classList.add('canvas-dragging');
+      return true;
+    }
+
+    function onPointerMove(clientX, clientY) {
       if (state.isPanning) {
-        state.panX = e.clientX - state.dragStart.x;
-        state.panY = e.clientY - state.dragStart.y;
+        const dx = clientX - panStartX;
+        const dy = clientY - panStartY;
+        if (Math.hypot(dx, dy) > 3) {
+          hasMoved = true;
+        }
+        state.panX = clientX - state.dragStart.x;
+        state.panY = clientY - state.dragStart.y;
         updateTransform();
+        updateQuickToolbarPosition();
       } else if (state.draggingId) {
         const member = state.members.find(m => m.id === state.draggingId);
         if (member) {
           const rect = svg.getBoundingClientRect();
-          const svgX = e.clientX - rect.left;
-          const svgY = e.clientY - rect.top;
+          const svgX = clientX - rect.left;
+          const svgY = clientY - rect.top;
           member.x = Math.round((svgX - state.panX) / state.zoom - state.dragOffset.x);
           member.y = Math.round((svgY - state.panY) / state.zoom - state.dragOffset.y);
           renderChart();
         }
       }
-    });
+    }
 
-    window.addEventListener('mouseup', () => {
-      state.isPanning = false;
+    function onPointerUp() {
+      if (state.isPanning) {
+        state.isPanning = false;
+        svg.classList.remove('panning');
+        document.body.classList.remove('canvas-dragging');
+        // If it was just a stationary click on the canvas background, deselect active node
+        if (!hasMoved) {
+          state.selectedId = null;
+          hideQuickToolbar();
+          showCaseInfoPanel();
+          renderChart();
+        }
+      }
       if (state.draggingId) {
         state.draggingId = null;
         computeGenerationsAndIndices();
         renderChart();
       }
+    }
+
+    // Mouse Listeners
+    svg.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      onPointerDown(e.clientX, e.clientY, e.target);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      onPointerMove(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('mouseup', () => {
+      onPointerUp();
+    });
+
+    // Touch Listeners for Tablets & Mobile
+    svg.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        const t = e.touches[0];
+        if (onPointerDown(t.clientX, t.clientY, e.target)) {
+          e.preventDefault();
+        }
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+      if (state.isPanning && e.touches.length === 1) {
+        e.preventDefault();
+        const t = e.touches[0];
+        onPointerMove(t.clientX, t.clientY);
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchend', () => {
+      onPointerUp();
     });
 
     // Zoom via wheel
@@ -1053,7 +1117,7 @@
       e.preventDefault();
       const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
       setZoom(state.zoom * zoomFactor);
-    });
+    }, { passive: false });
 
     // Zoom Buttons
     document.getElementById('btn-zoom-in').addEventListener('click', () => setZoom(state.zoom * 1.15));
@@ -1076,6 +1140,32 @@
   function updateTransform() {
     canvasRoot.setAttribute('transform', `matrix(${state.zoom} 0 0 ${state.zoom} ${state.panX} ${state.panY})`);
     zoomText.textContent = `${Math.round(state.zoom * 100)}%`;
+
+    const gridPattern = document.getElementById('grid-dots');
+    if (gridPattern) {
+      gridPattern.setAttribute('patternTransform', `translate(${state.panX}, ${state.panY}) scale(${state.zoom})`);
+    }
+
+    updateRulerPositions();
+  }
+
+  function updateRulerPositions() {
+    const rulerGens = document.querySelectorAll('.ruler-gen');
+    const existingGens = new Set(state.members.map(m => m.gen));
+    const svgHeight = svg.clientHeight || 800;
+
+    rulerGens.forEach((ruler, idx) => {
+      const genNum = idx + 1;
+      const baseY = GEN_Y[genNum] || (genNum * 150 - 60);
+      const screenY = baseY * state.zoom + state.panY - 13;
+      ruler.style.top = `${screenY}px`;
+
+      if (screenY >= 10 && screenY <= svgHeight - 40 && (existingGens.size === 0 || existingGens.has(genNum) || genNum <= 3)) {
+        ruler.style.opacity = '1';
+      } else {
+        ruler.style.opacity = '0';
+      }
+    });
   }
 
   function startDraggingMember(id, e) {
@@ -1096,12 +1186,66 @@
   }
 
   // =========================================================================
-  // AUTO LAYOUT
+  // THEME MANAGEMENT (DEFAULTS TO LIGHT MODE)
+  // =========================================================================
+  function setupTheme() {
+    const btnTheme = document.getElementById('btn-theme-toggle');
+    const iconSun = document.getElementById('icon-sun');
+    const iconMoon = document.getElementById('icon-moon');
+
+    function setTheme(theme) {
+      state.theme = theme;
+      document.body.setAttribute('data-theme', theme);
+      document.documentElement.setAttribute('data-theme', theme);
+      try {
+        localStorage.setItem('pedigree_theme', theme);
+      } catch (e) {}
+
+      if (theme === 'light') {
+        iconSun.classList.remove('hidden');
+        iconMoon.classList.add('hidden');
+        btnTheme.setAttribute('title', 'Switch to Dark Mode');
+        btnTheme.setAttribute('aria-label', 'Switch to Dark Mode');
+      } else {
+        iconSun.classList.add('hidden');
+        iconMoon.classList.remove('hidden');
+        btnTheme.setAttribute('title', 'Switch to Light Mode');
+        btnTheme.setAttribute('aria-label', 'Switch to Light Mode');
+      }
+    }
+
+    btnTheme.addEventListener('click', () => {
+      const current = document.body.getAttribute('data-theme') || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      setTheme(next);
+      showToast('Theme Changed', `Switched to ${next === 'light' ? 'Light' : 'Dark'} mode`, '🎨');
+    });
+
+    // Check URL parameters, then saved localStorage, default to 'light'
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlTheme = urlParams.get('theme');
+    let savedTheme = null;
+    try {
+      savedTheme = localStorage.getItem('pedigree_theme');
+    } catch (e) {}
+
+    const initialTheme = (urlTheme === 'dark' || urlTheme === 'light')
+      ? urlTheme
+      : (savedTheme === 'dark' || savedTheme === 'light')
+        ? savedTheme
+        : 'light'; // Always defaults to light mode
+
+    setTheme(initialTheme);
+  }
+
+  // =========================================================================
+  // HEADER CONTROLS
   // =========================================================================
   function setupHeaderControls() {
     document.getElementById('btn-auto-layout').addEventListener('click', () => {
       autoLayoutPedigree();
       renderChart();
+      showToast('Auto-Aligned', 'Individuals organized neatly by generation', '✨');
     });
 
     // Export Dropdown
@@ -1125,25 +1269,6 @@
       e.stopPropagation();
       exportDropdown.classList.add('hidden');
       exportPng();
-    });
-
-    // Theme Toggle
-    const btnTheme = document.getElementById('btn-theme-toggle');
-    const iconSun = document.getElementById('icon-sun');
-    const iconMoon = document.getElementById('icon-moon');
-
-    btnTheme.addEventListener('click', () => {
-      const current = document.body.getAttribute('data-theme') || 'dark';
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.body.setAttribute('data-theme', next);
-
-      if (next === 'light') {
-        iconSun.classList.remove('hidden');
-        iconMoon.classList.add('hidden');
-      } else {
-        iconSun.classList.add('hidden');
-        iconMoon.classList.remove('hidden');
-      }
     });
   }
 

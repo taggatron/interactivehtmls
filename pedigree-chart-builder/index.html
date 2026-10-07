@@ -16,7 +16,7 @@
   
   <link rel="stylesheet" href="style.css">
 </head>
-<body data-theme="dark">
+<body data-theme="light">
 
   <!-- =========================================================================
        TOP HEADER: CLEAN, MINIMALIST, HIGH-IMPACT
@@ -94,8 +94,8 @@
         </div>
       </div>
 
-      <button id="btn-theme-toggle" class="btn-icon-only" aria-label="Toggle Theme" title="Toggle Theme">
-        <svg id="icon-sun" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <button id="btn-theme-toggle" class="btn-icon-only" aria-label="Toggle Theme" title="Switch to Dark Mode">
+        <svg id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="5"></circle>
           <line x1="12" y1="1" x2="12" y2="3"></line>
           <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -106,7 +106,7 @@
           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
         </svg>
-        <svg id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg id="icon-moon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
         </svg>
       </button>
@@ -234,6 +234,8 @@
         <div class="ruler-gen"><span>I</span></div>
         <div class="ruler-gen"><span>II</span></div>
         <div class="ruler-gen"><span>III</span></div>
+        <div class="ruler-gen" style="opacity: 0;"><span>IV</span></div>
+        <div class="ruler-gen" style="opacity: 0;"><span>V</span></div>
       </div>
 
       <!-- Main SVG Canvas -->
@@ -245,16 +247,16 @@
         </defs>
 
         <!-- Canvas Background Pattern -->
-        <rect width="100%" height="100%" fill="url(#grid-dots)"></rect>
+        <rect id="canvas-bg-rect" class="svg-bg-grid" width="100%" height="100%" fill="url(#grid-dots)"></rect>
 
         <!-- Transform Root for Smooth Pan & Zoom -->
         <g id="canvas-root" transform="matrix(1 0 0 1 0 0)">
           <!-- Connectors Layer -->
-          <g id="layer-connections"></g>
+          <g id="layer-connections" style="pointer-events: none;"></g>
           <!-- Individuals Layer -->
           <g id="layer-nodes"></g>
           <!-- Interactive Preview Line -->
-          <g id="layer-interaction"></g>
+          <g id="layer-interaction" style="pointer-events: none;"></g>
         </g>
       </svg>
 
